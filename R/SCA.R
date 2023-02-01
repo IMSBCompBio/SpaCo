@@ -10,8 +10,8 @@
 #' @export
 #'
 #' @examples
-SCA_function <- function(SpaCoObject, PC_criterion = "number",
-                         PC_value = 50, orthogonalResult = FALSE)
+SCA_function <- function(SpaCoObject, PC_criterion = "percent",
+                         PC_value = .8, orthogonalResult = FALSE)
 {
   require(pracma)
   require(MASS)
@@ -30,14 +30,13 @@ SCA_function <- function(SpaCoObject, PC_criterion = "number",
     stop("Desired number of PCs must be a positive integer.")
   }
 
-
   #n = Number of Loci; p = number of genes
   data <- SpaCoObject@data
   neighbourindexmatrix <-SpaCoObject@neighbours
   n <- nrow(data)
   p <- ncol(data)
   W <- sum(neighbourindexmatrix)
-  #Input check: Check if number of desired PC or SC number is larger than number of genes
+  #Input check: Check if number of desired number is larger than number of genes
   if(PC_criterion == "number")
   {
     if(PC_value > p)
@@ -46,16 +45,17 @@ SCA_function <- function(SpaCoObject, PC_criterion = "number",
       warning("Desired number of principal components is larger than number of genes. Using number of genes instead.")
     }
   }
-  #Compute Graph Laplacian as
+  #Compute Graph Laplacian
   GraphLaplacian <- -neighbourindexmatrix
   diag(GraphLaplacian) <- rowSums(neighbourindexmatrix)
   GraphLaplacian <- 2 * GraphLaplacian
 
-  #Scale and center Data
+  #Center data
   data_centered <- scale(data, scale = FALSE)
-
+  #Scale data using spatial scalar product
   data_centered_GL_scaled <- t(apply(data_centered, 2, normalizeA, A = GraphLaplacian))
-  VarMatrix <- data_centered_GL_scaled %*% t(data_centered_GL_scaled)
+  #Perform initial PCA for dimension reduction
+  VarMatrix <- (1 / (n - 1)) * data_centered_GL_scaled %*% t(data_centered_GL_scaled)
   InitialPCA <- svd(VarMatrix)
   if(PC_criterion == "percent")
   {
@@ -73,7 +73,7 @@ SCA_function <- function(SpaCoObject, PC_criterion = "number",
   data_reduced <- t(t(data_centered_GL_scaled) %*% InitialPCA$v[,1:nEigenVals])
   #Compute Covariance matrix
   Bx <- var(t(data_reduced))
-  #Computing Geary's C for  principal components
+  # #Computing Geary's C for  principal components
   # PCA_C <- rep(0,nEigenVals)
   # for(k in 1:nEigenVals)
   # {
@@ -85,16 +85,14 @@ SCA_function <- function(SpaCoObject, PC_criterion = "number",
   L_Minus <- diag(1/sqrt(EigenVals))
 
   #Compute numerator of Rayleigh Quotient
-  A_x <- compute_A(X = data_reduced, type = "C",
-                   W_Matrix = neighbourindexmatrix)
+  A_x <- (n-1)/(2*n*W) * data_reduced %*% GraphLaplacian %*% t(data_reduced)
 
   #Compute test statistic matrix
   R_x <- L_Minus %*% A_x %*% t(L_Minus)
 
   #Compute SVD of R_x
   Svd_Rx <- svd(R_x)
-  #Perform dimension reduction by selecting first nGoalVectors principal components
-  #of SVD of test statistic matrix
+  #Reverse order
   PCs_Rx <- Svd_Rx$u[,nEigenVals:1]
   Lambdas <- Svd_Rx$d[nEigenVals:1]
   #Reconstruct selected principal components into original basis before
@@ -112,7 +110,7 @@ SCA_function <- function(SpaCoObject, PC_criterion = "number",
 
   ONB_OriginalBasis <- t(t(ONB) %*% t(InitialPCA$v[,1:nEigenVals]))
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
-  colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
+
   # Spaco_C <- Svd_Rx$d[nEigenVals:1]
   #
   # nSpacos <- min(which(Spaco_C > PCA_C))
@@ -122,11 +120,10 @@ SCA_function <- function(SpaCoObject, PC_criterion = "number",
                      R_x)
   #return(outputList)
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
-  #slot(SpaCoObject, "projection") <- data.frame(Expression = t(ONB_OriginalBasis[,x] %*% data_centered),
-                                               # Locus = rownames(data))
-  warning("computing projections lol")
-  slot(SpaCoObject, "projection") <- apply(ONB_OriginalBasis, function(x) t(x %*% t(scale(data, scale = FALSE))),MARGIN = 2)
+  #print("computing projections this may take a while")
+  #slot(SpaCoObject, "projection") <- apply(ONB_OriginalBasis, function(x) t(x %*% t(scale(data, scale = FALSE))),MARGIN = 2)
   #slot(SpaCoObject, "Lambdas") <- Lambdas
   #slot(SpaCoObject, "R_x") <- R_x
+  slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
   return(SpaCoObject)
 }

@@ -28,10 +28,14 @@ read_10x_for_spaco <- function(data_dir, slice, filename, only_var = TRUE, varia
   }
   if (any(colSums(neighboursindex) == 0)) {
     warning("removing cells without any neighbours in defined distance")
-    data <- data[colSums(neighboursindex) != 0, ]
+    #data <- data[colSums(neighboursindex) != 0 & rowSums(neighboursindex) != 0, ]
     neighboursindex <- neighboursindex[colSums(neighboursindex) != 0, colSums(neighboursindex) != 0]
-    tissue_positions_list[rownames(data),]
+    data <- data[colnames(neighboursindex), ]
+    tissue_positions_list <- tissue_positions_list[rownames(data),]
   }
+
+  LociNames <- colnames(neighboursindex)
+  data <- data[match(LociNames, rownames(data)),]
 
   return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), data_dir <- data_dir, slice <- slice, coordinates<- tissue_positions_list))
 }

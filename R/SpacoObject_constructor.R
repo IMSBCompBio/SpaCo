@@ -6,7 +6,9 @@ setClass("SpaCoObject",
                         data.dir = "character",
                         slice = "character",
                         spacs = "matrix",
-                        projection = "matrix"))
+                        projection = "matrix",
+                        GraphLaplacian="matrix",
+                        Lambdas="vector"))
 
 # Create a constructor function that creates an object of class SpaCoobject
 SpaCoObject <- function(neighbours, data, data.dir, slice, coordinates) {
