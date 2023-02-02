@@ -19,11 +19,11 @@ getGeneScoreParallelWrapper <- function(data_centeredLocal, GraphLaplacianLocal,
   cl = makeCluster(numcores - 2)
   clusterExport(cl, list("data_centeredLocal", "GraphLaplacianLocal", "ONBLocal"), envir = environment())
   clusterEvalQ(cl, {
-    source("SCA.R")
+    source("~/SPACO/R/SCA.R")
     # source("LoadPreprocessData.R")
-    source("AuxiliaryFunctions.R")
+    source("~/SPACO/R/AuxiliaryFunctions.R")
     # source("PlotFunctions.R")
-    source("EvalFunctions.R")
+    source("~/SPACO/R/EvalFunctions.R")
   })
   #Apply Gene Score Function to all genes
   results_all <- t(parSapply(cl, 1:ncol(data_centeredLocal), getGeneScoreParallelFunction))
@@ -44,11 +44,11 @@ getPValuesParallelWrapper <- function(GraphLaplacianLocal, ONBLocal,
   cl = makeCluster(numcores - 2)
   clusterExport(cl, list("GraphLaplacianLocal", "ONBLocal"),envir = environment())
   clusterEvalQ(cl, {
-    source("SCA.R")
+    source("~/SPACO/R/SCA.R")
     # source("LoadPreprocessData.R")
-    source("AuxiliaryFunctions.R")
+    source("~/SPACO/R/AuxiliaryFunctions.R")
     # source("PlotFunctions.R")
-    source("EvalFunctions.R")
+    source("~/SPACO/R/EvalFunctions.R")
   })
   #Simulate genes and get score
   simScores <- parSapply(cl, rep(nrow(GraphLaplacianLocal), nSimLocal), simGeneScoreFunction)

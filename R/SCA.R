@@ -110,7 +110,7 @@ SCA_function <- function(SpaCoObject, PC_criterion = "percent",
 
   ONB_OriginalBasis <- t(t(ONB) %*% t(InitialPCA$v[,1:nEigenVals]))
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
-
+  colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   # Spaco_C <- Svd_Rx$d[nEigenVals:1]
   #
   # nSpacos <- min(which(Spaco_C > PCA_C))
@@ -122,7 +122,7 @@ SCA_function <- function(SpaCoObject, PC_criterion = "percent",
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
   #print("computing projections this may take a while")
   #slot(SpaCoObject, "projection") <- apply(ONB_OriginalBasis, function(x) t(x %*% t(scale(data, scale = FALSE))),MARGIN = 2)
-  #slot(SpaCoObject, "Lambdas") <- Lambdas
+  slot(SpaCoObject, "Lambdas") <- Lambdas
   #slot(SpaCoObject, "R_x") <- R_x
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
   return(SpaCoObject)
