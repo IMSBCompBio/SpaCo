@@ -21,6 +21,22 @@ data <- data[match(LociNames, rownames(data)),]
 return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), data_dir <- data_dir, slice <- slice, coordinates<- tissue_positions_list))
 }
 
-Spaco_to_Seurat <- function(SpaCoObject,weiteres){
+Spaco_to_Seurat <- function(SpaCoObject,Seurat){
+  if(all(colnames(Seurat[[DefaultAssay(Seurat)]])%in%rownames(SpaCoObject@data))==FALSE)
+  {
+    stop("Cells without neighbours in defined distance found in Seurat object. Please subset cells first.")
+  }
 
+  Seurat[["spaco"]] <- CreateDimReducObject(embeddings = SpaCoObject@projection, key = "Spac_", assay = DefaultAssay(Seurat))
+
+  return(Seurat)
 }
+
+subset_non_neighbour_cells <- function(SpaCoObject,Seurat){
+  require(Seurat)
+
+  Seurat <- subset(Seurat, cells = intersect(colnames(Seurat),rownames(SpaCoObject@data)))
+
+  return(Seurat)
+}
+

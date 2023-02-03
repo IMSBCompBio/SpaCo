@@ -120,8 +120,8 @@ SCA_function <- function(SpaCoObject, PC_criterion = "percent",
                      R_x)
   #return(outputList)
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
-  #print("computing projections this may take a while")
-  #slot(SpaCoObject, "projection") <- apply(ONB_OriginalBasis, function(x) t(x %*% t(scale(data, scale = FALSE))),MARGIN = 2)
+  print("computing projections this may take a while")
+  slot(SpaCoObject, "projection") <- t(t(ONB_OriginalBasis) %*% t(data))
   slot(SpaCoObject, "Lambdas") <- Lambdas
   #slot(SpaCoObject, "R_x") <- R_x
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian

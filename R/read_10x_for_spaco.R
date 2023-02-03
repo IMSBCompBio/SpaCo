@@ -37,7 +37,7 @@ read_10x_for_spaco <- function(data_dir, slice, filename, only_var = TRUE, varia
   LociNames <- colnames(neighboursindex)
   data <- data[match(LociNames, rownames(data)),]
 
-  return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), data_dir <- data_dir, slice <- slice, coordinates<- tissue_positions_list))
+  return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates<- tissue_positions_list))
 }
 
 
