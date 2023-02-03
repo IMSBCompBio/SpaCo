@@ -1,17 +1,17 @@
 #' SCA_function
 #'
-#' @param data
-#' @param neighbourindexmatrix
-#' @param PC_criterion
-#' @param PC_value
-#' @param orthogonalResult
-#'
+#' @param data gene expression data matrix; p genes as columns, n loci as rows
+#' @param neighbourindexmatrix n x n matrix showing neighborhood weight of loci
+#' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
+#' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
+#' @param orthogonalResult Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos
+#' @compute_projections Boolean if meta genen projections should be computed. May increas runtime significantly.
 #' @return
 #' @export
 #'
 #' @examples
 SCA_function <- function(SpaCoObject, PC_criterion = "percent",
-                         PC_value = .8, orthogonalResult = FALSE)
+                         PC_value = .8, orthogonalResult = FALSE, compute_projections = F)
 {
   require(pracma)
   require(MASS)
@@ -121,7 +121,10 @@ SCA_function <- function(SpaCoObject, PC_criterion = "percent",
   #return(outputList)
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
   print("computing projections this may take a while")
-  slot(SpaCoObject, "projection") <- t(t(ONB_OriginalBasis) %*% t(data))
+  if (compute_projections) {
+    message("computing projections this may take a while")
+    slot(SpaCoObject, "projection") <- t(t(ONB_OriginalBasis) %*% t(data))
+  }
   slot(SpaCoObject, "Lambdas") <- Lambdas
   #slot(SpaCoObject, "R_x") <- R_x
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
