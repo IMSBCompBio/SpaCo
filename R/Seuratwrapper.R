@@ -15,7 +15,6 @@ seurat_to_spaco <- function(Seurat, assay = "SCT", n_image = 1, slot = "scale.da
      stop("Assay to transform from Seurat is empty.")
    }
 
-  data <- t(as.matrix(GetAssayData(object = Seurat, assay = DefaultAssay(Seurat), slot = "scale.data")))
   tissue_positions_list <- as.data.frame(Seurat@images[[n_image]]@coordinates)
 
   tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
