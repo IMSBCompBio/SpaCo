@@ -1,15 +1,19 @@
-Seurat_to_Spaco <- function(Seurat,assay="SCT"){
-data <- t(as.matrix(GetAssayData(object = Seurat, assay = "assay", slot = "scale.data")))
-tissue_positions_list <- SeuratObject::GetTissueCoordinates(Seurat)
+Seurat_to_Spaco <- function(Seurat,assay="SCT",n.image=1,slot="scale.data"){
+  data <- t(as.matrix(GetAssayData(object = Seurat, assay = DefaultAssay(Seurat), slot = "scale.data")))
+   if(nrow(data) == 0 & ncol(data) == 0){
+     stop("Assay to transform from Seurat is empty.")
+   }
 
-tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
-distm <- as.matrix(dist(tissue_positions_list, method = "euclidean", upper = TRUE))
-diag(distm) <- Inf
-neighboursindex <- distm <= 2
+  data <- t(as.matrix(GetAssayData(object = Seurat, assay = DefaultAssay(Seurat), slot = "scale.data")))
+  tissue_positions_list <- as.data.frame(Seurat@images[[n.image]]@coordinates)
+
+  tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
+  distm <- as.matrix(dist(tissue_positions_list, method = "euclidean", upper = TRUE))
+  diag(distm) <- Inf
+  neighboursindex <- distm <= 2
 
 if (any(colSums(neighboursindex) == 0)) {
   warning("removing cells without any neighbours in defined distance")
-  #data <- data[colSums(neighboursindex) != 0 & rowSums(neighboursindex) != 0, ]
   neighboursindex <- neighboursindex[colSums(neighboursindex) != 0, colSums(neighboursindex) != 0]
   data <- data[colnames(neighboursindex), ]
   tissue_positions_list <- tissue_positions_list[rownames(data),]
@@ -18,7 +22,7 @@ if (any(colSums(neighboursindex) == 0)) {
 LociNames <- colnames(neighboursindex)
 data <- data[match(LociNames, rownames(data)),]
 
-return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), data_dir <- data_dir, slice <- slice, coordinates<- tissue_positions_list))
+return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list))
 }
 
 Spaco_to_Seurat <- function(SpaCoObject,Seurat){
@@ -32,7 +36,7 @@ Spaco_to_Seurat <- function(SpaCoObject,Seurat){
   return(Seurat)
 }
 
-subset_non_neighbour_cells <- function(SpaCoObject,Seurat){
+subset_non_neighbour_cells <- function(SpaCoObject, Seurat){
   require(Seurat)
 
   Seurat <- subset(Seurat, cells = intersect(colnames(Seurat),rownames(SpaCoObject@data)))
