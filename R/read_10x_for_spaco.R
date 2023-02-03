@@ -9,6 +9,7 @@
 #' @export
 #'
 #' @examples
+#' @import Seurat
 read_10x_for_spaco <- function(data_dir, slice, filename, only_var = TRUE, variable_features_n = variable_features_n) {
   require(Seurat)
   data <- Load10X_Spatial(data.dir = data_dir, slice = slice, filename = filename, assay = "RNA", filter.matrix = TRUE)

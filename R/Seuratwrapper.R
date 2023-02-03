@@ -1,3 +1,14 @@
+#' Title
+#'
+#' @param Seurat
+#' @param assay
+#' @param n_image
+#' @param slot
+#'
+#' @return
+#' @export
+#'
+#' @examples
 seurat_to_spaco <- function(Seurat, assay = "SCT", n_image = 1, slot = "scale.data") {
   data <- t(as.matrix(GetAssayData(object = Seurat, assay = DefaultAssay(Seurat), slot = "scale.data")))
    if (nrow(data) == 0 && ncol(data) == 0 ) {
@@ -25,6 +36,15 @@ data <- data[match(LociNames, rownames(data)), ]
 return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list))
 }
 
+#' Title
+#'
+#' @param SpaCoObject
+#' @param Seurat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 spaco_to_seurat <- function(SpaCoObject, Seurat ) {
   if (all(colnames(Seurat[[DefaultAssay(Seurat)]] )%in% rownames(SpaCoObject@data)) == FALSE) {
     stop("Cells without neighbours in defined distance found in Seurat object. Please subset cells first.")
@@ -35,6 +55,15 @@ spaco_to_seurat <- function(SpaCoObject, Seurat ) {
   return(Seurat)
 }
 
+#' Title
+#'
+#' @param SpaCoObject
+#' @param Seurat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 subset_non_neighbour_cells <- function(SpaCoObject, Seurat) {
   require(Seurat)
 

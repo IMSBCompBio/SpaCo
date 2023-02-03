@@ -10,6 +10,11 @@
 #' @export
 #'
 #' @examples
+#' @import pracma
+#' @import MASS
+#' @import dplyr
+#' @import ggplot2
+#'
 SCA_function <- function(SpaCoObject, PC_criterion = "percent",
                          PC_value = .8, orthogonalResult = FALSE, compute_projections = F)
 {

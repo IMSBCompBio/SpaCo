@@ -1,4 +1,13 @@
 library(lsa)
+#' Title
+#'
+#' @param x
+#' @param neighbourindexmatrix
+#'
+#' @return
+#' @export
+#'
+#' @examples
 compute_C <- function(x, neighbourindexmatrix)
 {
   n <- nrow(neighbourindexmatrix)
@@ -11,6 +20,16 @@ compute_C <- function(x, neighbourindexmatrix)
           sum(neighbourindexmatrix[activeIndices] * (x[i] - x[j])^2)) / var(x)
   return(C)
 }
+#' Title
+#'
+#' @param X
+#' @param type
+#' @param W_Matrix
+#'
+#' @return
+#' @export
+#'
+#' @examples
 compute_A <- function(X, type = "C", W_Matrix) {
   stopifnot(type %in% c("C", "I", "1/V"))
   X_length <- ncol(X)
@@ -31,10 +50,28 @@ compute_A <- function(X, type = "C", W_Matrix) {
 
   return(A_x)
 }
+#' Title
+#'
+#' @param x
+#' @param A
+#'
+#' @return
+#' @export
+#'
+#' @examples
 normalizeA <- function(x, A)
 {
   return((x / rep(normA(x, A), length(x))))
 }
+#' Title
+#'
+#' @param x
+#' @param A
+#'
+#' @return
+#' @export
+#'
+#' @examples
 normA <- function(x, A)
 {
   return(sqrt(scalarProductA(x, x, A)))
@@ -46,10 +83,30 @@ scalarProductA <- function(x, y, A)
   preFactor <- (n-1)/(2*n*W)
   return(preFactor * (t(x) %*% A) %*% y)
 }
+#' Title
+#'
+#' @param v
+#' @param u
+#' @param A
+#'
+#' @return
+#' @export
+#'
+#' @examples
 projAFunction <- function(v, u, A)
 {
   return(c(scalarProductA(v, u, A)/scalarProductA(u, u, A)) * u)
 }
+#' Title
+#'
+#' @param v
+#' @param ONB
+#' @param A
+#'
+#' @return
+#' @export
+#'
+#' @examples
 projASubspaceFunction <- function(v, ONB, A)
 {
   n <- nrow(A)
@@ -59,6 +116,16 @@ projASubspaceFunction <- function(v, ONB, A)
   projection <- ONB %*% t(projectionCoeffs)
   return(projection)
 }
+#' Title
+#'
+#' @param X
+#' @param A
+#' @param tol
+#'
+#' @return
+#' @export
+#'
+#' @examples
 orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
 {
   m <- nrow(X)
