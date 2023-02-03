@@ -2,42 +2,27 @@
 % Please edit documentation in R/SCA.R
 \name{SCA_function}
 \alias{SCA_function}
-\title{Title}
+\title{SCA_function}
 \usage{
 SCA_function(
-  data,
-  neighbourindexmatrix,
-  PC_criterion = "number",
-  PC_value = 50,
-  testStatType = "C",
-  SC_criterion = "percent",
-  SC_value = 0.8,
-  orthogonalResult = FALSE
+  SpaCoObject,
+  PC_criterion = "percent",
+  PC_value = 0.8,
+  orthogonalResult = FALSE,
+  compute_projections = F
 )
 }
 \arguments{
-\item{data}{some text}
+\item{PC_criterion}{criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance}
 
-\item{PC_criterion}{some text}
+\item{PC_value}{Value to specify number of PCs or desired level of explained variance, see "PC_criterion"}
 
-\item{PC_value}{some text}
+\item{orthogonalResult}{Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos}
 
-\item{testStatType}{some text}
+\item{data}{gene expression data matrix; p genes as columns, n loci as rows}
 
-\item{SC_criterion}{some text}
-
-\item{SC_value}{some text}
-
-\item{orthogonalResult}{some text}
-
-\item{neighbourindexmatri}{some text}
-}
-\value{
-some return
+\item{neighbourindexmatrix}{n x n matrix showing neighborhood weight of loci}
 }
 \description{
-Title
-}
-\examples{
-some example
+SCA_function
 }
