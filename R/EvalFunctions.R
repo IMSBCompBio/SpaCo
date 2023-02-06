@@ -15,10 +15,10 @@ getSingleGeneScoreA <- function(gene, ONB, A)
 getGeneScoreParallelWrapper <- function(data_centeredLocal, GraphLaplacianLocal, ONBLocal)
 {
   #Cluster Setup
-  numcores = detectCores()
-  cl = makeCluster(numcores - 2)
-  clusterExport(cl, list("data_centeredLocal", "GraphLaplacianLocal", "ONBLocal"), envir = environment())
-  clusterEvalQ(cl, {
+  numcores = parallel::detectCores()
+  cl = parallel::makeCluster(numcores - 2)
+  parallel::clusterExport(cl, list("data_centeredLocal", "GraphLaplacianLocal", "ONBLocal"), envir = environment())
+  parallel::clusterEvalQ(cl, {
     source("~/SPACO/R/SCA.R")
     # source("LoadPreprocessData.R")
     source("~/SPACO/R/AuxiliaryFunctions.R")
@@ -26,8 +26,8 @@ getGeneScoreParallelWrapper <- function(data_centeredLocal, GraphLaplacianLocal,
     source("~/SPACO/R/EvalFunctions.R")
   })
   #Apply Gene Score Function to all genes
-  results_all <- t(parSapply(cl, 1:ncol(data_centeredLocal), getGeneScoreParallelFunction))
-  stopCluster(cl)
+  results_all <- t(parallel::parSapply(cl, 1:ncol(data_centeredLocal), getGeneScoreParallelFunction))
+  parallel::stopCluster(cl)
   #Create output dataframe
   GeneScoresData <- data.frame(Gene = colnames(data_centeredLocal), score = t(results_all))
   return(GeneScoresData)
@@ -40,10 +40,10 @@ getPValuesParallelWrapper <- function(GraphLaplacianLocal, ONBLocal,
                                       nSimLocal, GeneScoresDataLocal)
 {
   #Cluster Setup
-  numcores = detectCores()
-  cl = makeCluster(numcores - 2)
-  clusterExport(cl, list("GraphLaplacianLocal", "ONBLocal"),envir = environment())
-  clusterEvalQ(cl, {
+  numcores = parallel::detectCores()
+  cl = parallel::makeCluster(numcores - 2)
+  parallel::clusterExport(cl, list("GraphLaplacianLocal", "ONBLocal"),envir = environment())
+  parallel::clusterEvalQ(cl, {
     source("~/SPACO/R/SCA.R")
     # source("LoadPreprocessData.R")
     source("~/SPACO/R/AuxiliaryFunctions.R")
@@ -51,8 +51,8 @@ getPValuesParallelWrapper <- function(GraphLaplacianLocal, ONBLocal,
     source("~/SPACO/R/EvalFunctions.R")
   })
   #Simulate genes and get score
-  simScores <- parSapply(cl, rep(nrow(GraphLaplacianLocal), nSimLocal), simGeneScoreFunction)
-  stopCluster(cl)
+  simScores <- parallel::parSapply(cl, rep(nrow(GraphLaplacianLocal), nSimLocal), simGeneScoreFunction)
+  parallel::stopCluster(cl)
   #Order simulated scores and compute p-values as fraction of simulated genes
   #with lower score
   getPVal <- function(geneScore, simScores)
@@ -64,7 +64,7 @@ getPValuesParallelWrapper <- function(GraphLaplacianLocal, ONBLocal,
 }
 simGeneScoreFunction <- function(nSim)
 {
-  simGene <- rnorm(nSim)
+  simGene <- stats::rnorm(nSim)
   return(getSingleGeneScoreA(simGene, ONBLocal, GraphLaplacianLocal))
 }
 

@@ -10,23 +10,19 @@
 #'
 #' @examples
 #' @import Seurat
-read_10x_for_spaco <- function(data_dir, slice, filename, only_var = TRUE, variable_features_n = variable_features_n) {
+read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n) {
   require(Seurat)
   data <- Load10X_Spatial(data.dir = data_dir, slice = slice, filename = filename, assay = "RNA", filter.matrix = TRUE)
-  if (only_var) {
-    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
-  }
+  data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
+  data <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
+
   tissue_positions_list <- read.csv(paste(slice, "tissue_positions_list.csv", sep = "/"), col.names = c("barcode", "tissue", "row", "col", "imagerow", "imagecol"),row.names = 1,
                                     header = FALSE)
   tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
   distm <- as.matrix(dist(tissue_positions_list, method = "euclidean", upper = TRUE))
   diag(distm) <- Inf
   neighboursindex <- distm <= 2
-  if (only_var) {
-    data <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
-  } else {
-    data <- t(as.matrix(GetAssayData(object = data, assay = "RNA", slot = "counts")))
-  }
+
   if (any(colSums(neighboursindex) == 0)) {
     warning("removing cells without any neighbours in defined distance")
     #data <- data[colSums(neighboursindex) != 0 & rowSums(neighboursindex) != 0, ]

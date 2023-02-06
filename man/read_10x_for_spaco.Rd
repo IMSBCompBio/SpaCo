@@ -8,7 +8,6 @@ read_10x_for_spaco(
   data_dir,
   slice,
   filename,
-  only_var = TRUE,
   variable_features_n = variable_features_n
 )
 }
@@ -17,9 +16,9 @@ read_10x_for_spaco(
 
 \item{slice}{Name for the stored image of the tissue slice}
 
-\item{only_var}{Logical True if you want to keep only the most variable features in the SPACO object. Default True.}
-
 \item{variable_features_n}{Number of most variable features to keep.}
+
+\item{only_var}{Logical True if you want to keep only the most variable features in the SPACO object. Default True.}
 }
 \description{
 Read in 10x Visium spatial transcriptomics data

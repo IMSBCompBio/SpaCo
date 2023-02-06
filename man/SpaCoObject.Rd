@@ -7,7 +7,11 @@
 SpaCoObject(neighbours, data, coordinates)
 }
 \arguments{
-\item{coordinates}{}
+\item{neighbours}{Binary matrix with weights describing if cells are to be considered neighbours or not depending on the defined distance.}
+
+\item{data}{Matrix with normalized and scaled gene counts. Rows as cells and genes as columns}
+
+\item{coordinates}{Matri with the cell coordinates on the slides. Rows and Columns in the 10x Visium case.}
 }
 \description{
 Title

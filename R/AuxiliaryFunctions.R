@@ -1,4 +1,3 @@
-library(lsa)
 #' Title
 #'
 #' @param x
@@ -17,7 +16,7 @@ compute_C <- function(x, neighbourindexmatrix)
   i[which(i == 0)] <- n
   j <- ceiling(activeIndices / n)
   C <- (((n - 1) / (2 * n * W)) *
-          sum(neighbourindexmatrix[activeIndices] * (x[i] - x[j])^2)) / var(x)
+          sum(neighbourindexmatrix[activeIndices] * (x[i] - x[j])^2)) / stats::var(x)
   return(C)
 }
 #' Title

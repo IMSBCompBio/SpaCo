@@ -5,18 +5,15 @@
 #' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
 #' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
 #' @param orthogonalResult Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos
-#' @compute_projections Boolean if meta genen projections should be computed. May increas runtime significantly.
+#' @compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
 #' @return
 #' @export
 #'
 #' @examples
-#' @import pracma
-#' @import MASS
-#' @import dplyr
-#' @import ggplot2
 #'
-SCA_function <- function(SpaCoObject, PC_criterion = "percent",
-                         PC_value = .8, orthogonalResult = FALSE, compute_projections = F)
+#'
+RunSCA <- function(SpaCoObject, PC_criterion = "percent",
+                         PC_value = .8, orthogonalResult = FALSE, compute_projections = TRUE)
 {
   require(pracma)
   require(MASS)
@@ -104,14 +101,7 @@ SCA_function <- function(SpaCoObject, PC_criterion = "percent",
   #SVD of test statistic matrix
   PCs_Rx_OriginalBasis <- L_Minus %*% PCs_Rx
 
-  #Create orthogonal basis from transformed PCs
-  if(orthogonalResult)
-  {
-    ONB <- gramSchmidt(PCs_Rx_OriginalBasis)$Q
-  }else
-  {
-    ONB <- PCs_Rx_OriginalBasis
-  }
+  ONB <- PCs_Rx_OriginalBasis
 
   ONB_OriginalBasis <- t(t(ONB) %*% t(InitialPCA$v[,1:nEigenVals]))
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
