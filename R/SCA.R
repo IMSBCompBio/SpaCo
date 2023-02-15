@@ -38,6 +38,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   n <- nrow(data)
   p <- ncol(data)
   W <- sum(neighbourindexmatrix)
+  preFactor <- (n - 1)/(2 * n * W)
   #Input check: Check if number of desired number is larger than number of genes
   if(PC_criterion == "number")
   {
@@ -55,9 +56,10 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  data_centered_GL_scaled <- t(apply(data_centered, 2, normalizeA, A = GraphLaplacian))
+  GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered * (GraphLaplacian %*% data_centered)))
+  data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
-  VarMatrix <- (1 / (n - 1)) * data_centered_GL_scaled %*% t(data_centered_GL_scaled)
+  VarMatrix <- (1 / (n - 1)) * t(data_centered_GL_scaled) %*% data_centered_GL_scaled
   InitialPCA <- svd(VarMatrix)
   if(PC_criterion == "percent")
   {
@@ -72,25 +74,11 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   {
     nEigenVals <- PC_value
   }
-  data_reduced <- t(t(data_centered_GL_scaled) %*% InitialPCA$v[,1:nEigenVals])
-  #Compute Covariance matrix
-  Bx <- var(t(data_reduced))
-  # #Computing Geary's C for  principal components
-  # PCA_C <- rep(0,nEigenVals)
-  # for(k in 1:nEigenVals)
-  # {
-  #   PCA_C[k] <- compute_C(data_reduced[k,], neighbourindexmatrix)
-  # }
-  # PCA_C <- PCA_C[order(PCA_C)]
-  EigenVals <- diag(Bx)
-  L <- diag(sqrt(EigenVals))
-  L_Minus <- diag(1/sqrt(EigenVals))
-
-  #Compute numerator of Rayleigh Quotient
-  A_x <- (n-1)/(2*n*W) * data_reduced %*% GraphLaplacian %*% t(data_reduced)
+  data_reduced <- t(data_centered_GL_scaled %*% InitialPCA$v[,1:nEigenVals])
+  data_reduced <- t(scale(t(data_reduced)))
 
   #Compute test statistic matrix
-  R_x <- L_Minus %*% A_x %*% t(L_Minus)
+  R_x <- preFactor * data_reduced %*% GraphLaplacian %*% t(data_reduced)
 
   #Compute SVD of R_x
   Svd_Rx <- svd(R_x)
@@ -99,11 +87,8 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   Lambdas <- Svd_Rx$d[nEigenVals:1]
   #Reconstruct selected principal components into original basis before
   #SVD of test statistic matrix
-  PCs_Rx_OriginalBasis <- L_Minus %*% PCs_Rx
 
-  ONB <- PCs_Rx_OriginalBasis
-
-  ONB_OriginalBasis <- t(t(ONB) %*% t(InitialPCA$v[,1:nEigenVals]))
+  ONB_OriginalBasis <- t(t(PCs_Rx) %*% t(InitialPCA$v[,1:nEigenVals]))
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
   colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   # Spaco_C <- Svd_Rx$d[nEigenVals:1]
