@@ -95,18 +95,17 @@ plotSpacoProjectionFunction <- function(Spaco, data = data_clean,
 plotSpacoProjectionFunction_objectified <- function(SpaCoObject, pointSize = 5,
                                         customScale = TRUE,spac=1)
 {
-  Spaco=SpaCoObject@spacs[,spac]
+
   data = SpaCoObject@data
   Coordinate_Data = SpaCoObject@coordinates
-  data_centered <- t(scale(data, scale = FALSE))
   GenePlotData <- Coordinate_Data
   GenePlotData$Locus <- rownames(Coordinate_Data)
-  GeneData <- data.frame(Expression = t(Spaco %*% data_centered),
+  GeneData <- data.frame(Expression = SpaCoObject@projection[,spac],
                          Locus = rownames(data))
   Spaco1PlotData <- left_join(GenePlotData, GeneData, by = "Locus")
 
-  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = col, y = row, color = Expression)) +
-    geom_point(size = pointSize, pch = 18) +
+  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = V1, y = V2, color = Expression)) +
+    geom_point(size = pointSize, pch = 15) +
     theme(axis.text.x = element_blank(), axis.text.y = element_blank(),
           axis.ticks = element_blank(), panel.grid = element_blank()) +
     xlab("") + ylab("")
@@ -128,6 +127,30 @@ plotSpacoProjectionFunction_objectified <- function(SpaCoObject, pointSize = 5,
 }
 
 
+plotSpacoProjectionFunction_objectified_raster <- function(SpaCoObject, pointSize = 5,
+                                                    customScale = TRUE,spac=1)
+{
+
+  data = SpaCoObject@data
+  Coordinate_Data = SpaCoObject@coordinates
+  GenePlotData <- Coordinate_Data
+  GenePlotData$Locus <- rownames(Coordinate_Data)
+  GeneData <- data.frame(Expression = SpaCoObject@projection[,spac],
+                         Locus = rownames(data))
+  Spaco1PlotData <- left_join(GenePlotData, GeneData, by = "Locus")
+
+  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = V1, y = V2, color = Expression)) +
+    geom_raster(aes(fill = Expression)) +
+    theme(axis.text.x = element_blank(), axis.text.y = element_blank(),
+          axis.ticks = element_blank(), panel.grid = element_blank()) +
+    xlab("") + ylab("")
+  if(customScale)
+  {
+    Spaco1Plot <- Spaco1Plot +
+      scale_fill_gradientn(colours = viridis::inferno(n=20))
+  }
+  return(Spaco1Plot)
+}
 
 
 
