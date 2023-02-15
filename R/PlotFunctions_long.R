@@ -180,6 +180,7 @@ Spaco_plot <- function(SpaCoObject,spac = 1, ncol = NULL, combine = TRUE)
   return(plots)
 }
 
+.SpatialColors <- colorRampPalette(colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral")))
 
 .singlespacplot <- function(SpaCoObject, i = i) {
   name_arg <- paste0("spac_", i)
@@ -190,8 +191,9 @@ Spaco_plot <- function(SpaCoObject,spac = 1, ncol = NULL, combine = TRUE)
                           sides = 4, r = 3.5, angle = pi / 4, fill = !!as.name(paste0("spac_", i)))) +
   scale_x_continuous(name = NULL, breaks = NULL) +
   scale_y_reverse(name = NULL, breaks = NULL) +
-  rcartocolor::scale_fill_carto_c(name = name_arg,
-                                  type = "diverging", palette = "TealRose") +
+  scale_fill_gradientn(name = name_arg,colours = .SpatialColors(n=100)) +
+  #rcartocolor::scale_fill_carto_c(name = name_arg,
+                               #   type = "diverging", palette = "TealRose") +
   coord_fixed() +
   theme_linedraw(base_size = 10) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
