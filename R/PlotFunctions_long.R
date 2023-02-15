@@ -165,21 +165,36 @@ plotSpacoProjectionFunction_objectified_raster <- function(SpaCoObject, pointSiz
 #' @import ggforce
 #' @import tidyr
 #' @import rcartocolor
-Spaco_plot <- function(SpaCoObject,spac = 1)
+#' @import patchwork
+Spaco_plot <- function(SpaCoObject,spac = 1, ncol = NULL, combine = TRUE)
 {
-  ggplot(data = tibble(
-    tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
-    spac = SpaCoObject@projection[,spac])) +
-    ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
-                            sides = 4, r = 3.5, angle = pi / 4, fill = spac)) +
-    scale_x_continuous(name = NULL, breaks = NULL) +
-    scale_y_reverse(name = NULL, breaks = NULL) +
-    rcartocolor::scale_fill_carto_c(name = "spac",
-                                    type="diverging", palette = "TealRose") +
-    #scale_fill_gradientn(colours = viridis::inferno(n=20)) +
-    coord_fixed() +
-    theme_linedraw(base_size = 10) +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+ plots <- vector(
+    mode = "list",
+    length = length(spac))
+ for (i in spac) {
+  plots[[i]] <- .singlespacplot(SpaCoObject, i = i)
+       }
+ if (combine) {
+  plots <- patchwork::wrap_plots(plots, ncol = ncol, guides = "auto")
+      }
+  return(plots)
 }
 
 
+.singlespacplot <- function(SpaCoObject, i = i) {
+  name_arg <- paste0("spac_", i)
+  singleplot <- ggplot(data = tibble(
+  tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
+  !!paste0("spac_", i) <-  as_tibble(SpaCoObject@projection[, i , drop = FALSE])))  +
+  ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
+                          sides = 4, r = 3.5, angle = pi / 4, fill = !!as.name(paste0("spac_", i)))) +
+  scale_x_continuous(name = NULL, breaks = NULL) +
+  scale_y_reverse(name = NULL, breaks = NULL) +
+  rcartocolor::scale_fill_carto_c(name = name_arg,
+                                  type = "diverging", palette = "TealRose") +
+  coord_fixed() +
+  theme_linedraw(base_size = 10) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
+  return(singleplot)
+
+}
