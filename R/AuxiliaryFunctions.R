@@ -60,7 +60,7 @@ compute_A <- function(X, type = "C", W_Matrix) {
 #' @examples
 normalizeA <- function(x, A)
 {
-  return((x / rep(normA(x, A), length(x))))
+  return((x / c(normA(x, A))))
 }
 #' Title
 #'
@@ -80,7 +80,7 @@ scalarProductA <- function(x, y, A)
   n <- nrow(A)
   W <- -(1/2)*sum(A - diag(diag(A)))
   preFactor <- (n-1)/(2*n*W)
-  return(preFactor * (t(x) %*% A) %*% y)
+  return(preFactor * t(x) %*% A %*% y)
 }
 #' Title
 #'
@@ -106,13 +106,9 @@ projAFunction <- function(v, u, A)
 #' @export
 #'
 #' @examples
-projASubspaceFunction <- function(v, ONB, A)
+projASubspaceFunction <- function(v, projMatrix, preFactor)
 {
-  n <- nrow(A)
-  W <- -(1/2)*sum(A - diag(diag(A)))
-  preFactor <- (n-1)/(2*n*W)
-  projectionCoeffs <- preFactor * t(v) %*% A %*% ONB
-  projection <- ONB %*% t(projectionCoeffs)
+  projection <- preFactor * projMatrix %*% v
   return(projection)
 }
 #' Title
