@@ -95,12 +95,8 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   #
   # nSpacos <- min(which(Spaco_C > PCA_C))
 
-  outputList <- list(ONB_OriginalBasis, Lambdas,
-                     #nSpacos,
-                     R_x)
-  #return(outputList)
+
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
-  print("computing projections this may take a while")
   if (compute_projections) {
     message("computing projections this may take a while")
     slot(SpaCoObject, "projection") <- t(t(ONB_OriginalBasis) %*% t(data))

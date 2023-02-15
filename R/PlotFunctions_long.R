@@ -104,7 +104,7 @@ plotSpacoProjectionFunction_objectified <- function(SpaCoObject, pointSize = 5,
                          Locus = rownames(data))
   Spaco1PlotData <- left_join(GenePlotData, GeneData, by = "Locus")
 
-  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = V1, y = V2, color = Expression)) +
+  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = col, y = row, color = Expression)) +
     geom_point(size = pointSize, pch = 15) +
     theme(axis.text.x = element_blank(), axis.text.y = element_blank(),
           axis.ticks = element_blank(), panel.grid = element_blank()) +
@@ -139,7 +139,7 @@ plotSpacoProjectionFunction_objectified_raster <- function(SpaCoObject, pointSiz
                          Locus = rownames(data))
   Spaco1PlotData <- left_join(GenePlotData, GeneData, by = "Locus")
 
-  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = V1, y = V2, color = Expression)) +
+  Spaco1Plot <- ggplot(Spaco1PlotData, aes(x = col, y = row, color = Expression)) +
     geom_raster(aes(fill = Expression)) +
     theme(axis.text.x = element_blank(), axis.text.y = element_blank(),
           axis.ticks = element_blank(), panel.grid = element_blank()) +
@@ -152,5 +152,34 @@ plotSpacoProjectionFunction_objectified_raster <- function(SpaCoObject, pointSiz
   return(Spaco1Plot)
 }
 
+#' Title
+#'
+#' @param SpaCoObject SpacoObject with computed projections
+#' @param spac Spatial component to plot
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @import ggplot2
+#' @import ggforce
+#' @import tidyr
+#' @import rcartocolor
+Spaco_plot <- function(SpaCoObject,spac = 1)
+{
+  ggplot(data = tibble(
+    tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
+    spac = SpaCoObject@projection[,spac])) +
+    ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
+                            sides = 4, r = 3.5, angle = pi / 4, fill = spac)) +
+    scale_x_continuous(name = NULL, breaks = NULL) +
+    scale_y_reverse(name = NULL, breaks = NULL) +
+    rcartocolor::scale_fill_carto_c(name = "spac",
+                                    type="diverging", palette = "TealRose") +
+    #scale_fill_gradientn(colours = viridis::inferno(n=20)) +
+    coord_fixed() +
+    theme_linedraw(base_size = 10) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+}
 
 
