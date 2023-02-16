@@ -10,11 +10,23 @@
 #'
 #' @examples
 #' @import Seurat
-read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n,spatial_file = "tissue_positions_list.csv") {
+read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n,spatial_file = "tissue_positions_list.csv",vars_to_regress = NULL) {
   require(Seurat)
-  data <- Load10X_Spatial(data.dir = data_dir, slice = slice, filename = filename, assay = "RNA", filter.matrix = TRUE)
+  data <- Seurat::Load10X_Spatial(data.dir = data_dir, slice = slice, filename = filename, assay = "RNA", filter.matrix = TRUE )
+
+ if(is.null(vars_to_regress)){
+    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
+  }
+  else {
+    for (i in 1:length(vars_to_regress)) {
+      data <- Seurat::PercentageFeatureSet(data, pattern = vars_to_regress[i],col.name = make.names(paste0("percent",vars_to_regress[i])))
+          }
+    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n, vars.to.regress = make.names(paste0("percent",vars_to_regress)))
+  }
+
+
   pixel_positions_list <- GetTissueCoordinates(data)
-  data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
+
   data <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
 
   tissue_positions_list <- read.csv(paste(slice, spatial_file, sep = "/"), col.names = c("barcode", "tissue", "row", "col", "imagerow", "imagecol"),row.names = 1,
