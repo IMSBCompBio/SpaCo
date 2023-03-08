@@ -4,7 +4,7 @@
 \alias{projASubspaceFunction}
 \title{Title}
 \usage{
-projASubspaceFunction(v, ONB, A)
+projASubspaceFunction(v, projMatrix, preFactor)
 }
 \arguments{
 \item{A}{}

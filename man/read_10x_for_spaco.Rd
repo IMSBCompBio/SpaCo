@@ -8,7 +8,9 @@ read_10x_for_spaco(
   data_dir,
   slice,
   filename,
-  variable_features_n = variable_features_n
+  variable_features_n = variable_features_n,
+  spatial_file = spatial_file,
+  vars_to_regress = NULL
 )
 }
 \arguments{

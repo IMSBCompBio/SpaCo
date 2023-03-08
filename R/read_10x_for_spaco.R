@@ -10,9 +10,9 @@
 #'
 #' @examples
 #' @import Seurat
-read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n,spatial_file = "tissue_positions_list.csv",vars_to_regress = NULL) {
+read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n, spatial_file = spatial_file, vars_to_regress = NULL) {
   require(Seurat)
-  data <- Seurat::Load10X_Spatial(data.dir = data_dir, slice = slice, filename = filename, assay = "RNA", filter.matrix = TRUE )
+  data <- Seurat::Load10X_Spatial(data.dir = data_dir, filename = filename, assay = "RNA", filter.matrix = TRUE )
 
  if(is.null(vars_to_regress)){
     data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
@@ -30,7 +30,7 @@ read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = 
   data <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
 
   tissue_positions_list <- read.csv(paste(slice, spatial_file, sep = "/"), col.names = c("barcode", "tissue", "row", "col", "imagerow", "imagecol"),row.names = 1,
-                                    header = FALSE)
+                                    header = TRUE)
 
   tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
   distm <- as.matrix(dist(tissue_positions_list, method = "euclidean", upper = TRUE))
@@ -47,6 +47,7 @@ read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = 
 
   LociNames <- colnames(neighboursindex)
   data <- data[match(LociNames, rownames(data)),]
+  pixel_positions_list <- pixel_positions_list[match(LociNames, rownames(pixel_positions_list)),]
 
   SpaCoObject <- SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list)
   slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(pixel_positions_list)

@@ -143,3 +143,82 @@ orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
   }
   return(list(Q = Q))
 }
+#' compute_nSpacs
+#'
+#' @param SpacoObject
+#' @param nSim number of simulations i.e. random permutation matrices
+#' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
+#' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
+#' @param SpacQuantile quantile of simulated Spac distribution used for determining cutoff
+#'
+#' @return
+#' @export
+#'
+#' @examples
+compute_nSpacs <- function(SpacoObject, nSim, PC_criterion = "percent",
+                           PC_value = .9, SpacQuantile = 0.5)
+{
+  require(parallel)
+  data = SpacoObject@data
+  neighbours = SpacoObject@neighbours
+  GraphLaplacian = SpacoObject@GraphLaplacian
+  Lambdas = SpacoObject@Lambdas
+  GraphLaplacian <- SpacoObject@GraphLaplacian
+  n <- nrow(data)
+  p <- ncol(data)
+  W <- sum(neighbours)
+  preFactor <- (n - 1)/(2 * n * W)
+  #Input check: Check if number of desired number is larger than number of genes
+  if(PC_criterion == "number")
+  {
+    if(PC_value > p)
+    {
+      PC_value <- p
+      warning("Desired number of principal components is larger than number of genes. Using number of genes instead.")
+    }
+  }
+  #Center data
+  data_centered <- scale(data, scale = FALSE)
+  #Scale data using spatial scalar product
+  GeneANorms <- sqrt(preFactor * colSums(data_centered * (GraphLaplacian %*% data_centered)))
+  data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
+  #Perform initial PCA for dimension reduction
+  VarMatrix <- (1 / (n - 1)) * t(data_centered_GL_scaled) %*% data_centered_GL_scaled
+  InitialPCA <- svd(VarMatrix)
+  if(PC_criterion == "percent")
+  {
+    if(PC_value == 1)
+    {
+      nEigenVals <- p
+    }else
+    {
+      nEigenVals <- min(which(cumsum(InitialPCA$d)/sum(InitialPCA$d) > PC_value))
+    }
+  }else
+  {
+    nEigenVals <- PC_value
+  }
+  data_reduced <- t(data_centered_GL_scaled %*% InitialPCA$v[,1:nEigenVals])
+  data_reduced <- t(scale(t(data_reduced)))
+  simSpacCFunction <- function(i)
+  {
+    shuffleOrder <- sample(ncol(GraphLaplacian), ncol(GraphLaplacian))
+    permutationMatrix <- diag(length(shuffleOrder))[shuffleOrder,]
+    R_x_Shuffled <- preFactor * data_reduced %*% t(permutationMatrix) %*%
+      GraphLaplacian %*% permutationMatrix %*% t(data_reduced)
+    Svd_Rx_Shuffled <- svd(R_x_Shuffled)
+    return(Svd_Rx_Shuffled$d[length(Svd_Rx_Shuffled$d)])
+  }
+  numcores = detectCores()
+  cl = makeCluster(numcores - 3)
+  clusterExport(cl,
+                list("data_reduced", "GraphLaplacian",
+                     "simSpacCFunction", "preFactor"),
+                envir = environment())
+  #Apply Gene Score Function to all genes
+  results_all <- t(parSapply(cl, 1:nSim, simSpacCFunction))
+  stopCluster(cl)
+
+  nSpacs <- min(which(Lambdas > quantile(results_all, SpacQuantile)))
+  return(nSpacs)
+}

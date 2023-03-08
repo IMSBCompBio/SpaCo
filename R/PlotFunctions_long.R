@@ -186,7 +186,7 @@ Spaco_plot <- function(SpaCoObject,spac = 1, ncol = NULL, combine = TRUE)
   name_arg <- paste0("spac_", i)
   singleplot <- ggplot(data = tibble(
   tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
-  !!paste0("spac_", i) <-  as_tibble(SpaCoObject@projection[, i , drop = FALSE])))  +
+  !!paste0("spac_", i) <-  as_tibble(SpaCoObject@projection[, i , drop = FALSE],rownames=NA)))  +
   ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
                           sides = 4, r = 3.5, angle = pi / 4, fill = !!as.name(paste0("spac_", i)))) +
   scale_x_continuous(name = NULL, breaks = NULL) +

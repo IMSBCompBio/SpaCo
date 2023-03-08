@@ -1,7 +1,7 @@
-PValWrapperFunction <- function(data, SpacoResult, GraphLaplacian, nSim = 1e3)
+PValWrapperFunction <- function(data, SpacoResult, nSpacs, GraphLaplacian, nSim = 1e3)
 {
   Spacos <- SpacoResult[[1]]
-  Spacos <- Spacos[,1:max(which(SpacoResult[[2]] < 0.5))]
+  Spacos <- Spacos[,1:nSpacs]
   #Compute metagene expression profiles
   SpacoProjection <- t(t(Spacos) %*% t(data))
   #Create orthonormal basis for metagene space
@@ -15,11 +15,11 @@ PValWrapperFunction <- function(data, SpacoResult, GraphLaplacian, nSim = 1e3)
   return(GeneScoresDataP)
 }
 
-PValWrapperFunction_object <- function(SpaCoObject, nSim = 1e3)
+PValWrapperFunction_object <- function(SpaCoObject, nSpacs, nSim = 1e3)
 {
   data <- SpaCoObject@data
   Spacos <- SpaCoObject@spacs
-  Spacos <- Spacos[,1:max(which(SpaCoObject@Lambdas < 0.5))]
+  Spacos <- Spacos[,1:nSpacs]
   #Compute metagene expression profiles
   SpacoProjection <- t(t(Spacos) %*% t(data))
   #Create orthonormal basis for metagene space
@@ -30,5 +30,22 @@ PValWrapperFunction_object <- function(SpaCoObject, nSim = 1e3)
   GeneScoresData <- getGeneScoreParallelWrapper(data_centered, SpaCoObject@GraphLaplacian, ONB)
   GeneScoresDataP <- getPValuesParallelWrapper(SpaCoObject@GraphLaplacian, ONB,
                                                nSim = nSim, GeneScoresData)
+  return(GeneScoresDataP)
+}
+
+PValWrapperFunction_object_new <- function(SpaCoObject, nSpacs, nSim = 1e3)
+{
+  data <- SpaCoObject@data
+  Spacos <- SpaCoObject@spacs
+  Spacos <- Spacos[,1:nSpacs]
+  #Compute metagene expression profiles
+  SpacoProjection <- t(t(Spacos) %*% t(data))
+  #Create orthonormal basis for metagene space
+  ONB <- orthogonalizeA(SpacoProjection, SpaCoObject@GraphLaplacian)$Q
+  #Center data regarding A-norm
+  data_centered <- apply(data, 2, normalizeA, A = SpaCoObject@GraphLaplacian)
+
+  GeneScoresDataP <- getPScoreParallelWrapper(data_centered, SpaCoObject@GraphLaplacian, ONB,
+                                              nSim = nSim, TRUE)
   return(GeneScoresDataP)
 }
