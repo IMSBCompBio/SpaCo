@@ -9,7 +9,8 @@ setClass("SpaCoObject",
                         spacs = "matrix",
                         projection = "matrix",
                         GraphLaplacian="matrix",
-                        Lambdas="vector"))
+                        Lambdas="vector",
+                        nSpacs ="integer"))
 
 # Create a constructor function that creates an object of class SpaCoobject
 #' Title

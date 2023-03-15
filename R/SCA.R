@@ -5,7 +5,10 @@
 #' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
 #' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
 #' @param orthogonalResult Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos
-#' @compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
+#' @param compute_nSpacs Boolean if number of relevant spacs is to be computed. Increases run time significantly
+#' @param compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
+#' @param nSim Number of simulations for computation of spac number
+#' @param nSpacQuantile Quantile to use as cutoff for spac number
 #' @return
 #' @export
 #'
@@ -13,13 +16,18 @@
 #'
 #'
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
-                         PC_value = .8, orthogonalResult = FALSE, compute_projections = TRUE)
+                   PC_value = .8, orthogonalResult = FALSE, compute_nSpacs = FALSE,
+                   compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.5)
 {
   require(pracma)
   require(MASS)
   require(dplyr)
   require(ggplot2)
-   if(!PC_criterion %in% c("percent", "number"))
+  require(Rcpp)
+  require(RcppEigen)
+  require(rARPACK)
+  sourceCpp("Rcpp_Functions.cpp")
+  if(!PC_criterion %in% c("percent", "number"))
   {
     stop("PC_criterion must be either \"percent\" or \"number\".")
   }
@@ -56,10 +64,11 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered * (GraphLaplacian %*% data_centered)))
+  GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered *
+                                                     eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
-  VarMatrix <- (1 / (n - 1)) * t(data_centered_GL_scaled) %*% data_centered_GL_scaled
+  VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
   InitialPCA <- svd(VarMatrix)
   if(PC_criterion == "percent")
   {
@@ -74,11 +83,11 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   {
     nEigenVals <- PC_value
   }
-  data_reduced <- t(data_centered_GL_scaled %*% InitialPCA$v[,1:nEigenVals])
+  data_reduced <- t(eigenMapMatMult(data_centered_GL_scaled, InitialPCA$v[,1:nEigenVals]))
   data_reduced <- t(scale(t(data_reduced)))
 
   #Compute test statistic matrix
-  R_x <- preFactor * data_reduced %*% GraphLaplacian %*% t(data_reduced)
+  R_x <- preFactor * eigenMapMatMult(data_reduced, eigenMapMatMult(GraphLaplacian, t(data_reduced)))
 
   #Compute SVD of R_x
   Svd_Rx <- svd(R_x)
@@ -87,6 +96,25 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   Lambdas <- Svd_Rx$d[nEigenVals:1]
   #Reconstruct selected principal components into original basis before
   #SVD of test statistic matrix
+
+  if(compute_nSpacs)
+  {
+    GLSvd <- svd(GraphLaplacian)
+    L <- eigenMapMatMult(GLSvd$u, diag(sqrt(GLSvd$d)))
+    simSpacCFunction <- function(i)
+    {
+      shuffleOrder <- sample(ncol(GraphLaplacian), ncol(GraphLaplacian))
+      tmpMat <- eigenMapMatMult(data_reduced[,shuffleOrder], L)
+      R_x_Shuffled <- eigenMapMatMult(tmpMat, t(tmpMat)) * preFactor
+      smallestEigVal <- eigs_sym(R_x_Shuffled, 1, which = "SM")$values
+      return(smallestEigVal)
+    }
+    #Sample nSim minimal projection eigenvalues
+    results_all <- t(sapply(1:nSim, simSpacCFunction))
+
+    nSpacs <- min(which(Lambdas > quantile(results_all, nSpacQuantile)))
+    slot(SpaCoObject, "nSpacs") <- nSpacs
+  }
 
   ONB_OriginalBasis <- t(t(PCs_Rx) %*% t(InitialPCA$v[,1:nEigenVals]))
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
@@ -99,7 +127,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
   if (compute_projections) {
     message("computing projections this may take a while")
-    slot(SpaCoObject, "projection") <- t(t(ONB_OriginalBasis) %*% t(data))
+    slot(SpaCoObject, "projection") <- t(eigenMapMatMult(t(ONB_OriginalBasis), t(data)))
   }
   slot(SpaCoObject, "Lambdas") <- Lambdas
   #slot(SpaCoObject, "R_x") <- R_x
