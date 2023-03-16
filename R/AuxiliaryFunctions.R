@@ -222,3 +222,21 @@ compute_nSpacs <- function(SpacoObject, nSim, PC_criterion = "percent",
   nSpacs <- min(which(Lambdas > quantile(results_all, SpacQuantile)))
   return(nSpacs)
 }
+
+
+#' Title
+#'
+#' @param SpaCoObject Spaco object to compute profiles of
+#' @param nSpacs number of spac's to use to compute the smoothed profiles. Should be determined by the compute_nSpacs function.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+compute_smoothed_profiles <- function(SpaCoObject, nSpacs) {
+smoothed <- SpaCoObject@spacs %*% t(SpaCoObject@projection)
+slot(SpaCoObject,"smoothed") <- as.data.frame(t(smoothed))
+return(SpaCoObject)
+}
+
+
