@@ -58,9 +58,9 @@ compute_A <- function(X, type = "C", W_Matrix) {
 #' @export
 #'
 #' @examples
-normalizeA <- function(x, A)
+normalizeA <- function(x, A, preFactor)
 {
-  return((x / c(normA(x, A))))
+  return((x / c(normA(x, A, preFactor))))
 }
 #' Title
 #'
@@ -71,15 +71,12 @@ normalizeA <- function(x, A)
 #' @export
 #'
 #' @examples
-normA <- function(x, A)
+normA <- function(x, A, preFactor)
 {
-  return(sqrt(scalarProductA(x, x, A)))
+  return(sqrt(scalarProductA(x, x, A, preFactor)))
 }
-scalarProductA <- function(x, y, A)
+scalarProductA <- function(x, y, A, preFactor)
 {
-  n <- nrow(A)
-  W <- -(1/2)*sum(A - diag(diag(A)))
-  preFactor <- (n-1)/(2*n*W)
   return(preFactor * t(x) %*% A %*% y)
 }
 #' Title
@@ -92,9 +89,10 @@ scalarProductA <- function(x, y, A)
 #' @export
 #'
 #' @examples
-projAFunction <- function(v, u, A)
+projAFunction <- function(v, u, A, preFactor)
 {
-  return(c(scalarProductA(v, u, A)/scalarProductA(u, u, A)) * u)
+  return(c(scalarProductA(v, u, A, preFactor)/
+             scalarProductA(u, u, A, preFactor)) * u)
 }
 #' Title
 #'
@@ -108,7 +106,7 @@ projAFunction <- function(v, u, A)
 #' @examples
 projASubspaceFunction <- function(v, projMatrix, preFactor)
 {
-  projection <- preFactor * projMatrix %*% v
+  projection <- preFactor * eigenMapMatMult(projMatrix, v)
   return(projection)
 }
 #' Title
@@ -123,6 +121,9 @@ projASubspaceFunction <- function(v, projMatrix, preFactor)
 #' @examples
 orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
 {
+  n <- nrow(A)
+  W <- -(1/2)*sum(A - diag(diag(A)))
+  preFactor <- (n-1)/(2*n*W)
   m <- nrow(X)
   n <- ncol(X)
   if (m < n)
@@ -133,10 +134,10 @@ orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
     Q[, k] <- X[, k]
     if (k > 1) {
       for (i in 1:(k - 1)) {
-        Q[, k] <- Q[, k] - projAFunction(Q[, k], Q[, i], A)
+        Q[, k] <- Q[, k] - projAFunction(Q[, k], Q[, i], A, preFactor)
       }
     }
-    Norms[k]  <- normA(Q[, k], A)
+    Norms[k]  <- normA(Q[, k], A, preFactor)
     if (abs(Norms[k]) <= tol)
       stop("Matrix 'A' does not have full rank.")
     Q[, k] <- Q[, k] / c(Norms[k])
@@ -156,9 +157,13 @@ orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
 #'
 #' @examples
 compute_nSpacs <- function(SpacoObject, nSim, PC_criterion = "percent",
-                           PC_value = .9, SpacQuantile = 0.5)
+                           PC_value = .8, SpacQuantile = 0.5)
 {
   require(parallel)
+  require(rARPACK)
+  require(Rcpp)
+  require(RcppEigen)
+  sourceCpp("Rcpp_Functions.cpp")
   data = SpacoObject@data
   neighbours = SpacoObject@neighbours
   GraphLaplacian = SpacoObject@GraphLaplacian
@@ -180,10 +185,10 @@ compute_nSpacs <- function(SpacoObject, nSim, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt(preFactor * colSums(data_centered * (GraphLaplacian %*% data_centered)))
+  GeneANorms <- sqrt(preFactor * colSums(data_centered * eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
-  VarMatrix <- (1 / (n - 1)) * t(data_centered_GL_scaled) %*% data_centered_GL_scaled
+  VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
   InitialPCA <- svd(VarMatrix)
   if(PC_criterion == "percent")
   {
@@ -198,26 +203,20 @@ compute_nSpacs <- function(SpacoObject, nSim, PC_criterion = "percent",
   {
     nEigenVals <- PC_value
   }
-  data_reduced <- t(data_centered_GL_scaled %*% InitialPCA$v[,1:nEigenVals])
+  data_reduced <- t(eigenMapMatMult(data_centered_GL_scaled, InitialPCA$v[,1:nEigenVals]))
   data_reduced <- t(scale(t(data_reduced)))
+  GLSvd <- svd(GraphLaplacian)
+  L <- eigenMapMatMult(GLSvd$u, diag(sqrt(GLSvd$d)))
   simSpacCFunction <- function(i)
   {
     shuffleOrder <- sample(ncol(GraphLaplacian), ncol(GraphLaplacian))
-    permutationMatrix <- diag(length(shuffleOrder))[shuffleOrder,]
-    R_x_Shuffled <- preFactor * data_reduced %*% t(permutationMatrix) %*%
-      GraphLaplacian %*% permutationMatrix %*% t(data_reduced)
-    Svd_Rx_Shuffled <- svd(R_x_Shuffled)
-    return(Svd_Rx_Shuffled$d[length(Svd_Rx_Shuffled$d)])
+    tmpMat <- eigenMapMatMult(data_reduced[,shuffleOrder], L)
+    R_x_Shuffled <- eigenMapMatMult(tmpMat, t(tmpMat)) * preFactor
+    smallestEigVal <- eigs_sym(R_x_Shuffled, 1, which = "SM")$values
+    return(smallestEigVal)
   }
-  numcores = detectCores()
-  cl = makeCluster(numcores - 3)
-  clusterExport(cl,
-                list("data_reduced", "GraphLaplacian",
-                     "simSpacCFunction", "preFactor"),
-                envir = environment())
-  #Apply Gene Score Function to all genes
-  results_all <- t(parSapply(cl, 1:nSim, simSpacCFunction))
-  stopCluster(cl)
+  #Sample nSim minimal projection eigenvalues
+  results_all <- t(sapply(1:nSim, simSpacCFunction))
 
   nSpacs <- min(which(Lambdas > quantile(results_all, SpacQuantile)))
   return(nSpacs)

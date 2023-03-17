@@ -5,6 +5,9 @@
 .RDS
 .Rhistory
 .Rapp.history
+data_for_david/
+R/ThesisPlots/
+LoadPreprocessData.R
 
 # Session Data files
 .RData
