@@ -10,8 +10,10 @@ setClass("SpaCoObject",
                         projection = "matrix",
                         GraphLaplacian="matrix",
                         Lambdas="vector",
-                        nSpacs ="integer"))
+                        nSpacs ="integer",
+                        smoothed = "data.frame"))
 
+                     
 # Create a constructor function that creates an object of class SpaCoobject
 #' Title
 #'

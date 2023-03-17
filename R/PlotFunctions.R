@@ -200,3 +200,54 @@ Spaco_plot <- function(SpaCoObject,spac = 1, ncol = NULL, combine = TRUE)
   return(singleplot)
 
 }
+
+#' Title
+#'
+#' @param SpaCoObject SpacoObject with computed projections
+#' @param spac Spatial component to plot
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @import ggplot2
+#' @import ggforce
+#' @import tidyr
+#' @import rcartocolor
+#' @import patchwork
+smoothed_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
+{
+  plots <- vector(
+    mode = "list",
+    length = length(features))
+  for (i in 1:length(features)) {
+    plots[[i]] <- .singlesmoothedprojectionplot(SpaCoObject, i = i, features)
+  }
+  if (combine) {
+    plots <- patchwork::wrap_plots(plots, ncol = ncol, guides = "auto")
+  }
+  return(plots)
+}
+
+
+.singlesmoothedprojectionplot <- function(SpaCoObject, i = i, features) {
+  name_arg <- features[i]
+  singleplot <- ggplot(data = tibble(
+    tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
+    as_tibble(SpaCoObject@smoothed[ ,features[i]  , drop = FALSE],rownames=NA)))  +
+    ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
+                            sides = 4,r =1, angle = pi / 4, fill = !!as.symbol(paste0(features[i])))) +
+    scale_x_continuous(name = NULL, breaks = NULL) +
+    scale_y_reverse(name = NULL, breaks = NULL) +
+    scale_fill_gradientn(name = name_arg,colours = .SpatialColors(n=100)) +
+    #rcartocolor::scale_fill_carto_c(name = name_arg,
+    #   type = "diverging", palette = "TealRose") +
+    coord_fixed() +
+    theme_linedraw(base_size = 10) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
+  return(singleplot)
+
+}
+
+
+
