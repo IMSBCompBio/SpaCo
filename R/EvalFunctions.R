@@ -116,6 +116,6 @@ getPScoreSerialWrapper <- function(data_centered, GraphLaplacian, ONB, nSim,
   genePScoreData <- data.frame(Gene = colnames(data_centered),
                                score = results_all[,1],
                                pVal = results_all[,2],
-                               pAdjust = p.adjust(results_all[,2],method = "bonferroni"))
+                               pAdjust = p.adjust(results_all[,2],method = "hochberg"))
   return(genePScoreData)
 }

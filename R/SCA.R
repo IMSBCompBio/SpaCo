@@ -26,7 +26,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   require(Rcpp)
   require(RcppEigen)
   require(rARPACK)
-  sourceCpp("Rcpp_Functions.cpp")
+  sourceCpp("~/SPACO/Rcpp_Functions.cpp", verbose = FALSE, showOutput= FALSE)
   if(!PC_criterion %in% c("percent", "number"))
   {
     stop("PC_criterion must be either \"percent\" or \"number\".")
@@ -128,6 +128,8 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   if (compute_projections) {
     message("computing projections this may take a while")
     slot(SpaCoObject, "projection") <- t(eigenMapMatMult(t(ONB_OriginalBasis), t(data)))
+    rownames(SpaCoObject@projection) <- rownames(data_centered)
+    colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   }
   slot(SpaCoObject, "Lambdas") <- Lambdas
   #slot(SpaCoObject, "R_x") <- R_x

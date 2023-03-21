@@ -16,7 +16,7 @@ PValWrapperFunction <- function(data, SpacoResult, nSpacs, GraphLaplacian, nSim 
 }
 PValWrapperFunction_object <- function(SpaCoObject, nSpacs, nSim = 1e3)
 {
-  sourceCpp("Rcpp_Functions.cpp")
+  sourceCpp("~/SPACO/Rcpp_Functions.cpp",verbose = FALSE)
   data <- SpaCoObject@data
   Spacos <- SpaCoObject@spacs
   Spacos <- Spacos[,1:nSpacs]
@@ -29,7 +29,7 @@ PValWrapperFunction_object <- function(SpaCoObject, nSpacs, nSim = 1e3)
   ONB <- orthogonalizeA(SpacoProjection, SpaCoObject@GraphLaplacian)$Q
   #Center data regarding A-norm
   data_centered <- scale(apply(data, 2, normalizeA, A = SpaCoObject@GraphLaplacian, preFactor), scale = FALSE)
-
+  message("computing emprirical p-values")
   GeneScoresDataP <- getPScoreSerialWrapper(data_centered, SpaCoObject@GraphLaplacian, ONB,
                                               nSim = nSim, TRUE)
   return(GeneScoresDataP)
