@@ -10,6 +10,7 @@ License: Do the fuck you want with it license.
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
+LinkingTo: Rcpp, RcppEigen
 Imports: 
     dplyr,
     ggplot2,
@@ -17,4 +18,8 @@ Imports:
     MASS,
     parallel,
     pracma,
-    Seurat
+    Seurat,
+    Rcpp (>= 1.0.10),
+    RcppArmadillo,
+    RcppEigen,
+    tibble

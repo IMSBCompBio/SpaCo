@@ -4,7 +4,7 @@
 \alias{normA}
 \title{Title}
 \usage{
-normA(x, A)
+normA(x, A, preFactor)
 }
 \arguments{
 \item{A}{}

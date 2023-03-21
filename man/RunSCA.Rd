@@ -9,7 +9,10 @@ RunSCA(
   PC_criterion = "percent",
   PC_value = 0.8,
   orthogonalResult = FALSE,
-  compute_projections = TRUE
+  compute_nSpacs = FALSE,
+  compute_projections = TRUE,
+  nSim = 1000,
+  nSpacQuantile = 0.5
 )
 }
 \arguments{
@@ -18,6 +21,14 @@ RunSCA(
 \item{PC_value}{Value to specify number of PCs or desired level of explained variance, see "PC_criterion"}
 
 \item{orthogonalResult}{Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos}
+
+\item{compute_nSpacs}{Boolean if number of relevant spacs is to be computed. Increases run time significantly}
+
+\item{compute_projections}{Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE}
+
+\item{nSim}{Number of simulations for computation of spac number}
+
+\item{nSpacQuantile}{Quantile to use as cutoff for spac number}
 
 \item{data}{gene expression data matrix; p genes as columns, n loci as rows}
 

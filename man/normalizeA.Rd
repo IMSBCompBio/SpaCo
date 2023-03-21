@@ -4,7 +4,7 @@
 \alias{normalizeA}
 \title{Title}
 \usage{
-normalizeA(x, A)
+normalizeA(x, A, preFactor)
 }
 \arguments{
 \item{A}{}

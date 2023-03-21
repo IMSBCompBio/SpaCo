@@ -4,7 +4,7 @@
 \alias{projAFunction}
 \title{Title}
 \usage{
-projAFunction(v, u, A)
+projAFunction(v, u, A, preFactor)
 }
 \arguments{
 \item{A}{}

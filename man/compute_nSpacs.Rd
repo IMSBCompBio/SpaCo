@@ -8,7 +8,7 @@ compute_nSpacs(
   SpacoObject,
   nSim,
   PC_criterion = "percent",
-  PC_value = 0.9,
+  PC_value = 0.8,
   SpacQuantile = 0.5
 )
 }
