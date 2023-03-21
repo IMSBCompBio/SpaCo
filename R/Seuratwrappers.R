@@ -71,11 +71,6 @@ subset_non_neighbour_cells <- function(SpaCoObject, Seurat) {
   return(Seurat)
 }
 
-
-
-
-
-
 #' runSCA_for_uMAP
 #'
 #' @param SeuratObject
@@ -84,7 +79,7 @@ subset_non_neighbour_cells <- function(SpaCoObject, Seurat) {
 #' @export
 #'
 #' @examples
-runSCA_for_uMAP <- function(Seurat){
+create_SpaCoObject_from_KNN <- function(Seurat){
   neighbourindexmatrix <- matrix(data=0,nrow = length(colnames(Seurat)),ncol=length(colnames(Seurat)))
   rownames(neighbourindexmatrix) <- colnames(Seurat)
   colnames(neighbourindexmatrix) <- colnames(Seurat)
