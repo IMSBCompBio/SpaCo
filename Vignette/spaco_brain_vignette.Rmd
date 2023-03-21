@@ -82,12 +82,6 @@ dd <- SpatialFeaturePlot(brain_2,features = c("PC_1","PC_2","PC_3","PC_4"),combi
 brain <- RunUMAP(brain,reduction = "spaco",dims = 1:5,n.neighbors = 45)
 brain_2 <- RunUMAP(brain_2,reduction = "pca",dims = 1:30)
 
-nn <- FeaturePlot(brain,features="Cyp2e1",cols=c("grey","blue1","darkred"),reduction = "spaco")
-mm <- FeaturePlot(brain_2,features="Cyp2e1",cols=c("grey","blue1","darkred"),reduction = "pca")
-
-jj <- FeaturePlot(brain,features="Cyp2e1",cols=c("grey","blue1","darkred"),reduction = "umap")
-kk <- FeaturePlot(brain_2,features="Cyp2e1",cols=c("grey","blue1","darkred"),reduction = "umap")
-
 brain <- FindNeighbors(brain,reduction = "spaco" , dims = 1:5)
 brain_2 <- FindNeighbors(brain_2,reduction = "pca" , dims = 1:30)
 
@@ -106,10 +100,9 @@ qq <- SpatialDimPlot(brain_2)+ggtitle("Pca")
 ```
 
 ```{r}
-patchwork::wrap_plots(a,b,nn,mm,jj,kk,aa,bb,ncol=2)
+patchwork::wrap_plots(a,b,aa,bb,rr,qq,ncol=2)
 a+b
-nn+mm
-jj+kk
 aa+bb
+rr+qq
 ```
 
