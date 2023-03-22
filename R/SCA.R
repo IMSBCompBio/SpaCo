@@ -16,7 +16,8 @@
 #'
 #' @import methods
 #' @import rARPACK
-#'
+#' @import Rcpp
+#' @import RcppEigen
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
                    PC_value = .8, orthogonalResult = FALSE, compute_nSpacs = FALSE,
                    compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.5)
@@ -24,7 +25,6 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   require(Rcpp)
   require(RcppEigen)
   require(rARPACK)
-  #sourceCpp("~/SPACO/Rcpp_Functions.cpp", verbose = FALSE, showOutput= FALSE)
   if(!PC_criterion %in% c("percent", "number"))
   {
     stop("PC_criterion must be either \"percent\" or \"number\".")
@@ -118,10 +118,6 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   ONB_OriginalBasis <- t(t(PCs_Rx) %*% t(InitialPCA$v[,1:nEigenVals]))
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
   colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
-  # Spaco_C <- Svd_Rx$d[nEigenVals:1]
-  #
-  # nSpacos <- min(which(Spaco_C > PCA_C))
-
 
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
   if (compute_projections) {
@@ -131,7 +127,6 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
     colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   }
   slot(SpaCoObject, "Lambdas") <- Lambdas
-  #slot(SpaCoObject, "R_x") <- R_x
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
   return(SpaCoObject)
 }

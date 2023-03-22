@@ -2,7 +2,7 @@
 % Please edit documentation in R/SpacoObject_constructor.R
 \name{SpaCoObject}
 \alias{SpaCoObject}
-\title{Title}
+\title{Create a constructor function that creates an object of class SpaCoObject}
 \usage{
 SpaCoObject(neighbours, data, coordinates)
 }
@@ -13,6 +13,9 @@ SpaCoObject(neighbours, data, coordinates)
 
 \item{coordinates}{Matri with the cell coordinates on the slides. Rows and Columns in the 10x Visium case.}
 }
+\value{
+Returns a SpaCoObject with the given slots filled
+}
 \description{
-Title
+Create a constructor function that creates an object of class SpaCoObject
 }

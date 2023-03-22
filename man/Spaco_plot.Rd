@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{Spaco_plot}
 \alias{Spaco_plot}
-\title{Title}
+\title{Plot SPaCo meta genes.}
 \usage{
 Spaco_plot(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 }
@@ -11,6 +11,9 @@ Spaco_plot(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 
 \item{spac}{component to plot}
 }
+\value{
+returns a ggplot object with the meta gene expression.
+}
 \description{
-Title
+Plot SPaCo meta genes.
 }

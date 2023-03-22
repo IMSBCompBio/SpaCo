@@ -65,7 +65,7 @@ SpaCoObject@nSpacs
 
 
 ```{r, cache=TRUE}
-DE_genes<- PValWrapperFunction_object(SpaCoObject, nSim = 1, nSpacs = 2)
+DE_genes<- FindSVG(SpaCoObject, nSim = 1, nSpacs = 2)
 head(DE_genes)
 ```
 
