@@ -17,7 +17,4 @@ placeholder
 \description{
 Title
 }
-\examples{
-placeholder
-}
 \keyword{internal}

@@ -17,6 +17,3 @@ smoothed gene profiles in the SpaCoObject.
 \description{
 Title
 }
-\examples{
-placeholder
-}

@@ -63,10 +63,10 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
   GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered *
-                                                     SPACO:::eigenMapMatMult(GraphLaplacian, data_centered)))
+                                                     eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
-  VarMatrix <- (1 / (n - 1)) * SPACO:::eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
+  VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
   InitialPCA <- svd(VarMatrix)
   if(PC_criterion == "percent")
   {

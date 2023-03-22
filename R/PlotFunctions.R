@@ -4,7 +4,7 @@
 #' @param spac component to plot
 #'
 #' @return returns a ggplot object with the meta gene expression.
-#'
+#' @export
 #' @import ggplot2
 #' @import ggforce
 #' @import tidyr

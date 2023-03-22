@@ -17,7 +17,4 @@ placeholder
 \description{
 normalizeA
 }
-\examples{
-placeholder
-}
 \keyword{internal}

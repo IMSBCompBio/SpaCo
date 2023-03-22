@@ -5,8 +5,6 @@
 #'
 #' @return returns geary's c value.
 #' @export
-#'
-#' @examples placeholder
 compute_C <- function(feature = NULL, SpaCoObject) {
   x <- SpaCoObject@data[, feature]
   neighbourindexmatrix <- SpaCoObject@neighbours
@@ -28,8 +26,6 @@ compute_C <- function(feature = NULL, SpaCoObject) {
 #'
 #' @return placeholder
 #' @keywords internal
-#'
-#' @examples placeholder
 normalizeA <- function(x, A, preFactor)
 {
   return((x / c(normA(x, A, preFactor))))
@@ -49,7 +45,7 @@ projASubspaceFunction <- function(v, projMatrix, preFactor)
 #' @return placeholder
 #' @keywords internal
 #'
-#' @examples placeholder
+#'
 normA <- function(x, A, preFactor)
 {
   return(sqrt(scalarProductA(x, x, A, preFactor)))
@@ -67,7 +63,7 @@ scalarProductA <- function(x, y, A, preFactor)
 #' @return placeholder
 #' @keywords internal
 #'
-#' @examples placeholder
+#'
 projAFunction <- function(v, u, A, preFactor)
 {
   return(c(scalarProductA(v, u, A, preFactor)/
@@ -120,7 +116,6 @@ projAFunction <- function(v, u, A, preFactor)
 #' @return smoothed gene profiles in the SpaCoObject.
 #' @export
 #'
-#' @examples placeholder
 compute_smoothed_profiles <- function(SpaCoObject, nSpacs) {
 smoothed <- SpaCoObject@spacs %*% t(SpaCoObject@projection)
 slot(SpaCoObject,"smoothed") <- as.data.frame(t(smoothed))

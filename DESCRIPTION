@@ -5,7 +5,6 @@ Author: Niklas Kleinenkuhnen, David Köhler
 Maintainer: Niklas Kleinenkuhnen <nkleinen@smail.uni-koeln.de>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: Do the fuck you want with it license.
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
@@ -27,6 +26,4 @@ Imports:
     rARPACK,
     rcartocolor,
     tidyr
-    
-    
-    
+License: MIT + file LICENSE

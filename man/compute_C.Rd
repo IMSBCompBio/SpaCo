@@ -17,6 +17,3 @@ returns geary's c value.
 \description{
 compute geary's C for a given gene.
 }
-\examples{
-placeholder
-}
