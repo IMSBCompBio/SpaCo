@@ -2,13 +2,22 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{normalizeA}
 \alias{normalizeA}
-\title{Title}
+\title{normalizeA}
 \usage{
 normalizeA(x, A, preFactor)
 }
 \arguments{
-\item{A}{}
+\item{x}{placeholder}
+
+\item{A}{placeholder}
+}
+\value{
+placeholder
 }
 \description{
-Title
+normalizeA
 }
+\examples{
+placeholder
+}
+\keyword{internal}

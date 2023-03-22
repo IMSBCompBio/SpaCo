@@ -11,6 +11,12 @@ compute_smoothed_profiles(SpaCoObject, nSpacs)
 
 \item{nSpacs}{number of spac's to use to compute the smoothed profiles. Should be determined by the compute_nSpacs function.}
 }
+\value{
+smoothed gene profiles in the SpaCoObject.
+}
 \description{
 Title
+}
+\examples{
+placeholder
 }

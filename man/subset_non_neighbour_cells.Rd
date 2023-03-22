@@ -11,6 +11,9 @@ subset_non_neighbour_cells(SpaCoObject, Seurat)
 
 \item{Seurat}{Seurat object to be filtered.}
 }
+\value{
+Returns a Seurat object with cells filtered to match SpaCoObject.
+}
 \description{
 Filtering function to remove cells without neighbours in defined distance from existing Seurat object to be conformable with existing SpaCoObject.
 }

@@ -24,7 +24,7 @@ setClass("SpaCoObject",
 #' @return Returns a SpaCoObject with the given slots filled
 #' @export
 #'
-#' @examples
+#'
 SpaCoObject <- function(neighbours, data, coordinates) {
   new("SpaCoObject", neighbours = neighbours, data = data, coordinates = coordinates)
 }

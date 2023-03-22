@@ -46,13 +46,14 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 
 }
 
-#' Title
+#' Plot smoothed gene expression
 #'
 #' @param SpaCoObject SpacoObject with computed projections
 #' @param spac component to plot
 #'
-#' @return
-#' @examples
+#' @return returns a ggplot object with the smoothed gene expression.
+#' @export
+#'
 #' @import ggplot2
 #' @import ggforce
 #' @import tidyr

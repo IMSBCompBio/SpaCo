@@ -7,8 +7,17 @@
 normA(x, A, preFactor)
 }
 \arguments{
-\item{A}{}
+\item{x}{placeholder}
+
+\item{A}{placeholder}
+}
+\value{
+placeholder
 }
 \description{
 Title
 }
+\examples{
+placeholder
+}
+\keyword{internal}

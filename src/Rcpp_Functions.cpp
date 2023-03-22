@@ -15,8 +15,6 @@
 //'
 //' @importFrom Rcpp sourceCpp
 //' @useDynLib SPACO
-
-
 // [[Rcpp::depends(RcppEigen)]]
 
 #include <RcppEigen.h>

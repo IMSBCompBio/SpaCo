@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{smoothed_projection_plot}
 \alias{smoothed_projection_plot}
-\title{Title}
+\title{Plot smoothed gene expression}
 \usage{
 smoothed_projection_plot(
   SpaCoObject,
@@ -16,6 +16,9 @@ smoothed_projection_plot(
 
 \item{spac}{component to plot}
 }
+\value{
+returns a ggplot object with the smoothed gene expression.
+}
 \description{
-Title
+Plot smoothed gene expression
 }

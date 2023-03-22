@@ -1,14 +1,15 @@
-#' Title
+#' compute geary's C for a given gene.
 #'
-#' @param x
-#' @param neighbourindexmatrix
+#' @param feature gene to compute geary's C for.
+#' @param SpaCoObject containing the data.
 #'
-#' @return
+#' @return returns geary's c value.
 #' @export
 #'
-#' @examples
-compute_C <- function(x, neighbourindexmatrix)
-{
+#' @examples placeholder
+compute_C <- function(feature = NULL, SpaCoObject) {
+  x <- SpaCoObject@data[, feature]
+  neighbourindexmatrix <- SpaCoObject@neighbours
   n <- nrow(neighbourindexmatrix)
   W <- sum(neighbourindexmatrix)
   activeIndices <- which(neighbourindexmatrix != 0)
@@ -20,28 +21,35 @@ compute_C <- function(x, neighbourindexmatrix)
   return(C)
 }
 
-#' Title
+#' normalizeA
 #'
-#' @param x
-#' @param A
+#' @param x placeholder
+#' @param A placeholder
 #'
-#' @return
-#' @export
+#' @return placeholder
+#' @keywords internal
 #'
-#' @examples
+#' @examples placeholder
 normalizeA <- function(x, A, preFactor)
 {
   return((x / c(normA(x, A, preFactor))))
 }
+
+projASubspaceFunction <- function(v, projMatrix, preFactor)
+{
+  projection <- preFactor * eigenMapMatMult(projMatrix, v)
+  return(projection)
+}
+
 #' Title
 #'
-#' @param x
-#' @param A
+#' @param x placeholder
+#' @param A placeholder
 #'
-#' @return
-#' @export
+#' @return placeholder
+#' @keywords internal
 #'
-#' @examples
+#' @examples placeholder
 normA <- function(x, A, preFactor)
 {
   return(sqrt(scalarProductA(x, x, A, preFactor)))
@@ -52,45 +60,31 @@ scalarProductA <- function(x, y, A, preFactor)
 }
 #' Title
 #'
-#' @param v
-#' @param u
-#' @param A
+#' @param v placeholder
+#' @param u placeholder
+#' @param A placeholder
 #'
-#' @return
-#' @export
+#' @return placeholder
+#' @keywords internal
 #'
-#' @examples
+#' @examples placeholder
 projAFunction <- function(v, u, A, preFactor)
 {
   return(c(scalarProductA(v, u, A, preFactor)/
              scalarProductA(u, u, A, preFactor)) * u)
 }
+
 #' Title
 #'
-#' @param v
-#' @param ONB
-#' @param A
+#' @param X Projection to orthogonalize
+#' @param A GraphLaplacian
+#' @param tol tolerance
 #'
-#' @return
-#' @export
+#' @return An orthogonolized A matrix.
 #'
-#' @examples
-projASubspaceFunction <- function(v, projMatrix, preFactor)
-{
-  projection <- preFactor * eigenMapMatMult(projMatrix, v)
-  return(projection)
-}
-#' Title
+#' @keywords internal
 #'
-#' @param X
-#' @param A
-#' @param tol
-#'
-#' @return
-#' @export
-#'
-#' @examples
-orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
+.orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
 {
   n <- nrow(A)
   W <- -(1/2)*sum(A - diag(diag(A)))
@@ -123,10 +117,10 @@ orthogonalizeA <- function(X, A, tol = .Machine$double.eps^0.5)
 #' @param SpaCoObject Spaco object to compute profiles of
 #' @param nSpacs number of spac's to use to compute the smoothed profiles. Should be determined by the compute_nSpacs function.
 #'
-#' @return
+#' @return smoothed gene profiles in the SpaCoObject.
 #' @export
 #'
-#' @examples
+#' @examples placeholder
 compute_smoothed_profiles <- function(SpaCoObject, nSpacs) {
 smoothed <- SpaCoObject@spacs %*% t(SpaCoObject@projection)
 slot(SpaCoObject,"smoothed") <- as.data.frame(t(smoothed))

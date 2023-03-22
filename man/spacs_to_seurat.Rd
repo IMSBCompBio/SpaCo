@@ -11,6 +11,9 @@ spacs_to_seurat(SpaCoObject, Seurat)
 
 \item{Seurat}{Seurat object to add spatial components to.}
 }
+\value{
+Returns a Seurat Object with the spatial components projections in the dimensional reduction slot.
+}
 \description{
 transfer computed spatial components to existing Seurat object.
 }

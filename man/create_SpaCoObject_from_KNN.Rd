@@ -2,13 +2,18 @@
 % Please edit documentation in R/Seuratwrappers.R
 \name{create_SpaCoObject_from_KNN}
 \alias{create_SpaCoObject_from_KNN}
-\title{runSCA_for_uMAP}
+\title{create_SpaCoObject_from_KNN}
 \usage{
-create_SpaCoObject_from_KNN(Seurat)
+create_SpaCoObject_from_KNN(Seurat, n = 10)
 }
 \arguments{
-\item{SeuratObject}{}
+\item{Seurat}{Seurat object to export kNN-graph from.}
+
+\item{n}{Number of neighbors to consider.}
+}
+\value{
+Returns a SPaCoObject with the SCT data and the kNN-graph as neighborhood matrix.
 }
 \description{
-runSCA_for_uMAP
+create_SpaCoObject_from_KNN
 }

@@ -3,12 +3,12 @@
 #' @param Seurat Seurat object to export
 #' @param assay Assay to export from the Seurat object. Default is SCT assay.
 #' @param n_image Number of the image to export from Seurat object. Only relevant if Seurat object contains multiple images. Default is 1.
-#' @param slot Which slot to export data from. Default is scale.data
+#' @param slot Which slot to export data from. Default is scale.data.
 #'
-#' @return
+#' @return Returns a SpaCoObject with all slots filled necessary to perform the spatial component analysis.
 #' @export
 #'
-#' @examples
+#'
 seurat_to_spaco <- function(Seurat, assay = "SCT", n_image = 1, slot = "scale.data") {
   data <- t(as.matrix(Seurat::GetAssayData(object = Seurat, assay = Seurat::DefaultAssay(Seurat), slot = "scale.data")))
    if (nrow(data) == 0 && ncol(data) == 0 ) {
@@ -40,10 +40,10 @@ return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coo
 #' @param SpaCoObject SpaCoObject to export spatial components from.
 #' @param Seurat Seurat object to add spatial components to.
 #'
-#' @return
+#' @return Returns a Seurat Object with the spatial components projections in the dimensional reduction slot.
 #' @export
 #'
-#' @examples
+#'
 spacs_to_seurat <- function(SpaCoObject, Seurat ) {
   if (all(colnames(Seurat[[Seurat::DefaultAssay(Seurat)]] )%in% rownames(SpaCoObject@data)) == FALSE) {
     stop("Cells without neighbours in defined distance found in Seurat object. Please subset cells first.")
@@ -59,10 +59,10 @@ spacs_to_seurat <- function(SpaCoObject, Seurat ) {
 #' @param SpaCoObject SpaCoObject to integrate into Seurat object.
 #' @param Seurat Seurat object to be filtered.
 #'
-#' @return
+#' @return Returns a Seurat object with cells filtered to match SpaCoObject.
 #' @export
 #'
-#' @examples
+#'
 subset_non_neighbour_cells <- function(SpaCoObject, Seurat) {
   require(Seurat)
 
@@ -71,22 +71,22 @@ subset_non_neighbour_cells <- function(SpaCoObject, Seurat) {
   return(Seurat)
 }
 
-#' runSCA_for_uMAP
+#' create_SpaCoObject_from_KNN
 #'
-#' @param SeuratObject
-#'
-#' @return
+#' @param Seurat Seurat object to export kNN-graph from.
+#' @param n Number of neighbors to consider.
+#' @return Returns a SPaCoObject with the SCT data and the kNN-graph as neighborhood matrix.
 #' @export
 #'
-#' @examples
-create_SpaCoObject_from_KNN <- function(Seurat){
+#'
+create_SpaCoObject_from_KNN <- function(Seurat, n=10){
   neighbourindexmatrix <- matrix(data=0,nrow = length(colnames(Seurat)),ncol=length(colnames(Seurat)))
   rownames(neighbourindexmatrix) <- colnames(Seurat)
   colnames(neighbourindexmatrix) <- colnames(Seurat)
 
   for (i in 1:length(colnames(Seurat))){
-    neighbourindexmatrix[colnames(Seurat)[i],TopNeighbors(Seurat[["SCT.nn"]],cell=colnames(Seurat)[i],n=10)] <- 1
-    neighbourindexmatrix[TopNeighbors(Seurat[["SCT.nn"]],cell=colnames(Seurat)[i],n=10),colnames(Seurat)[i]] <- 1
+    neighbourindexmatrix[colnames(Seurat)[i],TopNeighbors(Seurat[["SCT.nn"]],cell=colnames(Seurat)[i],n=n)] <- 1
+    neighbourindexmatrix[TopNeighbors(Seurat[["SCT.nn"]],cell=colnames(Seurat)[i],n=n),colnames(Seurat)[i]] <- 1
   }
   diag(neighbourindexmatrix) <- 0
   return(neighbourindexmatrix)

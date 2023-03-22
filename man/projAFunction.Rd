@@ -7,8 +7,19 @@
 projAFunction(v, u, A, preFactor)
 }
 \arguments{
-\item{A}{}
+\item{v}{placeholder}
+
+\item{u}{placeholder}
+
+\item{A}{placeholder}
+}
+\value{
+placeholder
 }
 \description{
 Title
 }
+\examples{
+placeholder
+}
+\keyword{internal}

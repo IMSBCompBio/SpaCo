@@ -22,6 +22,9 @@ read_10x_for_spaco(
 
 \item{only_var}{Logical True if you want to keep only the most variable features in the SPACO object. Default True.}
 }
+\value{
+Retuns a ready to run SPaCoObject.
+}
 \description{
 Read in 10x Visium spatial transcriptomics data
 }

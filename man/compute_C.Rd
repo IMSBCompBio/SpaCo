@@ -2,13 +2,21 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{compute_C}
 \alias{compute_C}
-\title{Title}
+\title{compute geary's C for a given gene.}
 \usage{
-compute_C(x, neighbourindexmatrix)
+compute_C(feature = NULL, SpaCoObject)
 }
 \arguments{
-\item{neighbourindexmatrix}{}
+\item{feature}{gene to compute geary's C for.}
+
+\item{SpaCoObject}{containing the data.}
+}
+\value{
+returns geary's c value.
 }
 \description{
-Title
+compute geary's C for a given gene.
+}
+\examples{
+placeholder
 }

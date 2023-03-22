@@ -7,7 +7,14 @@
 FindSVG(SpaCoObject, nSpacs, nSim = 1000)
 }
 \arguments{
-\item{nSim}{}
+\item{SpaCoObject}{SpaCoObject to compute spatially variable genes for.}
+
+\item{nSpacs}{number of spatial components to consider. Should be determined during RunSCA.}
+
+\item{nSim}{Number of simulations to compute empirical p-Values.}
+}
+\value{
+Returns a list of genes with distance scores and p-values.
 }
 \description{
 wrapper function to compute spatial variable genes and their empirical p-values

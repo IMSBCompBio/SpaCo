@@ -5,10 +5,10 @@
 #' @param only_var Logical True if you want to keep only the most variable features in the SPACO object. Default True.
 #' @param variable_features_n Number of most variable features to keep.
 #'
-#' @return
+#' @return Retuns a ready to run SPaCoObject.
 #' @export
 #'
-#' @examples
+#'
 #' @import Seurat
 read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n, spatial_file = spatial_file, vars_to_regress = NULL) {
   require(Seurat)
