@@ -35,7 +35,7 @@ data <- data[match(LociNames, rownames(data)), ]
 return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list))
 }
 
-#' Export computed spatial components to existing Seurat object.
+#' transfer computed spatial components to existing Seurat object.
 #'
 #' @param SpaCoObject SpaCoObject to export spatial components from.
 #' @param Seurat Seurat object to add spatial components to.

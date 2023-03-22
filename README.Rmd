@@ -12,7 +12,8 @@ output: github_document
 
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
 #Specify data paths
-devtools::load_all("~/SPACO")
+library(SPACO)
+
 data_dir="~/Liver_Organoid_project/scRNA_spatial_tissue/VX03_A006200136/cellranger/141895/outs"
 slice = "~/Liver_Organoid_project/scRNA_spatial_tissue/VX03_A006200136/cellranger/141895/outs/spatial"
 filename ="filtered_feature_bc_matrix.h5" 
@@ -48,8 +49,8 @@ SpaCoObject <- seurat_to_spaco(Seurat = brain, assay = "SCT", n_image= 1, slot =
 ### Run the Spatial component analysis as dimensionality reduction and computer the number of informative spatial components. 
 ```{r include=FALSE, cache=TRUE}
 SpaCoObject <- RunSCA(SpaCoObject, PC_criterion = "percent",
-                      PC_value = .9, orthogonalResult = FALSE, compute_nSpacs = TRUE,
-                      compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.05)
+                      PC_value = .9, orthogonalResult = FALSE, compute_nSpacs = F,
+                      compute_projections = TRUE, nSim = 1, nSpacQuantile = 0.05)
 
 ```
 
@@ -64,7 +65,7 @@ SpaCoObject@nSpacs
 
 
 ```{r, cache=TRUE}
-DE_genes<- PValWrapperFunction_object(SpaCoObject, nSim = 1, nSpacs = SpaCoObject@nSpacs)
+DE_genes<- PValWrapperFunction_object(SpaCoObject, nSim = 1, nSpacs = 2)
 head(DE_genes)
 ```
 

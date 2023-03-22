@@ -9,7 +9,7 @@ Spaco_plot(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}
 
-\item{spac}{Spatial component to plot}
+\item{spac}{component to plot}
 }
 \description{
 Title

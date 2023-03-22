@@ -1,5 +1,4 @@
 Package: SPACO
-Type: Spatial components
 Title: This packages computes spatial components - and they are pretty cool
 Version: 0.1.0
 Author: Niklas Kleinenkuhnen, David Köhler
@@ -20,6 +19,14 @@ Imports:
     pracma,
     Seurat,
     Rcpp (>= 1.0.10),
-    RcppArmadillo,
     RcppEigen,
-    tibble
+    tibble,
+    ggforce,
+    methods,
+    patchwork,
+    rARPACK,
+    rcartocolor,
+    tidyr
+    
+    
+    

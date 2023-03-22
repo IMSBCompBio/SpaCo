@@ -4,29 +4,27 @@
 #' @param neighbourindexmatrix n x n matrix showing neighborhood weight of loci
 #' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
 #' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
-#' @param orthogonalResult Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos
+#' @param orthogonalResult Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacs
 #' @param compute_nSpacs Boolean if number of relevant spacs is to be computed. Increases run time significantly
 #' @param compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
 #' @param nSim Number of simulations for computation of spac number
 #' @param nSpacQuantile Quantile to use as cutoff for spac number
+#'
 #' @return
+#' Returns a SpaCoObject filled with the result of the spatial component analysis.
 #' @export
 #'
-#' @examples
-#'
+#' @import methods
+#' @import rARPACK
 #'
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
                    PC_value = .8, orthogonalResult = FALSE, compute_nSpacs = FALSE,
                    compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.5)
 {
-  require(pracma)
-  require(MASS)
-  require(dplyr)
-  require(ggplot2)
   require(Rcpp)
   require(RcppEigen)
   require(rARPACK)
-  sourceCpp("~/SPACO/Rcpp_Functions.cpp", verbose = FALSE, showOutput= FALSE)
+  #sourceCpp("~/SPACO/Rcpp_Functions.cpp", verbose = FALSE, showOutput= FALSE)
   if(!PC_criterion %in% c("percent", "number"))
   {
     stop("PC_criterion must be either \"percent\" or \"number\".")
@@ -65,10 +63,10 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
   GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered *
-                                                     eigenMapMatMult(GraphLaplacian, data_centered)))
+                                                     SPACO:::eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
-  VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
+  VarMatrix <- (1 / (n - 1)) * SPACO:::eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
   InitialPCA <- svd(VarMatrix)
   if(PC_criterion == "percent")
   {
@@ -99,6 +97,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
 
   if(compute_nSpacs)
   {
+    message("computing number of releveant spacs")
     GLSvd <- svd(GraphLaplacian)
     L <- eigenMapMatMult(GLSvd$u, diag(sqrt(GLSvd$d)))
     simSpacCFunction <- function(i)

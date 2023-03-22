@@ -14,7 +14,7 @@ smoothed_projection_plot(
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}
 
-\item{spac}{Spatial component to plot}
+\item{spac}{component to plot}
 }
 \description{
 Title

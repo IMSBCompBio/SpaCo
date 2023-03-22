@@ -2,7 +2,7 @@
 % Please edit documentation in R/Seuratwrappers.R
 \name{spacs_to_seurat}
 \alias{spacs_to_seurat}
-\title{Export computed spatial components to existing Seurat object.}
+\title{transfer computed spatial components to existing Seurat object.}
 \usage{
 spacs_to_seurat(SpaCoObject, Seurat)
 }
@@ -12,5 +12,5 @@ spacs_to_seurat(SpaCoObject, Seurat)
 \item{Seurat}{Seurat object to add spatial components to.}
 }
 \description{
-Export computed spatial components to existing Seurat object.
+transfer computed spatial components to existing Seurat object.
 }

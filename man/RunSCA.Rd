@@ -20,7 +20,7 @@ RunSCA(
 
 \item{PC_value}{Value to specify number of PCs or desired level of explained variance, see "PC_criterion"}
 
-\item{orthogonalResult}{Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacos}
+\item{orthogonalResult}{Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacs}
 
 \item{compute_nSpacs}{Boolean if number of relevant spacs is to be computed. Increases run time significantly}
 
@@ -33,6 +33,9 @@ RunSCA(
 \item{data}{gene expression data matrix; p genes as columns, n loci as rows}
 
 \item{neighbourindexmatrix}{n x n matrix showing neighborhood weight of loci}
+}
+\value{
+Returns a SpaCoObject filled with the result of the spatial component analysis.
 }
 \description{
 SCA_function

@@ -14,9 +14,19 @@ PValWrapperFunction <- function(data, SpacoResult, nSpacs, GraphLaplacian, nSim 
                                                nSim = nSim, GeneScoresData)
   return(GeneScoresDataP)
 }
+
+#' wrapper function to compute spatial variable genes and their empirical p-values
+#'
+#' @param SpaCoObject
+#' @param nSpacs
+#' @param nSim
+#'
+#' @return
+#' @export
+#'
+#' @examples
 PValWrapperFunction_object <- function(SpaCoObject, nSpacs, nSim = 1e3)
 {
-  sourceCpp("~/SPACO/Rcpp_Functions.cpp",verbose = FALSE)
   data <- SpaCoObject@data
   Spacos <- SpaCoObject@spacs
   Spacos <- Spacos[,1:nSpacs]
