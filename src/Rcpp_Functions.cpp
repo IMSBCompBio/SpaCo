@@ -10,14 +10,12 @@
 //' @param B a matrix
 //' @return the product of A and B
 //'
-//'
 //' @importFrom Rcpp sourceCpp
 //' @useDynLib SPACO
 //' @export
 // [[Rcpp::export]]
-SEXP eigenMapMatMult(const Eigen::Map<Eigen::MatrixXd> A, Eigen::Map<Eigen::MatrixXd> B){
-  Eigen::MatrixXd C = A * B;
-
-  return Rcpp::wrap(C);
+Eigen::MatrixXd eigenMapMatMult(const Eigen::Map<Eigen::MatrixXd> A, Eigen::Map<Eigen::MatrixXd> B){
+  return A * B;
 }
+
 

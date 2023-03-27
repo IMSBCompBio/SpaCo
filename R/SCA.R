@@ -18,6 +18,7 @@
 #' @import rARPACK
 #' @import Rcpp
 #' @import RcppEigen
+#'
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
                    PC_value = .8, orthogonalResult = FALSE, compute_nSpacs = FALSE,
                    compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.5)
