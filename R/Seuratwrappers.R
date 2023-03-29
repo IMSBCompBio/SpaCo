@@ -14,7 +14,7 @@ seurat_to_spaco <- function(Seurat, assay = "SCT", n_image = 1, slot = "scale.da
    if (nrow(data) == 0 && ncol(data) == 0 ) {
      stop("Assay to transform from Seurat is empty.")
    }
-
+  pixel_positions_list <- GetTissueCoordinates(Seurat)
   tissue_positions_list <- as.data.frame(Seurat@images[[n_image]]@coordinates)
 
   tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
@@ -27,12 +27,15 @@ if (any(colSums(neighboursindex) == 0)) {
   neighboursindex <- neighboursindex[colSums(neighboursindex) != 0, colSums(neighboursindex) != 0]
   data <- data[colnames(neighboursindex), ]
   tissue_positions_list <- tissue_positions_list[rownames(data), ]
+  pixel_positions_list <- pixel_positions_list[rownames(data),]
 }
 
 LociNames <- colnames(neighboursindex)
 data <- data[match(LociNames, rownames(data)), ]
 
-return(SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list))
+SpaCoObject <- SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list)
+slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(pixel_positions_list)
+return(SpaCoObject)
 }
 
 #' transfer computed spatial components to existing Seurat object.

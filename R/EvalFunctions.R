@@ -57,7 +57,7 @@ getSingleGeneScoreAndPVal <- function(geneIdx, data_centered, A, nSim, preFactor
   gc()
   gene <- data_centered[,geneIdx]
   #Project gene onto orthonormal basis ONB
-  projection <- projASubspaceFunction(gene, projMatrix, preFactor)
+  projection <- projASubspaceFunction(gene, projMatrix, preFactor)###smothed profile
   gene <- gene/norm(gene, type = "2")
   projection <- projection/norm(projection, type = "2")
   score <- as.numeric(normA(gene - projection, A, preFactor))

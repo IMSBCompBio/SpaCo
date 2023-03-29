@@ -2,6 +2,7 @@
 
 export(FindSVG)
 export(RunSCA)
+export(RunSCA2)
 export(SpaCoObject)
 export(Spaco_plot)
 export(compute_C)
