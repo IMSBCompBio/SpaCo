@@ -101,7 +101,7 @@ brain <- SCTransform(brain, assay = "Spatial", variable.features.n = 3000,
 
     ## Calculating gene attributes
 
-    ## Wall clock passed: Time difference of 50.55771 secs
+    ## Wall clock passed: Time difference of 51.03828 secs
 
     ## Determine variable features
 
@@ -121,6 +121,22 @@ SpaCoObject <- seurat_to_spaco(Seurat = brain, assay = "SCT", n_image= 1, slot =
 
 Here we use the new implementation to compute the numer of relevant
 spac’s. If you want to use the standard implementation just use RunSCA.
+
+``` r
+SpaCoObject<- RunSCA2(SpaCoObject, PC_criterion = "percent",
+                      PC_value = .8, compute_nSpacs = T,
+                      compute_projections = TRUE, nSpacQuantile = 0.05)
+```
+
+    ## computing number of releveant spacs
+
+    ## computing projections
+
+``` r
+SpaCoObject@nSpacs
+```
+
+    ## [1] 52
 
 we can plot the computed meta gene projections directly from the
 SPaCoObject or transfer the projections right back into an existing
