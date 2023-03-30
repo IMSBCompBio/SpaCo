@@ -96,6 +96,11 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
     GLeigen <- eigen(GraphLaplacian)
     CVar <- sum(GLeigen$values^2)
     pVals <- pnorm(Lambdas, mean = 1, sd = sqrt(CVar/(n^2)))
+    while (suppressWarnings(max(which(pVals < nSpacQuantile))) == -Inf) {
+      nSpacQuantile <- nSpacQuantile + 0.01
+      message("There are no significant spac's in the level of ", nSpacQuantile )
+    }
+    message("Using quantile level of " ,nSpacQuantile)
     nSpacs <- max(which(pVals < nSpacQuantile))
     slot(SpaCoObject, "nSpacs") <- nSpacs
   }
