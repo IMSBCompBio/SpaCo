@@ -98,7 +98,7 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
     pVals <- pnorm(Lambdas, mean = 1, sd = sqrt(CVar/(n^2)))
     if (suppressWarnings(max(which(pVals < nSpacQuantile))) == -Inf) {
       warning("There are no significant spac's in the level of ", nSpacQuantile )
-      slot(SpaCoObject, "nSpacs") <- 0
+      slot(SpaCoObject, "nSpacs") <- as.integer(0)
       } else {
     message("Using quantile level of " ,nSpacQuantile)
     nSpacs <- max(which(pVals < nSpacQuantile))
