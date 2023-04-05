@@ -43,7 +43,7 @@ RunSCA3 <- function(SpaCoObject, PC_criterion = "percent",
   n <- nrow(data)
   p <- ncol(data)
   W <- sum(neighbourindexmatrix)
-  preFactor <- (n - 1)/(2 * W)
+  preFactor <- 1/(2 * W)
   #Input check: Check if number of desired number is larger than number of genes
   if(PC_criterion == "number")
   {
@@ -60,7 +60,7 @@ RunSCA3 <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt((n - 1)/(2 * W) * colSums(data_centered *
+  GeneANorms <- sqrt((1)/(2 * W) * colSums(data_centered *
                                                      eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
