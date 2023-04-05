@@ -60,7 +60,7 @@ RunSCA3 <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt((1)/(2 * W) * colSums(data_centered *
+  GeneANorms <- sqrt(1/(2 * W) * colSums(data_centered *
                                                      eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
