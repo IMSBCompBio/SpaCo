@@ -8,7 +8,6 @@ RunSCA(
   SpaCoObject,
   PC_criterion = "percent",
   PC_value = 0.8,
-  orthogonalResult = FALSE,
   compute_nSpacs = FALSE,
   compute_projections = TRUE,
   nSim = 1000,
@@ -19,8 +18,6 @@ RunSCA(
 \item{PC_criterion}{criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance}
 
 \item{PC_value}{Value to specify number of PCs or desired level of explained variance, see "PC_criterion"}
-
-\item{orthogonalResult}{Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacs}
 
 \item{compute_nSpacs}{Boolean if number of relevant spacs is to be computed. Increases run time significantly}
 

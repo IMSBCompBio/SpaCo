@@ -51,8 +51,8 @@ spacs_to_seurat <- function(SpaCoObject, Seurat ) {
   if (all(colnames(Seurat[[Seurat::DefaultAssay(Seurat)]] )%in% rownames(SpaCoObject@data)) == FALSE) {
     stop("Cells without neighbours in defined distance found in Seurat object. Please subset cells first.")
   }
-  message("copying projections into reduction slot spaco")
-  Seurat[["spaco"]] <- Seurat::CreateDimReducObject(embeddings = SpaCoObject@projection, key = "Spac_", assay = Seurat::DefaultAssay(Seurat))
+  message("copying significan projections into reduction slot spaco")
+  Seurat[["spaco"]] <- Seurat::CreateDimReducObject(embeddings = SpaCoObject@projection[,1:SpaCoObject@nSpacs], key = "Spac_", assay = Seurat::DefaultAssay(Seurat))
 
   return(Seurat)
 }

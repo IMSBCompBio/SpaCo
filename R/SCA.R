@@ -4,7 +4,6 @@
 #' @param neighbourindexmatrix n x n matrix showing neighborhood weight of loci
 #' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
 #' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
-#' @param orthogonalResult Logical value to specify if Spacos should be orthogonalized to form a ONB; since transformation of eigenvalues results in non-orthogonal Spacs
 #' @param compute_nSpacs Boolean if number of relevant spacs is to be computed. Increases run time significantly
 #' @param compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
 #' @param nSim Number of simulations for computation of spac number
@@ -20,7 +19,7 @@
 #' @import RcppEigen
 #'
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
-                   PC_value = .8, orthogonalResult = FALSE, compute_nSpacs = FALSE,
+                   PC_value = .8, compute_nSpacs = FALSE,
                    compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.5)
 {
   require(Rcpp)
@@ -45,7 +44,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   n <- nrow(data)
   p <- ncol(data)
   W <- sum(neighbourindexmatrix)
-  preFactor <- (n - 1)/(2 * n * W)
+  preFactor <- 1/(2 * W)
   #Input check: Check if number of desired number is larger than number of genes
   if(PC_criterion == "number")
   {
@@ -63,7 +62,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered *
+  GeneANorms <- sqrt(1/(2 * W) * colSums(data_centered *
                                                      eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
