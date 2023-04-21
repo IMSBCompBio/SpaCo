@@ -16,7 +16,7 @@ FindSVG <- function(SpaCoObject, nSpacs, nSim = 1e3)
   Spacos <- Spacos[,1:nSpacs]
   n <- nrow(data)
   W <- sum(SpaCoObject@neighbours)
-  preFactor <- (n-1)/(2*n*W)
+  preFactor <- (1)/(2*W)
   #Compute metagene expression profiles
   SpacoProjection <- t(eigenMapMatMult(t(Spacos), t(data)))
   #Create orthonormal basis for metagene space
@@ -35,7 +35,7 @@ FindSVG <- function(SpaCoObject, nSpacs, nSim = 1e3)
   #compute preFactor
   n <- nrow(GraphLaplacian)
   W <- -(1/2)*sum(GraphLaplacian - diag(diag(GraphLaplacian)))
-  preFactor <- (n-1)/(2*n*W)
+  preFactor <- (1)/(2*W)
   #compute projection matrix
   projMatrix <- eigenMapMatMult(ONB, eigenMapMatMult(t(ONB), GraphLaplacian))
   #Apply Gene Score Function to all genes

@@ -14,7 +14,7 @@ compute_C <- function(feature = NULL, SpaCoObject) {
   i <- activeIndices %% n
   i[which(i == 0)] <- n
   j <- ceiling(activeIndices / n)
-  C <- (((n - 1) / (2 * n * W)) *
+  C <- (((1) / (2 * W)) *
           sum(neighbourindexmatrix[activeIndices] * (x[i] - x[j])^2)) / stats::var(x)
   return(C)
 }
@@ -84,7 +84,7 @@ projAFunction <- function(v, u, A, preFactor)
 {
   n <- nrow(A)
   W <- -(1/2)*sum(A - diag(diag(A)))
-  preFactor <- (n-1)/(2*n*W)
+  preFactor <- (1)/(2*W)
   m <- nrow(X)
   n <- ncol(X)
   if (m < n)
@@ -119,10 +119,9 @@ projAFunction <- function(v, u, A, preFactor)
 smooth_profiles <- function(SpaCoObject){
   data <- SpaCoObject@data
   Spacos <- SpaCoObject@spacs[,1:SpaCoObject@nSpacs]
-  #Spacos <- Spacos[,1:nSpacs]
   n <- nrow(data)
   W <- sum(SpaCoObject@neighbours)
-  preFactor <- (n-1)/(2*n*W)
+  preFactor <- (1)/(2*W)
   GraphLaplacian <- SpaCoObject@GraphLaplacian
 
   #Compute metagene expression profiles
@@ -137,8 +136,7 @@ smooth_profiles <- function(SpaCoObject){
   for (i in seq_along(1:ncol(data))){
     gene <- data_centered[,i]
     projection[,i] <- projASubspaceFunction(gene, projMatrix, preFactor)###smothed profile
-    #gene <- gene/norm(gene, type = "2")
-    projection[,i] <- projection[,i]/norm(projection[,i], type = "2")
+    #projection[,i] <- projection[,i]/norm(projection[,i], type = "2")
   }
   colnames(projection) <- colnames(data_centered)
   rownames(projection) <- rownames(data_centered)

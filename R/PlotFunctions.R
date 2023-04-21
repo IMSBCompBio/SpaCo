@@ -126,7 +126,7 @@ feature_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TR
     mode = "list",
     length = length(features))
   for (i in 1:length(features)) {
-    plots[[i]] <- suppressWarnings(.singlesmoothedprojectionplot(SpaCoObject, i = i, features))
+    plots[[i]] <- suppressWarnings(.singledataplot(SpaCoObject, i = i, features))
   }
   if (combine) {
     plots <- patchwork::wrap_plots(plots, ncol = ncol, guides = "auto")
@@ -135,7 +135,7 @@ feature_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TR
 }
 
 
-.singlesmoothedprojectionplot <- function(SpaCoObject, i = i, features) {
+.singledataplot <- function(SpaCoObject, i = i, features) {
   name_arg <- features[i]
   singleplot <- ggplot(data = tibble(
     tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),

@@ -18,8 +18,8 @@
 #' @import Rcpp
 #' @import RcppEigen
 #'
-RunSCA <- function(SpaCoObject, PC_criterion = "percent",
-                   PC_value = .8, compute_nSpacs = FALSE,
+RunSCA_norm <- function(SpaCoObject, PC_criterion = "percent",
+                   PC_value = .8, compute_nSpacs = TRUE,
                    compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.05)
 {
   require(Rcpp)
@@ -63,7 +63,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
   GeneANorms <- sqrt(1/(2 * W) * colSums(data_centered *
-                                                     eigenMapMatMult(GraphLaplacian, data_centered)))
+                                           eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
   VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
@@ -125,7 +125,10 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
     slot(SpaCoObject, "projection") <- t(eigenMapMatMult(t(ONB_OriginalBasis), t(data)))
     rownames(SpaCoObject@projection) <- rownames(data_centered)
     colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
-  }
+    var_projections <- apply(SpaCoObject@projection,2,sd)
+    slot(SpaCoObject, "projection") <- sweep(SpaCoObject@projection, MARGIN = 2, STATS = var_projections, FUN = "/")
+    slot(SpaCoObject, "spacs") <- sweep(SpaCoObject@spacs, MARGIN = 2, STATS = var_projections, FUN = "/")
+    }
   slot(SpaCoObject, "Lambdas") <- Lambdas
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
   return(SpaCoObject)
