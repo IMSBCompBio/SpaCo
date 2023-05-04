@@ -118,7 +118,8 @@ projAFunction <- function(v, u, A, preFactor)
 #'
 smooth_profiles <- function(SpaCoObject){
   data <- SpaCoObject@data
-  Spacos <- SpaCoObject@spacs[,1:SpaCoObject@nSpacs]
+  Spacos_norm <- sweep(SpaCoObject@spacs, 2, sqrt(SpaCoObject@Lambdas), "/")
+  Spacos <- Spacos_norm[,1:SpaCoObject@nSpacs]
   n <- nrow(data)
   W <- sum(SpaCoObject@neighbours)
   preFactor <- (1)/(2*W)

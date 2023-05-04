@@ -110,10 +110,13 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
   colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
   if (compute_projections) {
-    message("computing projections")
+    message("computing projections this may take a while")
     slot(SpaCoObject, "projection") <- t(eigenMapMatMult(t(ONB_OriginalBasis), t(data)))
     rownames(SpaCoObject@projection) <- rownames(data_centered)
     colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
+    var_projections <- apply(SpaCoObject@projection,2,sd)
+    slot(SpaCoObject, "projection") <- sweep(SpaCoObject@projection, MARGIN = 2, STATS = var_projections, FUN = "/")
+    slot(SpaCoObject, "spacs") <- sweep(SpaCoObject@spacs, MARGIN = 2, STATS = var_projections, FUN = "/")
   }
   slot(SpaCoObject, "Lambdas") <- Lambdas
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
