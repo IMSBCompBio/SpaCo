@@ -92,10 +92,8 @@ create_SpaCoObject_from_KNN <- function(Seurat, n=10){
     neighbourindexmatrix[TopNeighbors(Seurat[["SCT.nn"]],cell=colnames(Seurat)[i],n=n),colnames(Seurat)[i]] <- 1
   }
   diag(neighbourindexmatrix) <- 0
-  return(neighbourindexmatrix)
 
 
-neighbourindexmatrix <- generate_neighbourindexmatrix(data)
 data_to_spac <- t(as.matrix(Seurat::GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
 LociNames <- colnames(neighbourindexmatrix)
 data_to_spac <- data_to_spac[match(LociNames, rownames(data_to_spac)),]
@@ -107,7 +105,7 @@ SpaCoObject <-SpaCoObject(neighbours=neighbourindexmatrix, data=data_to_spac, co
 tissue_positions_list <- as.data.frame(Embeddings(data, reduction = "umap"))
 tissue_positions_list <- tissue_positions_list[rownames(data_to_spac),]
 colnames(tissue_positions_list) <- c("imagecol","imagerow")
-slot(spaco, "pixel_positions_list") <- as.data.frame(tissue_positions_list)
+slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(tissue_positions_list)
 return(SpaCoObject)
 }
 
