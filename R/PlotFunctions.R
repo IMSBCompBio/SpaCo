@@ -51,12 +51,12 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 }
 
 
-#' Plot smoothed gene expression
+#' Plot denoised gene expression
 #'
 #' @param SpaCoObject SpacoObject with computed projections
 #' @param spac component to plot
 #'
-#' @return returns a ggplot object with the smoothed gene expression.
+#' @return returns a ggplot object with the denoised gene expression.
 #' @export
 #'
 #' @import ggplot2
@@ -64,13 +64,13 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 #' @import tidyr
 #' @import rcartocolor
 #' @import patchwork
-smoothed_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
+denoised_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
 {
   plots <- vector(
     mode = "list",
     length = length(features))
   for (i in 1:length(features)) {
-    plots[[i]] <- suppressWarnings(.singlesmoothedprojectionplot(SpaCoObject, i = i, features))
+    plots[[i]] <- suppressWarnings(.singledenoisedprojectionplot(SpaCoObject, i = i, features))
   }
   if (combine) {
     plots <- patchwork::wrap_plots(plots, ncol = ncol, guides = "auto")
@@ -79,11 +79,11 @@ smoothed_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, 
 }
 
 
-.singlesmoothedprojectionplot <- function(SpaCoObject, i = i, features) {
+.singledenoisedprojectionplot <- function(SpaCoObject, i = i, features) {
   name_arg <- features[i]
   singleplot <- ggplot(data = tibble(
     tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
-    as_tibble(SpaCoObject@smoothed[ ,features[i]  , drop = FALSE],rownames=NA))) +
+    as_tibble(SpaCoObject@denoised[ ,features[i]  , drop = FALSE],rownames=NA))) +
     coord_fixed() +
     theme_linedraw(base_size = 10) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")

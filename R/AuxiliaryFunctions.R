@@ -137,10 +137,10 @@ smooth_profiles <- function(SpaCoObject){
   for (i in seq_along(1:ncol(data))){
     gene <- data_centered[,i]
     projection[,i] <- projASubspaceFunction(gene, projMatrix, preFactor)###smothed profile
-    #projection[,i] <- projection[,i]/norm(projection[,i], type = "2")
+    projection[,i] <- projection[,i]/norm(projection[,i], type = "2")
   }
   colnames(projection) <- colnames(data_centered)
   rownames(projection) <- rownames(data_centered)
-  slot(SpaCoObject, "smoothed") <- as.data.frame(projection)
+  slot(SpaCoObject, "denoised") <- as.data.frame(projection)
   return(SpaCoObject)
 }

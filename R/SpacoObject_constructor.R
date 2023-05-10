@@ -11,7 +11,7 @@ setClass("SpaCoObject",
                         GraphLaplacian="matrix",
                         Lambdas="vector",
                         nSpacs ="integer",
-                        smoothed = "data.frame"))
+                        denoised = "data.frame"))
 
 
 #

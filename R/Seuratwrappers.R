@@ -94,15 +94,15 @@ create_SpaCoObject_from_KNN <- function(Seurat, n=10){
   diag(neighbourindexmatrix) <- 0
 
 
-data_to_spac <- t(as.matrix(Seurat::GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
+data_to_spac <- t(as.matrix(Seurat::GetAssayData(object = Seurat, assay = "SCT", slot = "scale.data")))
 LociNames <- colnames(neighbourindexmatrix)
 data_to_spac <- data_to_spac[match(LociNames, rownames(data_to_spac)),]
-tissue_positions_list <- as.data.frame(Embeddings(data, reduction = "umap"))
-pixel_positions_list <- as.data.frame(Embeddings(data, reduction = "umap"))
+tissue_positions_list <- as.data.frame(Embeddings(Seurat, reduction = "umap"))
+pixel_positions_list <- as.data.frame(Embeddings(Seurat, reduction = "umap"))
 pixel_positions_list <- pixel_positions_list[match(LociNames, rownames(pixel_positions_list)),]
 
 SpaCoObject <-SpaCoObject(neighbours=neighbourindexmatrix, data=data_to_spac, coordinates =pixel_positions_list)
-tissue_positions_list <- as.data.frame(Embeddings(data, reduction = "umap"))
+tissue_positions_list <- as.data.frame(Embeddings(Seurat, reduction = "umap"))
 tissue_positions_list <- tissue_positions_list[rownames(data_to_spac),]
 colnames(tissue_positions_list) <- c("imagecol","imagerow")
 slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(tissue_positions_list)
