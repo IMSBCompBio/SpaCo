@@ -43,7 +43,7 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
   n <- nrow(data)
   p <- ncol(data)
   W <- sum(neighbourindexmatrix)
-  preFactor <- (n - 1)/(2 * n * W)
+  preFactor <- (1)/(2 * W)
   #Input check: Check if number of desired number is larger than number of genes
   if(PC_criterion == "number")
   {
@@ -60,12 +60,12 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt((n - 1)/(2 * n * W) * colSums(data_centered *
+  GeneANorms <- sqrt(preFactor * colSums(data_centered *
                                                      eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
   VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
-  InitialPCA <- svd(VarMatrix)
+  InitialPCA <- eigen(VarMatrix)
   if(PC_criterion == "percent")
   {
     if(PC_value == 1)
@@ -73,21 +73,22 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
       nEigenVals <- p
     }else
     {
-      nEigenVals <- min(which(cumsum(InitialPCA$d)/sum(InitialPCA$d) > PC_value))
+      nEigenVals <- min(which(cumsum(InitialPCA$values)/sum(InitialPCA$values) > PC_value))
     }
   }else
   {
     nEigenVals <- PC_value
   }
-  data_reduced <- t(eigenMapMatMult(data_centered_GL_scaled, InitialPCA$v[,1:nEigenVals]))
-  data_reduced <- t(scale(t(data_reduced)))
+  data_reduced <- eigenMapMatMult(data_centered_GL_scaled, InitialPCA$vectors[,1:nEigenVals])
+  # data_reduced <- eigenMapMatMult(data_reduced, t(InitialPCA$vectors[,1:nEigenVals]))
+  data_reduced <- scale(data_reduced)
   #Compute test statistic matrix
-  R_x <- preFactor * eigenMapMatMult(data_reduced, eigenMapMatMult(GraphLaplacian, t(data_reduced)))
+  R_x <- preFactor * eigenMapMatMult(t(data_reduced), eigenMapMatMult(GraphLaplacian, data_reduced))
   #Compute SVD of R_x
-  Svd_Rx <- svd(R_x)
+  Svd_Rx <- eigen(R_x)
   #Reverse order
-  PCs_Rx <- Svd_Rx$u[,nEigenVals:1]
-  Lambdas <- Svd_Rx$d[nEigenVals:1]
+  PCs_Rx <- Svd_Rx$vectors[,nEigenVals:1]
+  Lambdas <- Svd_Rx$values[nEigenVals:1]
   #Reconstruct selected principal components into original basis before
   #SVD of test statistic matrix
   if(compute_nSpacs)
@@ -105,18 +106,20 @@ RunSCA2 <- function(SpaCoObject, PC_criterion = "percent",
     slot(SpaCoObject, "nSpacs") <- nSpacs
       }
     }
-  ONB_OriginalBasis <- t(t(PCs_Rx) %*% t(InitialPCA$v[,1:nEigenVals]))
+  ONB_OriginalBasis <- #PCs_Rx
+    eigenMapMatMult(InitialPCA$vectors[,1:nEigenVals], PCs_Rx)
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
   colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
   if (compute_projections) {
     message("computing projections this may take a while")
-    slot(SpaCoObject, "projection") <- t(eigenMapMatMult(t(ONB_OriginalBasis), t(data)))
+    slot(SpaCoObject, "projection") <- eigenMapMatMult(data_reduced, ONB_OriginalBasis)
     rownames(SpaCoObject@projection) <- rownames(data_centered)
     colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
-    var_projections <- apply(SpaCoObject@projection,2,sd)
-    slot(SpaCoObject, "projection") <- sweep(SpaCoObject@projection, MARGIN = 2, STATS = var_projections, FUN = "/")
-    slot(SpaCoObject, "spacs") <- sweep(SpaCoObject@spacs, MARGIN = 2, STATS = var_projections, FUN = "/")
+    # var_projections <- apply(SpaCoObject@projection,2,sd)
+    # slot(SpaCoObject, "projection") <- sweep(SpaCoObject@projection, 2, sqrt(Lambdas), "/")
+    # slot(SpaCoObject, "spacs") <- sweep(SpaCoObject@spacs, MARGIN = 2,
+    #                                     STATS = sqrt(Lambdas), FUN = "/")
   }
   slot(SpaCoObject, "Lambdas") <- Lambdas
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian

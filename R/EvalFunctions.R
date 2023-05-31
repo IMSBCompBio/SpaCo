@@ -79,4 +79,30 @@ getSingleGeneScoreAndPVal <- function(geneIdx, data_centered, A, nSim, preFactor
   pVal <- max(1, sum(simScores < score))/nSim
   return(c(score, pVal))
 }
+SVGTest <- function(SpaCoObject, adjustMethod = "holm")
+{
+  GLEigen <- eigen(SpaCoObject@GraphLaplacian)
+  k <- max(which(GLEigen$values > 1e-8))
+  GLInv <- GLEigen$vectors[,1:k] %>% eigenMapMatMult(diag(GLEigen$values[1:k]^-1)) %>% eigenMapMatMult(t(GLEigen$vectors[,1:k]))
+  S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs],
+             2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "*")
+  sigma <- eigenMapMatMult(GLInv, eigenMapMatMult(S, eigenMapMatMult(t(S), GLInv)))
+  sigmaSVD <- eigen(sigma, symmetric = TRUE)
+  Q <- sigmaSVD$vectors
+  C <- sigmaSVD$values
+  getpVal <- function(gene)
+  {
+    # gene <- data_PostPCA[,idx]
+    gene <- scale(gene)
+    # gene <- rnorm(n)
+    testStat <- t(gene) %*% sigma %*% gene
 
+    pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
+                       df = rep(1, SpaCoObject@nSpacs),
+                       lower.tail = FALSE)
+    return(pVal)
+  }
+  pVals <- apply(SpaCoObject@data, 2, getpVal)
+  resDf <- data.frame(gene <- colnames(SpaCoObject@data), pVals = p.adjust(pVals, method = adjustMethod))
+  return(resDf)
+}
