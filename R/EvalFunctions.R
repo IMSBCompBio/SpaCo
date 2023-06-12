@@ -117,9 +117,20 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm")
                        df = rep(1, SpaCoObject@nSpacs),
                        lower.tail = FALSE)
     # pVal <- farebrother(testStat, C[1:SpaCoObject@nSpacs])
-    return(pVal)
+    return(data.frame(score = testStat, pVal = pVal))
   }
-  pVals <- apply(SpaCoObject@data, 2, getpVal)
-  resDf <- data.frame(gene <- colnames(SpaCoObject@data), pVals = p.adjust(pVals, method = adjustMethod))
+  #pVals <- apply(SpaCoObject@data, 2, getpVal)
+  # Initialize an empty data frame
+  resDf <- data.frame()
+  # Apply the function to each column of the data
+  for(i in 1:ncol(SpaCoObject@data)){
+    temp <- getpVal(SpaCoObject@data[,i])
+    tempRowName <- colnames(SpaCoObject@data)[i]
+    rownames(temp) <- tempRowName
+    resDf <- rbind(resDf, temp)
+  }
+
+  resDf$p.adjust = p.adjust(resDf$pVal, method = adjustMethod)
   return(resDf)
+
 }

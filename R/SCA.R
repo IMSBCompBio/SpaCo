@@ -95,8 +95,8 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   #Compute SVD of R_x
   Eigen_Rx <- eigen(R_x)
   #Reverse order
-  PCs_Rx <- Eigen_Rx$vectors#[,nEigenVals:1]
-  Lambdas <- Eigen_Rx$values#[nEigenVals:1]
+  PCs_Rx <- Eigen_Rx$vectors[1:nEigenVals]
+  Lambdas <- Eigen_Rx$values[1:nEigenVals]
   #Reconstruct selected principal components into original basis before
   #SVD of test statistic matrix
 
