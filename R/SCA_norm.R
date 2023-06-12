@@ -62,7 +62,7 @@ RunSCA_norm <- function(SpaCoObject, PC_criterion = "percent",
   #Center data
   data_centered <- scale(data, scale = FALSE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt(1/(2 * W) * colSums(data_centered *
+  GeneANorms <- sqrt(preFactor * colSums(data_centered *
                                            eigenMapMatMult(GraphLaplacian, data_centered)))
   data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "/")
   #Perform initial PCA for dimension reduction
@@ -81,11 +81,11 @@ RunSCA_norm <- function(SpaCoObject, PC_criterion = "percent",
   {
     nEigenVals <- PC_value
   }
-  data_reduced <- t(eigenMapMatMult(data_centered_GL_scaled, InitialPCA$v[,1:nEigenVals]))
-  data_reduced <- t(scale(t(data_reduced)))
+  data_reduced <- eigenMapMatMult(data_centered_GL_scaled, InitialPCA$v[,1:nEigenVals])
+  data_reduced <- scale(data_reduced)
 
   #Compute test statistic matrix
-  R_x <- preFactor * eigenMapMatMult(data_reduced, eigenMapMatMult(GraphLaplacian, t(data_reduced)))
+  R_x <- preFactor * eigenMapMatMult(t(data_reduced), eigenMapMatMult(GraphLaplacian, data_reduced))
 
   #Compute SVD of R_x
   Svd_Rx <- svd(R_x)
@@ -115,7 +115,7 @@ RunSCA_norm <- function(SpaCoObject, PC_criterion = "percent",
     slot(SpaCoObject, "nSpacs") <- nSpacs
   }
 
-  ONB_OriginalBasis <- t(t(PCs_Rx) %*% t(InitialPCA$v[,1:nEigenVals]))
+  ONB_OriginalBasis <- InitialPCA$v[,1:nEigenVals] %*% PCs_Rx
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
   colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
 

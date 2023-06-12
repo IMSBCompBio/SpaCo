@@ -25,12 +25,12 @@ FindSVG <- function(SpaCoObject, nSpacs, nSim = 1e3)
   data_centered <- scale(apply(data, 2, normalizeA, A = SpaCoObject@GraphLaplacian, preFactor), scale = FALSE)
   message("computing emprirical p-values this may take a while.")
   GeneScoresDataP <- .getPScoreSerialWrapper(data_centered, SpaCoObject@GraphLaplacian, ONB,
-                                            nSim = nSim, TRUE)
+                                             nSim = nSim, TRUE)
   return(GeneScoresDataP)
 }
 
 .getPScoreSerialWrapper <- function(data_centered, GraphLaplacian, ONB, nSim,
-                                   bootstrap = FALSE)
+                                    bootstrap = FALSE)
 {
   #compute preFactor
   n <- nrow(GraphLaplacian)
@@ -52,7 +52,7 @@ FindSVG <- function(SpaCoObject, nSpacs, nSim = 1e3)
 }
 
 getSingleGeneScoreAndPVal <- function(geneIdx, data_centered, A, nSim, preFactor, projMatrix,
-                                     bootstrap = FALSE)
+                                      bootstrap = FALSE)
 {
   gc()
   gene <- data_centered[,geneIdx]
@@ -79,4 +79,27 @@ getSingleGeneScoreAndPVal <- function(geneIdx, data_centered, A, nSim, preFactor
   pVal <- max(1, sum(simScores < score))/nSim
   return(c(score, pVal))
 }
+SVGTest <- function(SpaCoObject, adjustMethod = "holm")
+{
+  GraphLaplacian <- SpaCoObject@GraphLaplacian
+  S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs],
+             2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
+  sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
+  sigmaSVD <- eigen(sigma, symmetric = TRUE)
+  Q <- sigmaSVD$vectors
+  C <- sigmaSVD$values
+  getpVal <- function(gene)
+  {
+    gene <- scale(gene)
+    testStat <- t(gene) %*% sigma %*% gene
 
+    pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
+                       df = rep(1, SpaCoObject@nSpacs),
+                       lower.tail = FALSE)
+    # pVal <- farebrother(testStat, C[1:SpaCoObject@nSpacs])
+    return(pVal)
+  }
+  pVals <- apply(SpaCoObject@data, 2, getpVal)
+  resDf <- data.frame(gene <- colnames(SpaCoObject@data), pVals = p.adjust(pVals, method = adjustMethod))
+  return(resDf)
+}
