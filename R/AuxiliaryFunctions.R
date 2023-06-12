@@ -105,6 +105,31 @@ projAFunction <- function(v, u, A, preFactor)
   }
   return(list(Q = Q))
 }
+.orthogonalizeA2 <- function(X, A, tol = .Machine$double.eps^0.5)
+{
+  n <- nrow(A)
+  W <- -(1/2)*sum(A - diag(diag(A)))
+  preFactor <- (1)/(2*W)
+  m <- nrow(X)
+  n <- ncol(X)
+  if (m < n)
+    stop("No. of rows of 'A' must be greater or equal no. of colums.")
+  Q <- matrix(0, m, n)
+  Norms <- rep(0, n)
+  for (k in 1:n) {
+    Q[, k] <- X[, k]
+    if (k > 1) {
+      for (i in 1:(k - 1)) {
+        Q[, k] <- Q[, k] - projAFunction(Q[, k], Q[, i], A, preFactor)
+      }
+    }
+    Norms[k]  <- normA(Q[, k], A, preFactor)
+    if (abs(Norms[k]) <= tol)
+      stop("Matrix 'A' does not have full rank.")
+    # Q[, k] <- Q[, k] / c(Norms[k])
+  }
+  return(list(Q = Q))
+}
 
 
 
