@@ -20,7 +20,7 @@
 #'
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
                    PC_value = .8, compute_nSpacs = FALSE,
-                   compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.5)
+                   compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.05)
 {
   require(Rcpp)
   require(RcppEigen)
@@ -95,7 +95,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   #Compute SVD of R_x
   Eigen_Rx <- eigen(R_x)
   #Reverse order
-  PCs_Rx <- Eigen_Rx$vectors[1:nEigenVals]
+  PCs_Rx <- Eigen_Rx$vectors[,1:nEigenVals]
   Lambdas <- Eigen_Rx$values[1:nEigenVals]
   #Reconstruct selected principal components into original basis before
   #SVD of test statistic matrix
