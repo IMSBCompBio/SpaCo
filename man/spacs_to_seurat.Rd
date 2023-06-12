@@ -4,7 +4,7 @@
 \alias{spacs_to_seurat}
 \title{transfer computed spatial components to existing Seurat object.}
 \usage{
-spacs_to_seurat(SpaCoObject, Seurat)
+spacs_to_seurat(SpaCoObject, Seurat, nSpacs = SpaCoObject@nSpacs)
 }
 \arguments{
 \item{SpaCoObject}{SpaCoObject to export spatial components from.}

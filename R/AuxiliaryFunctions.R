@@ -5,19 +5,45 @@
 #'
 #' @return returns geary's c value.
 #' @export
+#compute_C <- function(feature = NULL, SpaCoObject) {
+#  x <- SpaCoObject@data[, feature]
+ # neighbourindexmatrix <- SpaCoObject@neighbours
+ # n <- nrow(neighbourindexmatrix)
+#  W <- sum(neighbourindexmatrix)
+#  activeIndices <- which(neighbourindexmatrix != 0,arr.ind = T)
+ # i <- activeIndices %% n
+ # i[which(i == 0)] <- n
+#  j <- ceiling(activeIndices / n)
+ # C <- (((1) / (2 * W)) *
+ #         sum(neighbourindexmatrix[activeIndices] * (x[i] - x[j])^2)) / stats::var(x)
+#  return(C)
+#}
 compute_C <- function(feature = NULL, SpaCoObject) {
   x <- SpaCoObject@data[, feature]
   neighbourindexmatrix <- SpaCoObject@neighbours
-  n <- nrow(neighbourindexmatrix)
+
+  # Get the indices of non-zero entries in the neighbour matrix
+  activeIndices <- which(neighbourindexmatrix != 0, arr.ind = TRUE)
+
+  # Calculate W
   W <- sum(neighbourindexmatrix)
-  activeIndices <- which(neighbourindexmatrix != 0)
-  i <- activeIndices %% n
-  i[which(i == 0)] <- n
-  j <- ceiling(activeIndices / n)
-  C <- (((1) / (2 * W)) *
-          sum(neighbourindexmatrix[activeIndices] * (x[i] - x[j])^2)) / stats::var(x)
+
+  # Get i and j indices
+  i <- activeIndices[, 1]
+  j <- activeIndices[, 2]
+
+  # Compute Geary's C
+  C <- (1 / (2 * W)) * sum((x[i] - x[j])^2) / stats::var(x)
+
   return(C)
 }
+
+
+
+
+
+
+
 
 #' normalizeA
 #'
