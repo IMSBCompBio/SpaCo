@@ -7,6 +7,8 @@
 #' @return Returns a list of genes with distance scores and p-values.
 #' @export
 #'
+#' @import mgcv
+#' @import CompQuadForm
 #'
 
 FindSVG <- function(SpaCoObject, nSpacs, nSim = 1e3)
@@ -79,8 +81,26 @@ getSingleGeneScoreAndPVal <- function(geneIdx, data_centered, A, nSim, preFactor
   pVal <- max(1, sum(simScores < score))/nSim
   return(c(score, pVal))
 }
+
+
+
+
+#' Compute the spatial variable genes of a SpaCoObject after runinng runSCA
+#'
+#' @param SpaCoObject SpaCoObject to compute spatially variable genes of.
+#' @param adjustMethod method for p-value adjustment. See p.adjust function.
+#'
+#' @return returns a data frame of spatial variable genes and their p-Values.
+#' @export
+#'
+#'
+#' @import mgcv
+#' @import CompQuadForm
+#'
 SVGTest <- function(SpaCoObject, adjustMethod = "holm")
 {
+  require(mgcv)
+  require(CompQuadForm)
   GraphLaplacian <- SpaCoObject@GraphLaplacian
   S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs],
              2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")

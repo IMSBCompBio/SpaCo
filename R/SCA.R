@@ -103,8 +103,8 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   if(compute_nSpacs)
   {
     message("computing number of releveant spacs")
-    GLEigenVals <- sapply(GLEigen$values, function(x) max(x, 0))
-    L <- eigenMapMatMult(t(GLEigen$vectors), diag(sqrt(1/GLEigenVals)))
+    GLEigenVals <- GLEigen$values[1:k]
+    L <- eigenMapMatMult(t(GLEigen$vectors[1:k,]), diag(sqrt(1/GLEigenVals)))
     simSpacCFunction <- function(i)
     {
       shuffleOrder <- sample(ncol(GraphLaplacian), ncol(GraphLaplacian))
@@ -116,7 +116,7 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
     #Sample nSim minimal projection eigenvalues
     results_all <- t(sapply(1:nSim, simSpacCFunction))
 
-    nSpacs <- min(which(Lambdas < quantile(results_all, nSpacQuantile)))
+    nSpacs <- min(which(Lambdas < quantile(results_all, 1 - nSpacQuantile)))
     slot(SpaCoObject, "nSpacs") <- nSpacs
   }
 

@@ -11,7 +11,7 @@ RunSCA(
   compute_nSpacs = FALSE,
   compute_projections = TRUE,
   nSim = 1000,
-  nSpacQuantile = 0.05
+  nSpacQuantile = 0.5
 )
 }
 \arguments{

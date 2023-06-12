@@ -27,5 +27,7 @@ Imports:
     rcartocolor,
     tidyr,
     RcppArmadillo,
-    BH
+    BH,
+    mgcv,
+    CompQuadForm
 License: MIT + file LICENSE
