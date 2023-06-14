@@ -106,7 +106,6 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm")
              2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
   sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
   sigmaSVD <- eigen(sigma, symmetric = TRUE)
-  Q <- sigmaSVD$vectors
   C <- sigmaSVD$values
   getpVal <- function(gene)
   {
