@@ -11,9 +11,11 @@
 #' @import rcartocolor
 #' @import patchwork
 #' @import dplyr
+#' @import scales
 Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 {
- plots <- vector(
+ require(scales)
+  plots <- vector(
     mode = "list",
     length = length(spac))
  for (i in spac) {
@@ -26,12 +28,23 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 }
 
 .SpatialColors <- colorRampPalette(colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral")))
+.rescale_to_range <- function(x) {
+  2*rescale(x)
+}
+.rescale_to_spac <- function(x) {
+  4*(rescale(x) - 0.5)
+}
+
+
+
 
 .singlespacplot <- function(SpaCoObject, i = i) {
   name_arg <- paste0("spac_", i)
+  rescale_spac <- SpaCoObject@projection[, i, drop = FALSE]
+  rescale_spac[,1] <- .rescale_to_spac(rescale_spac[,1])
   singleplot <- ggplot(data = tibble(
   tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
-  assign(paste0("spac_", i), tibble::as_tibble(SpaCoObject@projection[, i, drop = FALSE], rownames = NA))))  +
+  assign(paste0("spac_", i), tibble::as_tibble(rescale_spac[, 1, drop = FALSE], rownames = NA))))  +
     coord_fixed() +
     theme_linedraw(base_size = 10) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
@@ -39,7 +52,8 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
   if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
     singleplot <- singleplot + ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
                                                        sides = 4, r = 3.5, angle = pi / 4, fill = !!as.name(paste0("spac_", i))))+
-      scale_fill_gradientn(name = name_arg,colours = .SpatialColors(n=100))+scale_x_continuous(name = NULL, breaks = NULL) +
+      scale_fill_gradientn(colours = .SpatialColors(n=100),
+                           limits = c(-2, 2))+scale_x_continuous(name = NULL, breaks = NULL) +
       scale_y_reverse(name = NULL, breaks = NULL)
   } else {
     singleplot <- singleplot + geom_tile(aes(x = imagecol, y = imagerow, fill = !!as.name(paste0("spac_", i))))+
@@ -64,6 +78,7 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 #' @import tidyr
 #' @import rcartocolor
 #' @import patchwork
+#' @import scales
 denoised_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
 {
   plots <- vector(
@@ -80,10 +95,13 @@ denoised_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, 
 
 
 .singledenoisedprojectionplot <- function(SpaCoObject, i = i, features) {
+  require(scales)
   name_arg <- features[i]
+  rescaled_denoised <- SpaCoObject@denoised[ ,features[i]  , drop = FALSE]
+  rescaled_denoised[,1] <- .rescale_to_range(rescaled_denoised[,1])
   singleplot <- ggplot(data = tibble(
     tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
-    as_tibble(SpaCoObject@denoised[ ,features[i]  , drop = FALSE],rownames=NA))) +
+    as_tibble(rescaled_denoised[ ,features[i]  , drop = FALSE],rownames=NA))) +
     coord_fixed() +
     theme_linedraw(base_size = 10) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
@@ -91,7 +109,8 @@ denoised_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, 
   if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
     singleplot <- singleplot + ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
                                                        sides = 4, r = 3.5, angle = pi / 4, fill = !!as.symbol(paste0(features[i]))))+
-      scale_fill_gradientn(name = name_arg,colours = .SpatialColors(n=100)) +scale_x_continuous(name = NULL, breaks = NULL) +
+      scale_fill_gradientn(colours = .SpatialColors(n=100),
+                           limits = c(0, 2)) +scale_x_continuous(name = NULL, breaks = NULL) +
       scale_y_reverse(name = NULL, breaks = NULL)
   } else {
     singleplot <- singleplot + geom_tile(aes(x = imagecol, y = imagerow,fill = !!as.symbol(paste0(features[i])))) +
@@ -120,6 +139,7 @@ denoised_projection_plot <- function(SpaCoObject, features = NULL, ncol = NULL, 
 #' @import tidyr
 #' @import rcartocolor
 #' @import patchwork
+#' @import scales
 feature_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
 {
   plots <- vector(
@@ -136,10 +156,13 @@ feature_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TR
 
 
 .singledataplot <- function(SpaCoObject, i = i, features) {
+  require(scales)
   name_arg <- features[i]
+  rescaled_data <- SpaCoObject@data[ ,features[i]  , drop = FALSE]
+  rescaled_data[,1] <- .rescale_to_range(rescaled_data[,1])
   singleplot <- ggplot(data = tibble(
     tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
-    as_tibble(SpaCoObject@data[ ,features[i]  , drop = FALSE],rownames=NA))) +
+    as_tibble(rescaled_data[ ,features[i]  , drop = FALSE],rownames=NA))) +
     coord_fixed() +
     theme_linedraw(base_size = 10) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
@@ -147,7 +170,8 @@ feature_plot <- function(SpaCoObject, features = NULL, ncol = NULL, combine = TR
   if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
     singleplot <- singleplot + ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
                                                        sides = 4, r = 3.5, angle = pi / 4, fill = !!as.symbol(paste0(features[i]))))+
-      scale_fill_gradientn(name = name_arg,colours = .SpatialColors(n=100)) +scale_x_continuous(name = NULL, breaks = NULL) +
+      scale_fill_gradientn(colours = .SpatialColors(n=100),
+                           limits = c(0, 2)) +scale_x_continuous(name = NULL, breaks = NULL) +
       scale_y_reverse(name = NULL, breaks = NULL)
   } else {
     singleplot <- singleplot + geom_tile(aes(x = imagecol, y = imagerow,fill = !!as.symbol(paste0(features[i])))) +

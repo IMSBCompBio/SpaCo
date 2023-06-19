@@ -29,5 +29,6 @@ Imports:
     RcppArmadillo,
     BH,
     mgcv,
-    CompQuadForm
+    CompQuadForm,
+    scales
 License: MIT + file LICENSE
