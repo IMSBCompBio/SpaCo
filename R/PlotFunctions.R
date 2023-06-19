@@ -1,3 +1,11 @@
+.SpatialColors <- colorRampPalette(colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral")))
+.rescale_to_range <- function(x) {
+  2*rescale(x)
+}
+.rescale_to_spac <- function(x) {
+  4*(rescale(x) - 0.5)
+}
+
 #' Plot SPaCo meta genes.
 #'
 #' @param SpaCoObject SpacoObject with computed projections
@@ -18,8 +26,8 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
   plots <- vector(
     mode = "list",
     length = length(spac))
- for (i in spac) {
-  plots[[i]] <- suppressWarnings(.singlespacplot(SpaCoObject, i = i))
+ for (i in 1:length(spac)) {
+  plots[[i]] <- suppressWarnings(.singlespacplot(SpaCoObject, i = i, spac = spac))
        }
  if (combine) {
   plots <- patchwork::wrap_plots(plots, ncol = ncol, guides = "auto")
@@ -27,20 +35,10 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
   return(plots)
 }
 
-.SpatialColors <- colorRampPalette(colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral")))
-.rescale_to_range <- function(x) {
-  2*rescale(x)
-}
-.rescale_to_spac <- function(x) {
-  4*(rescale(x) - 0.5)
-}
 
-
-
-
-.singlespacplot <- function(SpaCoObject, i = i) {
-  name_arg <- paste0("spac_", i)
-  rescale_spac <- SpaCoObject@projection[, i, drop = FALSE]
+.singlespacplot <- function(SpaCoObject, i = i, spac = spac) {
+  name_arg <- paste0("spac_", spac[i])
+  rescale_spac <- SpaCoObject@projection[, spac[i], drop = FALSE]
   rescale_spac[,1] <- .rescale_to_spac(rescale_spac[,1])
   singleplot <- ggplot(data = tibble(
   tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
@@ -51,12 +49,12 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
 
   if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
     singleplot <- singleplot + ggforce::geom_regon(aes(x0 = imagecol, y0 = imagerow,
-                                                       sides = 4, r = 3.5, angle = pi / 4, fill = !!as.name(paste0("spac_", i))))+
+                                                       sides = 4, r = 3.5, angle = pi / 4, fill = !!as.name(paste0("spac_",  spac[i]))))+
       scale_fill_gradientn(colours = .SpatialColors(n=100),
                            limits = c(-2, 2))+scale_x_continuous(name = NULL, breaks = NULL) +
       scale_y_reverse(name = NULL, breaks = NULL)
   } else {
-    singleplot <- singleplot + geom_tile(aes(x = imagecol, y = imagerow, fill = !!as.name(paste0("spac_", i))))+
+    singleplot <- singleplot + geom_tile(aes(x = imagecol, y = imagerow, fill = !!as.name(paste0("spac_",  spac[i]))))+
       scale_fill_gradient(low = "white", high = "black") + coord_flip()+ scale_x_reverse(name = NULL, breaks = NULL)
 
   }
