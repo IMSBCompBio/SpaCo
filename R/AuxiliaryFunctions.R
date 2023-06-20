@@ -180,6 +180,8 @@ denoise_profiles <- function(SpaCoObject){
   projection <- eigenMapMatMult(projMatrix, data)
   colnames(projection) <- colnames(data_centered)
   rownames(projection) <- rownames(data_centered)
+  sds <- apply(projection, 2, sd)
+  projection <- sweep(projection, MARGIN = 2, STATS = sds, FUN = "/")
   slot(SpaCoObject, "denoised") <- as.data.frame(projection)
   return(SpaCoObject)
 }
