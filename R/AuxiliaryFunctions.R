@@ -169,27 +169,15 @@ projAFunction <- function(v, u, A, preFactor)
 #'
 smooth_profiles <- function(SpaCoObject){
   data <- SpaCoObject@data
-  Spacos_norm <- sweep(SpaCoObject@spacs, 2, sqrt(SpaCoObject@Lambdas), "/")
-  Spacos <- Spacos_norm[,1:SpaCoObject@nSpacs]
-  n <- nrow(data)
-  W <- sum(SpaCoObject@neighbours)
-  preFactor <- (1)/(2*W)
   GraphLaplacian <- SpaCoObject@GraphLaplacian
 
-  #Compute metagene expression profiles
-  SpacoProjection <- t(eigenMapMatMult(t(Spacos), t(data)))
-  ONB <- .orthogonalizeA(SpacoProjection, SpaCoObject@GraphLaplacian)$Q
-  projMatrix <- eigenMapMatMult(ONB, eigenMapMatMult(t(ONB), GraphLaplacian))
-  #Create orthonormal basis for metagene space
-
+  SpacoProjection <- SpaCoObject@projection[,1:SpaCoObject@nSpacs]
+  projMatrix <- eigenMapMatMult(SpacoProjection,
+                                eigenMapMatMult(t(SpacoProjection),
+                                                GraphLaplacian))
   #Center data regarding A-norm
-  data_centered <- scale(apply(data, 2, normalizeA, A = SpaCoObject@GraphLaplacian, preFactor), scale = FALSE)
-  projection <- matrix(nrow = nrow(data_centered),ncol=ncol(data_centered))
-  for (i in seq_along(1:ncol(data))){
-    gene <- data_centered[,i]
-    projection[,i] <- projASubspaceFunction(gene, projMatrix, preFactor)###smothed profile
-    projection[,i] <- projection[,i]/norm(projection[,i], type = "2")
-  }
+  data_centered <- scale(data)
+  projection <- eigenMapMatMult(projMatrix, data)
   colnames(projection) <- colnames(data_centered)
   rownames(projection) <- rownames(data_centered)
   slot(SpaCoObject, "denoised") <- as.data.frame(projection)
