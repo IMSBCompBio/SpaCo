@@ -19,8 +19,8 @@
 #' @import RcppEigen
 #'
 RunSCA <- function(SpaCoObject, PC_criterion = "percent",
-                   PC_value = .8, compute_nSpacs = FALSE,
-                   compute_projections = TRUE, nSim = 1000, nSpacQuantile = 0.05)
+                   PC_value = .9, compute_nSpacs = FALSE,
+                   nSim = 1000, nSpacQuantile = 0.05)
 {
   require(Rcpp)
   require(RcppEigen)
@@ -44,7 +44,6 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   n <- nrow(data)
   p <- ncol(data)
   W <- sum(neighbourindexmatrix)
-  preFactor <- 1 / (2 * W)
   #Input check: Check if number of desired number is larger than number of genes
   if(PC_criterion == "number")
   {
@@ -55,20 +54,14 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
     }
   }
   #Compute Graph Laplacian
-  GraphLaplacian <- -neighbourindexmatrix
-  diag(GraphLaplacian) <- rowSums(neighbourindexmatrix)
-  GraphLaplacian <- 2 * GraphLaplacian
-  GLEigen <- eigen(GraphLaplacian)
-  k <- max(which(GLEigen$values > 1e-8))
-  GLInv <- eigenMapMatMult(GLEigen$vectors[,1:k],
-                           eigenMapMatMult(diag(GLEigen$values[1:k]^-1), t(GLEigen$vectors[,1:k])))
-  GraphLaplacian <- GLInv
+  GraphLaplacian <- neighbourindexmatrix * 1 / W
+  GraphLaplacian <- GraphLaplacian + (1 / n) * diag(nrow = n)
   #Center data
   data_centered <- scale(data, scale = TRUE)
   #Scale data using spatial scalar product
-  GeneANorms <- sqrt(preFactor * colSums(data_centered *
-                                           eigenMapMatMult(GraphLaplacian, data_centered)))
-  data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms * sqrt(1 / (n - 1)), "*")
+  GeneANorms <- colSums(data_centered *
+                          eigenMapMatMult(GraphLaplacian, data_centered))
+  data_centered_GL_scaled <- sweep(data_centered, 2, GeneANorms, "*")
   #Perform initial PCA for dimension reduction
   VarMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data_centered_GL_scaled), data_centered_GL_scaled)
   InitialPCA <- eigen(VarMatrix, symmetric = TRUE)
@@ -86,11 +79,11 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
     nEigenVals <- PC_value
   }
   data_reduced <- eigenMapMatMult(data_centered_GL_scaled, InitialPCA$vectors[,1:nEigenVals])
-  data_reduced <- eigenMapMatMult(data_reduced, t(InitialPCA$vectors[,1:nEigenVals]))
+  # data_reduced <- eigenMapMatMult(data_reduced, t(InitialPCA$vectors[,1:nEigenVals]))
   data_reduced <- scale(data_reduced)
 
   #Compute test statistic matrix
-  R_x <- preFactor * eigenMapMatMult(t(data_reduced), eigenMapMatMult(GraphLaplacian, data_reduced))
+  R_x <- eigenMapMatMult(t(data_reduced), eigenMapMatMult(GraphLaplacian, data_reduced))
 
   #Compute SVD of R_x
   Eigen_Rx <- eigen(R_x)
@@ -103,35 +96,61 @@ RunSCA <- function(SpaCoObject, PC_criterion = "percent",
   if(compute_nSpacs)
   {
     message("computing number of releveant spacs")
-    GLEigenVals <- GLEigen$values[1:k]
-    L <- eigenMapMatMult(t(GLEigen$vectors[1:k,]), diag(sqrt(1/GLEigenVals)))
     simSpacCFunction <- function(i)
     {
       shuffleOrder <- sample(ncol(GraphLaplacian), ncol(GraphLaplacian))
-      tmpMat <- eigenMapMatMult(t(data_reduced[shuffleOrder,]), L)
-      R_x_Shuffled <- eigenMapMatMult(tmpMat, t(tmpMat)) * preFactor
+      # tmpMat <- eigenMapMatMult(t(data_reduced[shuffleOrder,]), L)
+      R_x_Shuffled <- eigenMapMatMult(t(data_reduced[shuffleOrder,]),
+                                      eigenMapMatMult(GraphLaplacian,
+                                                      data_reduced[shuffleOrder,]))
+      # R_x_Shuffled <- eigenMapMatMult(tmpMat, t(tmpMat)) * preFactor
+      # largestEigVal <- eigs_sym(R_x_Shuffled, round(nrow(R_x_Shuffled) * 0.95),
+      #                           which = "LM")$values
+      # largestEigVal <- largestEigVal[length(largestEigVal)]
       largestEigVal <- eigs_sym(R_x_Shuffled, 1, which = "LM")$values
       return(largestEigVal)
     }
     #Sample nSim minimal projection eigenvalues
-    results_all <- t(sapply(1:nSim, simSpacCFunction))
-
-    nSpacs <- min(which(Lambdas < quantile(results_all, 1 - nSpacQuantile)))
+    batchSize <- 10
+    results_all <- t(sapply(1:100, simSpacCFunction))
+    eigValSE <- sd(results_all) / sqrt(length(results_all))
+    eigValCI <- mean(results_all) + c(-1,1) *
+      qt(0.975, df = length(results_all) - 1) * eigValSE
+    LambdasInCI <- Lambdas[which(Lambdas > eigValCI[1] &
+                                   Lambdas < eigValCI[2])]
+    i <- 0
+    if(length(LambdasInCI) > 1)
+    {
+      for(i in 1:round((nSim - 100) / batchSize))
+      {
+        batchResult <- t(sapply(1:batchSize, simSpacCFunction))
+        results_all <- c(results_all, batchResult)
+        # eigValCI <- t.test(results_all)$conf.int
+        eigValSE <- sd(results_all) / sqrt(length(results_all))
+        eigValCI <- mean(results_all) + c(-1,1) *
+          qt(0.975, df = length(results_all) - 1) * eigValSE
+        LambdasInCI <- Lambdas[which(Lambdas > eigValCI[1] &
+                                       Lambdas < eigValCI[2])]
+        if(length(LambdasInCI) < 2)
+        {
+          break
+        }
+      }
+    }
+    relSpacsIdx <- which(Lambdas < mean(results_all))
+    nSpacs <- if(any(relSpacsIdx)) min(relSpacsIdx) else nEigenVals
     slot(SpaCoObject, "nSpacs") <- nSpacs
   }
 
-  ONB_OriginalBasis <- #InitialPCA$vectors[,1:nEigenVals] %*%
+  ONB_OriginalBasis <- InitialPCA$vectors[,1:nEigenVals] %*%
     PCs_Rx
   rownames(ONB_OriginalBasis) <- colnames(data_centered)
   colnames(ONB_OriginalBasis) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
 
   slot(SpaCoObject, "spacs") <- ONB_OriginalBasis
-  if (compute_projections) {
-    message("computing projections this may take a while")
-    slot(SpaCoObject, "projection") <- eigenMapMatMult(data_reduced, ONB_OriginalBasis)
-    rownames(SpaCoObject@projection) <- rownames(data_centered)
-    colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
-  }
+  slot(SpaCoObject, "projection") <- eigenMapMatMult(data_reduced, PCs_Rx)
+  rownames(SpaCoObject@projection) <- rownames(data_centered)
+  colnames(SpaCoObject@projection) <- paste0("spac_",1:ncol(ONB_OriginalBasis))
   slot(SpaCoObject, "Lambdas") <- Lambdas
   slot(SpaCoObject,"GraphLaplacian") <- GraphLaplacian
   return(SpaCoObject)

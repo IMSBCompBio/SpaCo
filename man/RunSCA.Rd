@@ -9,7 +9,6 @@ RunSCA(
   PC_criterion = "percent",
   PC_value = 0.8,
   compute_nSpacs = FALSE,
-  compute_projections = TRUE,
   nSim = 1000,
   nSpacQuantile = 0.05
 )
@@ -21,8 +20,6 @@ RunSCA(
 
 \item{compute_nSpacs}{Boolean if number of relevant spacs is to be computed. Increases run time significantly}
 
-\item{compute_projections}{Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE}
-
 \item{nSim}{Number of simulations for computation of spac number}
 
 \item{nSpacQuantile}{Quantile to use as cutoff for spac number}
@@ -30,6 +27,8 @@ RunSCA(
 \item{data}{gene expression data matrix; p genes as columns, n loci as rows}
 
 \item{neighbourindexmatrix}{n x n matrix showing neighborhood weight of loci}
+
+\item{compute_projections}{Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE}
 }
 \value{
 Returns a SpaCoObject filled with the result of the spatial component analysis.
