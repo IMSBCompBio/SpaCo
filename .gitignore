@@ -8,7 +8,7 @@
 data_for_david/
 R/ThesisPlots/
 LoadPreprocessData.R
-
+*.so
 # Session Data files
 .RData
 
@@ -44,3 +44,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+

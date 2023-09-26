@@ -1,5 +1,5 @@
 Package: SPACO
-Title: This packages computes spatial components - and they are pretty cool
+Title: This packages computes spatial components for spatial sequencing data.
 Version: 0.1.0
 Author: Niklas Kleinenkuhnen, David Köhler
 Maintainer: Niklas Kleinenkuhnen <nkleinen@smail.uni-koeln.de>

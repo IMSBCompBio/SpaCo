@@ -7,7 +7,7 @@
 RunSCA(
   SpaCoObject,
   PC_criterion = "percent",
-  PC_value = 0.8,
+  PC_value = 0.9,
   compute_nSpacs = FALSE,
   nSim = 1000,
   nSpacQuantile = 0.05
