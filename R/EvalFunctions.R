@@ -36,6 +36,8 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm")
   resDf <- t(sapply(1:ncol(SpaCoObject@data),
                     function(x) getpVal(SpaCoObject@data[,x])))
   resDf <- as.data.frame(resDf)
+  resDf[,1] <- unlist(resDf[,1])
+  resDf[,2] <- unlist(resDf[,2])
   rownames(resDf) <- colnames(SpaCoObject@data)
 
   resDf$p.adjust = p.adjust(resDf$pVal, method = adjustMethod)
