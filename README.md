@@ -122,6 +122,30 @@ To compare the spatial component analysis to the analog process using
 PCA in the Seurat pipeline we do all the downstream processing right in
 the Seurat object.
 
+``` r
+cc <- SpatialFeaturePlot(brain,features = c("Spac_1","Spac_2","Spac_3","Spac_4"),combine = T)
+brain_2 <- RunPCA(brain, verbose = F)
+dd <- SpatialFeaturePlot(brain_2,features = c("PC_1","PC_2","PC_3","PC_4"),combine = T)
+
+brain <- RunUMAP(brain,reduction = "spaco",dims = 1:SpaCoObject@nSpacs,n.neighbors = 45, verbose = F)
+brain_2 <- RunUMAP(brain_2,reduction = "pca",dims = 1:30, verbose = F)
+
+brain <- FindNeighbors(brain,reduction = "spaco" , dims = 1:SpaCoObject@nSpacs, verbose = F)
+brain_2 <- FindNeighbors(brain_2,reduction = "pca" , dims = 1:30, verbose = F)
+
+brain <- FindClusters(brain,resolution = 0.24, verbose = F)
+brain_2 <- FindClusters(brain_2, verbose = F)
+
+aa <- DimPlot(brain,group.by="seurat_clusters")+ggtitle("SpaCo")
+bb <- DimPlot(brain_2,group.by="seurat_clusters")+ggtitle("Pca")
+
+a <- DimPlot(brain,reduction = "spaco")+ggtitle("SpaCo")
+b <- DimPlot(brain_2,reduction = "pca")+ggtitle("Pca")
+
+rr <- SpatialDimPlot(brain)+ggtitle("SpaCo")
+qq <- SpatialDimPlot(brain_2)+ggtitle("Pca")
+```
+
 We can plot all plots using standard ggplot and patchwork grammar.
 
 ``` r
@@ -177,10 +201,9 @@ sigs_entres <- na.omit(AnnotationDbi::select(
 enrichGO(sigs_entres,'org.Mm.eg.db',ont="BP") -> GOBP
 dotplot_brain <- dotplot(GOBP, showCategory=10)
 dotplot_brain
-
-
-enrichKEGG(sigs_entres,'org.Mm.eg.db',ont="BP") -> GOBP
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 For the identification of functional areas on the tissue slide it is
 possible to use the relevant spatial components for denoising of genes.
