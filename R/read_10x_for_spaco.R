@@ -49,7 +49,7 @@ read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = 
   data <- data[match(LociNames, rownames(data)),]
   pixel_positions_list <- pixel_positions_list[match(LociNames, rownames(pixel_positions_list)),]
 
-  SpaCoObject <- SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list)
+  SpaCoObject <- SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list, pixel_positions_list=pixel_positions_list)
   slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(pixel_positions_list)
   return(SpaCoObject)
   }
