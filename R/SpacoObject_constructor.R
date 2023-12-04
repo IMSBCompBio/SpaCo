@@ -12,7 +12,9 @@ setClass("SpaCoObject",
                         GraphLaplacian = "dgCMatrix", # Assuming GraphLaplacian is sparse
                         Lambdas = "numeric",
                         nSpacs = "integer",
-                        smoothed = "data.frame"))
+                        smoothed = "data.frame",
+                        meta.data = "data.frame"
+                        ))
 
 #
 #' Create a constructor function that creates an object of class SpaCoObject
@@ -40,7 +42,8 @@ setClass("SpaCoObject",
            GraphLaplacian = "dgCMatrix",
            Lambdas = "numeric",
            nSpacs = "integer",
-           smoothed = "data.frame"
+           smoothed = "data.frame",
+           meta.data = "data.frame"
          ))
 
 # Create a simplified constructor function
@@ -57,6 +60,7 @@ SpaCoObject <- function(neighbours, data, coordinates, pixel_positions_list) {
       GraphLaplacian = new("dgCMatrix", Dim = as.integer(c(0L, 0L))),
       Lambdas = numeric(0),
       nSpacs = integer(0),
-      smoothed = new("data.frame")
+      smoothed = new("data.frame"),
+      meta.data = new("data.frame")
   )
 }

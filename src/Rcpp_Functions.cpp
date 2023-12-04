@@ -17,5 +17,3 @@
 Eigen::MatrixXd eigenMapMatMult(const Eigen::Map<Eigen::MatrixXd> A, Eigen::Map<Eigen::MatrixXd> B){
   return A * B;
 }
-
-
