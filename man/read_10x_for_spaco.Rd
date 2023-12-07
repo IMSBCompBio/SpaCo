@@ -19,8 +19,6 @@ read_10x_for_spaco(
 \item{slice}{Name for the stored image of the tissue slice}
 
 \item{variable_features_n}{Number of most variable features to keep.}
-
-\item{only_var}{Logical True if you want to keep only the most variable features in the SPACO object. Default True.}
 }
 \value{
 Retuns a ready to run SPaCoObject.

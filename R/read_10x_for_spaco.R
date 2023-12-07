@@ -2,7 +2,6 @@
 #'
 #' @param data_dir Directory containing the H5 file specified by file name and the image data in a sub directory called spatial
 #' @param slice Name for the stored image of the tissue slice
-#' @param only_var Logical True if you want to keep only the most variable features in the SPACO object. Default True.
 #' @param variable_features_n Number of most variable features to keep.
 #'
 #' @return Retuns a ready to run SPaCoObject.
@@ -10,114 +9,72 @@
 #'
 #'
 #' @import Seurat
-read_10x_for_spaco <- function(data_dir, slice, filename, variable_features_n = variable_features_n, spatial_file = spatial_file, vars_to_regress = NULL) {
+read_10x_for_spaco <- function(data_dir,
+                               slice,
+                               filename,
+                               variable_features_n = variable_features_n,
+                               spatial_file = spatial_file,
+                               vars_to_regress = NULL) {
   require(Seurat)
-  data <- Seurat::Load10X_Spatial(data.dir = data_dir, filename = filename, assay = "RNA", filter.matrix = TRUE )
 
- if(is.null(vars_to_regress)){
+  # Load data
+  data <- Load10X_Spatial(data.dir = data_dir,
+                          filename = filename,
+                          assay = "RNA",
+                          filter.matrix = TRUE)
+
+  # Normalization based on vars_to_regress
+  if (is.null(vars_to_regress)) {
     data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
-  }
-  else {
-    for (i in 1:length(vars_to_regress)) {
-      data <- Seurat::PercentageFeatureSet(data, pattern = vars_to_regress[i],col.name = make.names(paste0("percent",vars_to_regress[i])))
-          }
-    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n, vars.to.regress = make.names(paste0("percent",vars_to_regress)))
-  }
-
-
-  pixel_positions_list <- GetTissueCoordinates(data)
-
-  data <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
-
-  tissue_positions_list <- read.csv(paste(slice, spatial_file, sep = "/"), col.names = c("barcode", "tissue", "row", "col", "imagerow", "imagecol"),row.names = 1,
-                                    header = TRUE)
-
-  tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
-  distm <- as.matrix(dist(tissue_positions_list, method = "euclidean", upper = TRUE))
-  diag(distm) <- Inf
-  neighboursindex <- distm <= 2
-
-  if (any(colSums(neighboursindex) == 0)) {
-    message("removing cells without any neighbours in defined distance")
-    neighboursindex <- neighboursindex[colSums(neighboursindex) != 0, colSums(neighboursindex) != 0]
-    data <- data[colnames(neighboursindex), ]
-    tissue_positions_list <- tissue_positions_list[rownames(data),]
-    pixel_positions_list <- pixel_positions_list[rownames(data),]
-  }
-
-  LociNames <- colnames(neighboursindex)
-  data <- data[match(LociNames, rownames(data)),]
-  pixel_positions_list <- pixel_positions_list[match(LociNames, rownames(pixel_positions_list)),]
-
-  SpaCoObject <- SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list, pixel_positions_list=pixel_positions_list)
-  slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(pixel_positions_list)
-  return(SpaCoObject)
-  }
-
-
-
-
-#' Read in 10x Visium spatial transcriptomics data
-#'
-#' @param data_dir Directory containing the H5 file specified by file name and the image data in a sub directory called spatial
-#' @param slice Name for the stored image of the tissue slice
-#' @param only_var Logical True if you want to keep only the most variable features in the SPACO object. Default True.
-#' @param variable_features_n Number of most variable features to keep.
-#'
-#' @return Retuns a ready to run SPaCoObject.
-#' @export
-#'
-#'
-#' @import Seurat
-read_10x_for_spaco_counts <- function(data_dir, slice, filename, variable_features_n = variable_features_n, spatial_file = spatial_file, vars_to_regress = NULL) {
-  require(Seurat)
-  data <- Seurat::Load10X_Spatial(data.dir = data_dir, filename = filename, assay = "RNA", filter.matrix = TRUE )
-
-  if(is.null(vars_to_regress)){
-    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n)
-  }
-  else {
-    for (i in 1:length(vars_to_regress)) {
-      data <- Seurat::PercentageFeatureSet(data, pattern = vars_to_regress[i],col.name = make.names(paste0("percent",vars_to_regress[i])))
+  } else {
+    for (var in vars_to_regress) {
+      percent_col_name <- make.names(paste0("percent", var))
+      data <-PercentageFeatureSet(data, pattern = var, col.name = percent_col_name)
     }
-    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n, vars.to.regress = make.names(paste0("percent",vars_to_regress)))
+    regress_vars <- make.names(paste0("percent", vars_to_regress))
+    data <- SCTransform(data, assay = "RNA", variable.features.n = variable_features_n, vars.to.regress = regress_vars)
   }
 
-
+  # Coordinate processing
   pixel_positions_list <- GetTissueCoordinates(data)
+  meta <- as.data.frame(data@meta.data)
+  data_matrix <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "scale.data")))
 
-  data <- t(as.matrix(GetAssayData(object = data, assay = "SCT", slot = "counts")[VariableFeatures(data),]))
-
-  tissue_positions_list <- read.csv(paste(slice, spatial_file, sep = "/"), col.names = c("barcode", "tissue", "row", "col", "imagerow", "imagecol"),row.names = 1,
+  # Read and process tissue positions
+  tissue_positions_list <- read.csv(paste(slice, spatial_file, sep = "/"),
+                                    col.names = c("barcode", "tissue", "row", "col", "imagerow", "imagecol"),
+                                    row.names = 1,
                                     header = TRUE)
-
   tissue_positions_list <- tissue_positions_list[tissue_positions_list$tissue == 1, c("row", "col")]
+
+  # Distance matrix and neighbor index
   distm <- as.matrix(dist(tissue_positions_list, method = "euclidean", upper = TRUE))
   diag(distm) <- Inf
-  neighboursindex <- distm <= 2
+  neighbours_index <- distm <= 2
 
-  if (any(colSums(neighboursindex) == 0)) {
-    message("removing cells without any neighbours in defined distance")
-    neighboursindex <- neighboursindex[colSums(neighboursindex) != 0, colSums(neighboursindex) != 0]
-    data <- data[colnames(neighboursindex), ]
-    tissue_positions_list <- tissue_positions_list[rownames(data),]
-    pixel_positions_list <- pixel_positions_list[rownames(data),]
+  # Handling cells without neighbors
+  if (any(colSums(neighbours_index) == 0)) {
+    message("Removing cells without any neighbours in defined distance")
+    valid_cells <- colSums(neighbours_index) != 0
+    neighbours_index <- neighbours_index[valid_cells, valid_cells]
+    data_matrix <- data_matrix[colnames(neighbours_index), ]
+    tissue_positions_list <- tissue_positions_list[rownames(data_matrix), ]
+    pixel_positions_list <- pixel_positions_list[rownames(data_matrix), ]
   }
 
-  LociNames <- colnames(neighboursindex)
-  data <- data[match(LociNames, rownames(data)),]
-  pixel_positions_list <- pixel_positions_list[match(LociNames, rownames(pixel_positions_list)),]
+  # Final data adjustments
+  meta <- meta[rownames(data_matrix), ]
+  loci_names <- colnames(neighbours_index)
+  data_matrix <- data_matrix[match(loci_names, rownames(data_matrix)), ]
+  pixel_positions_list <- pixel_positions_list[match(loci_names, rownames(pixel_positions_list)), ]
 
-  SpaCoObject <- SpaCoObject(neighbours <-  neighboursindex, data <-  as.matrix(data), coordinates <- tissue_positions_list)
-  slot(SpaCoObject, "pixel_positions_list") <- as.data.frame(pixel_positions_list)
+  # Create SpaCoObject
+  SpaCoObject <- SpaCoObject(neighbours = neighbours_index,
+                             data = as.matrix(data_matrix),
+                             coordinates = tissue_positions_list,
+                             pixel_positions_list = pixel_positions_list)
+  SpaCoObject@meta.data <- meta
+  SpaCoObject@pixel_positions_list <- as.data.frame(pixel_positions_list)
+
   return(SpaCoObject)
 }
-
-
-
-
-
-
-
-
-
