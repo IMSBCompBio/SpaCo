@@ -1,3 +1,25 @@
+#' SCA_function
+#'
+#' @param data gene expression data matrix; p genes as columns, n loci as rows
+#' @param neighbourindexmatrix n x n matrix showing neighborhood weight of loci
+#' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
+#' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
+#' @param compute_nSpacs Boolean if number of relevant spacs is to be computed. Increases run time significantly
+#' @param compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
+#' @param nSim Number of simulations for computation of spac number
+#' @param nSpacQuantile Quantile to use as cutoff for spac number
+#'
+#' @return
+#' Returns a SpaCoObject filled with the result of the spatial component analysis.
+#' @export
+#'
+#' @import methods
+#' @import rARPACK
+#' @import Rcpp
+#' @import RcppEigen
+#'
+
+# Main Function
 RunSCA <- function(SpaCoObject,
                    PC_criterion = "percent",
                    PC_value = 0.9,
