@@ -1,22 +1,3 @@
-scalarProductA <- function(x, y, A, preFactor)
-{
-  return(preFactor * t(x) %*% A %*% y)
-}
-#' Title
-#'
-#' @param v placeholder
-#' @param u placeholder
-#' @param A placeholder
-#'
-#' @return placeholder
-#' @keywords internal
-#'
-#'
-projAFunction <- function(v, u, A, preFactor)
-{
-  return(c(scalarProductA(v, u, A, preFactor)/
-             scalarProductA(u, u, A, preFactor)) * u)
-}
 #' computed smoothed gene profiles of genes present in the data.
 #'
 #' @param SpaCoObject Spaco object to compute profiles of.

@@ -45,8 +45,6 @@ Spaco_plot <- function(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
   assign(paste0("spac_", i), tibble::as_tibble(rescale_spac[, 1, drop = FALSE], rownames = NA))))  +
     coord_fixed() +
     theme_linedraw(base_size = 10) +
-    #theme_classic(base_size = 16) +
-    #theme_void(base_size = 10)+
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position = "top")
 
   if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {

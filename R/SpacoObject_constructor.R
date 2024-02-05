@@ -1,18 +1,20 @@
 # Define a custom class for the object
+
 setClass("SpaCoObject",
-         representation(neighbours = "matrix",
-                        data = "matrix",
+         representation(neighbours = "dgCMatrix",  # Assuming neighbours is sparse
+                        data = "matrix",        # Assuming data can be sparse
                         coordinates = "data.frame",
                         pixel_positions_list = "data.frame",
                         data.dir = "character",
                         slice = "character",
-                        spacs = "matrix",
-                        projection = "matrix",
-                        GraphLaplacian="matrix",
-                        Lambdas="vector",
-                        nSpacs ="integer",
-                        denoised = "data.frame"))
-
+                        spacs = "matrix",       # Assuming spacs is sparse
+                        projection = "matrix",  # Assuming projection is sparse
+                        GraphLaplacian = "matrix", # Assuming GraphLaplacian is sparse
+                        Lambdas = "numeric",
+                        nSpacs = "integer",
+                        meta.data = "data.frame",
+                        denoised = "data.frame"
+                        ))
 
 #
 #' Create a constructor function that creates an object of class SpaCoObject
@@ -25,6 +27,28 @@ setClass("SpaCoObject",
 #' @export
 #'
 #'
-SpaCoObject <- function(neighbours, data, coordinates) {
-  new("SpaCoObject", neighbours = neighbours, data = data, coordinates = coordinates)
+# Create a constructor function that creates an object of class SpaCoObject
+# Define the custom class for the object
+SpaCoObject <- function(neighbours, data, coordinates, pixel_positions_list) {
+  new("SpaCoObject",
+      neighbours = as(neighbours, "dgCMatrix"),
+      data = data,
+      coordinates = coordinates,
+      pixel_positions_list = new("data.frame"),
+      data.dir = character(0),
+      slice = character(0),
+      spacs = new("matrix"),
+      projection = new("matrix"),
+      GraphLaplacian = new("matrix"),
+      Lambdas = numeric(0),
+      nSpacs = integer(0),
+      meta.data = new("data.frame"),
+      denoised = new("data.frame")
+  )
 }
+
+
+
+
+
+

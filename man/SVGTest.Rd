@@ -4,7 +4,7 @@
 \alias{SVGTest}
 \title{Compute the spatial variable genes of a SpaCoObject after runinng runSCA}
 \usage{
-SVGTest(SpaCoObject, adjustMethod = "holm")
+SVGTest(SpaCoObject, adjustMethod = "holm", min_p = 2e-10)
 }
 \arguments{
 \item{SpaCoObject}{SpaCoObject to compute spatially variable genes of.}
