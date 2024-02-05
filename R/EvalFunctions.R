@@ -20,6 +20,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10)
   data <- SpaCoObject@data
   COVERAGE <- SpaCoObject@meta.data[rownames(SpaCoObject@data),"nCount_RNA"]
   data <- cbind(data,COVERAGE)
+  colnames(data)[ncol(data)] <- "COVERAGE"
   C <- sigmaSVD$values
   getpVal <- function(gene) {
     gene <- scale(gene)

@@ -110,15 +110,35 @@ RunSCA <- function(SpaCoObject,
                                     eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
       eigs_sym(RxShuffled, 1, which = "LM")$values
     }
-
-    resultsAll <- replicate(nSim, simSpacFunction())
+    batchSize <- 10
+    resultsAll <- replicate(100, simSpacFunction())
     eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
     eigValCI <- mean(resultsAll) + qt(0.975, df = length(resultsAll) - 1) * eigValSE * c(-1, 1)
     lambdasInCI <- lambdas[lambdas > eigValCI[1] & lambdas < eigValCI[2]]
+    if(length(lambdasInCI) > 1)
+    {
+      for(i in 1:round((nSim - 100) / batchSize))
+      {
+        batchResult <- replicate(100, simSpacFunction())
+        # batchResult <- t(sapply(1:batchSize, simSpacCFunction))
+        results_all <- c(results_all, batchResult)
+        # eigValCI <- t.test(results_all)$conf.int
+        eigValSE <- sd(results_all) / sqrt(length(results_all))
+        eigValCI <- mean(results_all) + c(-1,1) *
+          qt(0.975, df = length(results_all) - 1) * eigValSE
+        lambdasInCI <- lambdas[which(lambdas > eigValCI[1] &
+                                       lambdas < eigValCI[2])]
+        if(length(lambdasInCI) < 2)
+        {
+          break
+        }
+      }
+    }
     relSpacsIdx <- which(lambdas < mean(resultsAll))
     nSpacs <- if (any(relSpacsIdx)) min(relSpacsIdx) else pcaResults$nEigenVals
     nSpacs
   }
+
 
   if (compute_nSpacs) {
     nSpacs <- computeRelevantSpacs(nSim, 10, dataReduced, graphLaplacian, lambdas)
