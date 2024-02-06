@@ -121,11 +121,11 @@ RunSCA <- function(SpaCoObject,
       {
         batchResult <- replicate(100, simSpacFunction())
         # batchResult <- t(sapply(1:batchSize, simSpacCFunction))
-        results_all <- c(results_all, batchResult)
-        # eigValCI <- t.test(results_all)$conf.int
-        eigValSE <- sd(results_all) / sqrt(length(results_all))
-        eigValCI <- mean(results_all) + c(-1,1) *
-          qt(0.975, df = length(results_all) - 1) * eigValSE
+        resultsAll <- c(resultsAll, batchResult)
+        # eigValCI <- t.test(resultsAll)$conf.int
+        eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
+        eigValCI <- mean(resultsAll) + c(-1,1) *
+          qt(0.975, df = length(resultsAll) - 1) * eigValSE
         lambdasInCI <- lambdas[which(lambdas > eigValCI[1] &
                                        lambdas < eigValCI[2])]
         if(length(lambdasInCI) < 2)
