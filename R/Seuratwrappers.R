@@ -10,7 +10,7 @@
 #'
 #'
 seurat_to_spaco <- function(Seurat, assay = "SCT", n_image = 1, slot = "scale.data") {
-  data <- t(as.matrix(Seurat::GetAssayData(object = Seurat, assay = Seurat::DefaultAssay(Seurat), slot = "scale.data")))
+  data <- t(as.matrix(Seurat::GetAssayData(object = Seurat, assay = Seurat::DefaultAssay(Seurat), slot = slot)))
    if (nrow(data) == 0 && ncol(data) == 0 ) {
      stop("Assay to transform from Seurat is empty.")
    }
