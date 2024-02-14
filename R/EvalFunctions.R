@@ -9,40 +9,45 @@
 #'
 #' @import mgcv
 #'
-SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10)
-{
+SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
   require(mgcv)
   GraphLaplacian <- SpaCoObject@GraphLaplacian
-  S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs],
-             2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
+  S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs], 2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
   sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
   sigmaSVD <- eigen(sigma, symmetric = TRUE)
   data <- SpaCoObject@data
-  COVERAGE <- SpaCoObject@meta.data[rownames(SpaCoObject@data),"nCount_RNA"]
-  data <- cbind(data,COVERAGE)
-  colnames(data)[ncol(data)] <- "COVERAGE"
+
+  # Check if @meta.data is not NULL and has at least one column
+  if (!is.null(SpaCoObject@meta.data) && ncol(SpaCoObject@meta.data) > 0) {
+    COVERAGE <- SpaCoObject@meta.data[rownames(SpaCoObject@data), "nCount_RNA"]
+    if (!is.null(COVERAGE)) {
+      data <- cbind(data, COVERAGE)
+      colnames(data)[ncol(data)] <- "COVERAGE"
+    }
+  }
+
   C <- sigmaSVD$values
   getpVal <- function(gene) {
     gene <- scale(gene)
     testStat <- t(gene) %*% sigma %*% gene
     pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
                        df = rep(1, SpaCoObject@nSpacs),
-                       lower.tail = FALSE,tol = min_p)
+                       lower.tail = FALSE, tol = min_p)
     return(data.frame(score = testStat, pVal = pVal))
   }
 
   # Apply the function to each column of the data
-  resDf <- t(sapply(1:ncol(data),
-                    function(x) getpVal(data[,x])))
+  resDf <- t(sapply(1:ncol(data), function(x) getpVal(data[,x])))
   resDf <- as.data.frame(resDf)
   resDf[,1] <- unlist(resDf[,1])
   resDf[,2] <- unlist(resDf[,2])
   rownames(resDf) <- colnames(data)
-  resDf[resDf$pVal == 0,"pVal"] <- 2e-25
+  resDf[resDf$pVal == 0, "pVal"] <- 2e-25
   resDf$p.adjust = p.adjust(resDf$pVal, method = adjustMethod)
-  if (resDf["COVERAGE","p.adjust"] < 0.05) {
+
+  if (!is.null(SpaCoObject@meta.data) && ncol(SpaCoObject@meta.data) > 0 && resDf["COVERAGE", "p.adjust"] < 0.05) {
     warning("The coverage has been tested as significant")
   }
-  return(resDf)
 
+  return(resDf)
 }
