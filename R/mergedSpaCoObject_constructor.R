@@ -26,26 +26,6 @@ setClass("mergedSpaCoObject",
 #' @export
 #'
 #'
-# Create a constructor function that creates an object of class SpaCoObject
-# Define the custom class for the object
-mergedSpaCoObject <- function(neighbours, data, coordinates, pixel_positions_list, projection, meta.data, denoised) {
-  new("SpaCoObject",
-      neighbours = ensureList(neighbours, "dgCMatrix"),
-      data = ensureList(data, "matrix"),
-      coordinates = ensureList(coordinates, "data.frame"),
-      pixel_positions_list = ensureList(pixel_positions_list, "data.frame"),
-      data.dir = character(0),
-      slice = character(0),
-      spacs = new("matrix"),
-      projection = ensureList(projection, "matrix"),
-      GraphLaplacian = new("matrix"),
-      Lambdas = numeric(0),
-      nSpacs = integer(0),
-      meta.data = ensureList(meta.data, "data.frame"),
-      denoised = ensureList(denoised, "data.frame")
-  )
-}
-
 mergeSpaCoObjects <- function(object1, object2, label1 = "dataset1", label2 = "dataset2") {
   # Check if objects are of the correct class
   if (!inherits(object1, "SpaCoObject") || !inherits(object2, "SpaCoObject")) {
@@ -58,19 +38,40 @@ mergeSpaCoObjects <- function(object1, object2, label1 = "dataset1", label2 = "d
 
   # Proceed with merging as before
   mergedObject <- new("mergedSpaCoObject",
-                      neighbours = list(object1@neighbours, object2@neighbours),
-                      data = list(object1@data, object2@data),
-                      coordinates = list(object1@coordinates, object2@coordinates),
-                      pixel_positions_list = list(object1@pixel_positions_list, object2@pixel_positions_list),
+                      neighbours = setNames(list(
+                        object1@neighbours,
+                        object2@neighbours,
+                        MergeSparseMatrices(object1@neighbours, object2@neighbours)
+                      ), c(label1, label2, "merged")),
+
+                       data = setNames(list(
+                        object1@data,
+                        object2@data,
+                        MergeDataMatrices(object1@data, object2@data)
+                      ), c(label1, label2, "merged")),
+
+                      coordinates = setNames(list(
+                        object1@coordinates,
+                        object2@coordinates
+                      ), c(label1, label2)),
+
+                      pixel_positions_list = setNames(list(
+                        object1@pixel_positions_list,
+                        object2@pixel_positions_list
+                      ), c(label1, label2)),
                       data.dir = character(0),
                       slice = character(0),
                       spacs = new("matrix"),  # Assuming no merging needed for spacs
-                      projection = list(object1@projection, object2@projection),
+                      projection = setNames(list(
+                        object1@projection,
+                        object2@projection,
+                        new("matrix")
+                      ), c(label1, label2, "merged")),
                       GraphLaplacian = new("matrix"),  # Assuming no merging needed for GraphLaplacian
                       Lambdas = numeric(0),
                       nSpacs = integer(0),
                       meta.data = mergeMetaData(object1@meta.data, object2@meta.data),
-                      denoised = mergeLists(object1@denoised, object2@denoised)
+                      denoised = new("list")
   )
 
   return(mergedObject)
@@ -118,10 +119,98 @@ mergeMetaData <- function(df1, df2 ){
   # Step 3: Restore the original row names
   rownames(finalMergedDf) <- finalMergedDf$Row.names
   finalMergedDf <- finalMergedDf[, -1]  # Removing the added row names column
-  return(mergedDf)
+  return(finalMergedDf)
 
 }
 
+MergeSparseMatrices <- function(mat1, mat2) {
+  require(Matrix)
+  # Ensure both matrices are of class dgCMatrix
+  if (!inherits(mat1, "dgCMatrix") || !inherits(mat2, "dgCMatrix")) {
+    stop("Both matrices must be of class dgCMatrix.")
+  }
 
+  # Combine row and column names from both matrices
+  row_names1 <- rownames(mat1)
+  col_names1 <- colnames(mat1)
+  row_names2 <- rownames(mat2)
+  col_names2 <- colnames(mat2)
 
+  all_row_names <- union(row_names1, row_names2)
+  all_col_names <- union(col_names1, col_names2)
+
+  # Create a new larger sparse matrix
+  n_row <- length(all_row_names)
+  n_col <- length(all_col_names)
+  new_mat <- Matrix(0, n_row, n_col, sparse = TRUE)
+
+  # Set row and column names
+  rownames(new_mat) <- all_row_names
+  colnames(new_mat) <- all_col_names
+
+  # Map the rows and columns of the original matrices to the new matrix
+  # and fill in the values
+  if (!is.null(row_names1) && !is.null(col_names1)) {
+    new_mat[row_names1, col_names1] <- mat1
+  }
+  if (!is.null(row_names2) && !is.null(col_names2)) {
+    new_mat[row_names2, col_names2] <- mat2
+  }
+
+  return(new_mat)
+}
+
+#MergeDataMatricesAllGenes <- function(mat1, mat2) {
+  # Ensure input are matrices
+#  if (!is.matrix(mat1) || !is.matrix(mat2)) {
+ #   stop("Both inputs must be matrices.")
+#  }
+
+#  mat1 <- scale(mat1, scale = TRUE)
+#  mat2 <- scale(mat2, scale = TRUE)
+
+  # Combine unique column names from both matrices
+#  all_columns <- unique(c(colnames(mat1), colnames(mat2)))
+
+  # Prepare new matrices with all columns, filled with zeros
+#  mat1_expanded <- matrix(0, nrow = nrow(mat1), ncol = length(all_columns))
+ # colnames(mat1_expanded) <- all_columns
+ # rownames(mat1_expanded) <- rownames(mat1)
+
+#  mat2_expanded <- matrix(0, nrow = nrow(mat2), ncol = length(all_columns))
+#  colnames(mat2_expanded) <- all_columns
+#  rownames(mat2_expanded) <- rownames(mat2)
+
+  # Fill the expanded matrices with existing data
+ # mat1_expanded[, colnames(mat1)] <- mat1
+ # mat2_expanded[, colnames(mat2)] <- mat2
+
+  # Combine the rows from both matrices
+ # merged_mat <- rbind(mat1_expanded, mat2_expanded)
+
+ # return(merged_mat)
+#}
+
+MergeDataMatrices <- function(mat1, mat2) {
+  # Ensure input are matrices
+  if (!is.matrix(mat1) || !is.matrix(mat2)) {
+    stop("Both inputs must be matrices.")
+  }
+
+  # Scale the matrices
+  mat1 <- scale(mat1, scale = TRUE)
+  mat2 <- scale(mat2, scale = TRUE)
+
+  # Find common columns in both matrices
+  common_columns <- intersect(colnames(mat1), colnames(mat2))
+
+  # Subset matrices to keep only common columns
+  mat1_common <- mat1[, common_columns]
+  mat2_common <- mat2[, common_columns]
+
+  # Combine the rows from both matrices
+  merged_mat <- rbind(mat1_common, mat2_common)
+
+  return(merged_mat)
+}
 
