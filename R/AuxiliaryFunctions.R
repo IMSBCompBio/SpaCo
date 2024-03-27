@@ -52,7 +52,7 @@ denoise_profiles <- function(SpaCoObject){
     if (k > 1) {
       for (i in 1:(k - 1)) {
         Q[, k] <- Q[, k] -
-          (Q[, k] %*% A %*% Q[, i]) / c((Q[, i] %*% A %*% Q[, i]) * c(Q[, i]))
+          c((Q[, k] %*% A %*% Q[, i]) / c(Q[, i] %*% A %*% Q[, i])) * Q[, i]
       }
     }
     Norms[k]  <- sqrt(Q[, k] %*% A %*% Q[, k])
