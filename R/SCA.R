@@ -18,7 +18,6 @@
 #' @import Rcpp
 #' @import RcppEigen
 #'
-
 # Main Function
 RunSCA <- function(SpaCoObject,
                    PC_criterion = "percent",
@@ -44,7 +43,6 @@ RunSCA <- function(SpaCoObject,
       stop("PC_value must be a positive integer for number criterion.")
     }
   }
-
   validateInputs(PC_criterion, PC_value)
 
   # Extract data and neighbors
@@ -111,8 +109,6 @@ RunSCA <- function(SpaCoObject,
 
   # Data preprocessing steps
   dataCentered <- scale(tmpTrainData, scale = TRUE)
-  geneANorms <- colSums(dataCentered * eigenMapMatMult(tmpTrainGL, dataCentered))
-  dataCenteredGLScaled <- sweep(dataCentered, 2, geneANorms, FUN = "*")
 
   # PCA and dimension reduction
   performPCA <- function(data, criterion, value) {
@@ -128,7 +124,7 @@ RunSCA <- function(SpaCoObject,
          initialPCA = initialPCA)
   }
 
-  pcaResults <- performPCA(dataCenteredGLScaled, PC_criterion, PC_value)
+  pcaResults <- performPCA(dataCentered, PC_criterion, PC_value)
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
@@ -195,8 +191,9 @@ RunSCA <- function(SpaCoObject,
   if(reducedSpots)
   {
     tmp <- data[BSpots,] %*% pcaResults$initialPCA$vectors[, 1:pcaResults$nEigenVals]
-
     SpaCoObject@projection_B <- tmp %*% PCsRx
+    rownames(SpaCoObject@projection_B) <- rownames(dataCentered)
+    colnames(SpaCoObject@projection_B) <- paste0("spac_", 1:ncol(ONBOriginalBasis))
   }
   return(SpaCoObject)
 }

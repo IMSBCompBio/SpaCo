@@ -18,13 +18,14 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
     projection <-
       .orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
     data <- SpaCoObject@data_B
+    S <- projection[,1:SpaCoObject@nSpacs]
   }else
   {
     GraphLaplacian <- SpaCoObject@GraphLaplacian
     projection <- SpaCoObject@projection
     data <- SpaCoObject@data
+    S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs], 2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
   }
-  S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs], 2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
   sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
   sigmaSVD <- eigen(sigma, symmetric = TRUE)
 

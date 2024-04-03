@@ -43,7 +43,7 @@ denoise_profiles <- function(SpaCoObject){
   preFactor <- 1
   m <- nrow(X)
   n <- ncol(X)
-  if (m < n)
+  if (m < nSpacs)
     stop("No. of rows of 'A' must be greater or equal no. of colums.")
   Q <- matrix(0, m, n)
   Norms <- rep(0, n)
