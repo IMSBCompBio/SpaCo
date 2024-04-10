@@ -11,11 +11,23 @@
 #'
 SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
   require(mgcv)
-  GraphLaplacian <- SpaCoObject@GraphLaplacian
-  S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs], 2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
+  if(!is.null(SpaCoObject@GraphLaplacian_B) && (ncol(SpaCoObject@GraphLaplacian_B) > 0))
+  {
+    GraphLaplacian <- SpaCoObject@GraphLaplacian_B
+    projection <- SpaCoObject@projection_B
+    projection <-
+      .orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
+    data <- SpaCoObject@data_B
+    S <- projection[,1:SpaCoObject@nSpacs]
+  }else
+  {
+    GraphLaplacian <- SpaCoObject@GraphLaplacian
+    projection <- SpaCoObject@projection
+    data <- SpaCoObject@data
+    S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs], 2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
+  }
   sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
   sigmaSVD <- eigen(sigma, symmetric = TRUE)
-  data <- SpaCoObject@data
 
   # Check if @meta.data is not NULL and has at least one column
   if (!is.null(SpaCoObject@meta.data) && ncol(SpaCoObject@meta.data) > 0) {
@@ -28,7 +40,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
 
   C <- sigmaSVD$values
   getpVal <- function(gene) {
-    gene <- scale(gene)
+    gene <- gene / c(sqrt((t(gene) %*% GraphLaplacian %*% gene)))
     testStat <- t(gene) %*% sigma %*% gene
     pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
                        df = rep(1, SpaCoObject@nSpacs),
