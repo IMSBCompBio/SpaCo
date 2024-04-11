@@ -9,7 +9,7 @@
 #'
 #' @import mgcv
 #'
-SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
+SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   require(mgcv)
   if(!is.null(SpaCoObject@GraphLaplacian_B) && (ncol(SpaCoObject@GraphLaplacian_B) > 0))
   {
@@ -44,7 +44,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
     testStat <- t(gene) %*% sigma %*% gene
     pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
                        df = rep(1, SpaCoObject@nSpacs),
-                       lower.tail = FALSE, tol = min_p)
+                       lower.tail = FALSE)
     return(data.frame(score = testStat, pVal = pVal))
   }
 
