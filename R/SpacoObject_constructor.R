@@ -3,16 +3,13 @@
 setClass("SpaCoObject",
          representation(neighbours = "dgCMatrix",  # Assuming neighbours is sparse
                         data = "matrix",        # Assuming data can be sparse
-                        data_B = "matrix",
                         coordinates = "data.frame",
                         pixel_positions_list = "data.frame",
                         data.dir = "character",
                         slice = "character",
                         spacs = "matrix",       # Assuming spacs is sparse
                         projection = "matrix",  # Assuming projection is sparse
-                        projection_B = "matrix",
                         GraphLaplacian = "matrix", # Assuming GraphLaplacian is sparse
-                        GraphLaplacian_B = "matrix",
                         Lambdas = "numeric",
                         nSpacs = "integer",
                         meta.data = "data.frame",
@@ -42,9 +39,7 @@ SpaCoObject <- function(neighbours, data, coordinates, pixel_positions_list) {
       slice = character(0),
       spacs = new("matrix"),
       projection = new("matrix"),
-      projection_B = new("matrix"),
       GraphLaplacian = new("matrix"),
-      GraphLaplacian_B = new("matrix"),
       Lambdas = numeric(0),
       nSpacs = integer(0),
       meta.data = new("data.frame"),
