@@ -11,21 +11,12 @@
 #'
 SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   require(mgcv)
-  if(!is.null(SpaCoObject@GraphLaplacian_B) && (ncol(SpaCoObject@GraphLaplacian_B) > 0))
-  {
-    GraphLaplacian <- SpaCoObject@GraphLaplacian_B
-    projection <- SpaCoObject@projection_B
-    projection <-
-      .orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
-    data <- SpaCoObject@data_B
-    S <- projection[,1:SpaCoObject@nSpacs]
-  }else
-  {
-    GraphLaplacian <- SpaCoObject@GraphLaplacian
-    projection <- SpaCoObject@projection
-    data <- SpaCoObject@data
-    S <- sweep(SpaCoObject@projection[,1:SpaCoObject@nSpacs], 2, sqrt(SpaCoObject@Lambdas[1:SpaCoObject@nSpacs]), "/")
-  }
+  GraphLaplacian <- SpaCoObject@GraphLaplacian
+  projection <- SpaCoObject@projection
+  projection <-
+    SPACO:::.orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
+  data <- SpaCoObject@data
+  S <- projection[,1:SpaCoObject@nSpacs]
   sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
   sigmaSVD <- eigen(sigma, symmetric = TRUE)
 
@@ -40,6 +31,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
 
   C <- sigmaSVD$values
   getpVal <- function(gene) {
+    gene <- scale(gene, scale = FALSE)
     gene <- gene / c(sqrt((t(gene) %*% GraphLaplacian %*% gene)))
     testStat <- t(gene) %*% sigma %*% gene
     pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
@@ -54,7 +46,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   resDf[,1] <- unlist(resDf[,1])
   resDf[,2] <- unlist(resDf[,2])
   rownames(resDf) <- colnames(data)
-  resDf[resDf$pVal == 0, "pVal"] <- 2e-25
+  resDf[resDf$pVal < min_p, "pVal"] <- 2e-25
   resDf$p.adjust = p.adjust(resDf$pVal, method = adjustMethod)
 
   if (!is.null(SpaCoObject@meta.data) && ncol(SpaCoObject@meta.data) > 0 && resDf["COVERAGE", "p.adjust"] < 0.05) {
