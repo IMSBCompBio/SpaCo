@@ -21,7 +21,7 @@
 # Main Function
 RunSCA <- function(SpaCoObject,
                    PC_criterion = "percent",
-                   PC_value = 0.9,
+                   PC_value = 0.95,
                    compute_nSpacs = FALSE,
                    nSim = 1000,
                    nSpacQuantile = 0.05,
@@ -106,7 +106,7 @@ RunSCA <- function(SpaCoObject,
     } else {
       value
     }
-    list(dataReduced = eigenMapMatMult(data, initialPCA$vectors[, 1:nEigenVals]),
+    list(dataReduced = t(eigenMapMatMult(diag(1/sqrt(initialPCA$values[1:nEigenVals])), eigenMapMatMult(t(initialPCA$vectors[, 1:nEigenVals]), t(data)))),
          nEigenVals = nEigenVals,
          initialPCA = initialPCA)
   }
