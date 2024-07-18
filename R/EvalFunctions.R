@@ -9,7 +9,7 @@
 #'
 #' @import mgcv
 #'
-SVGTest <- function(SpaCoObject, adjustMethod = "holm", min_p = 2e-10) {
+SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   require(mgcv)
   GraphLaplacian <- SpaCoObject@GraphLaplacian
   projection <- SpaCoObject@projection
