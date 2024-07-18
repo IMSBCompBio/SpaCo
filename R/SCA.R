@@ -18,14 +18,15 @@
 #' @import Rcpp
 #' @import RcppEigen
 #'
-
 # Main Function
 RunSCA <- function(SpaCoObject,
                    PC_criterion = "percent",
-                   PC_value = 0.9,
+                   PC_value = 0.95,
                    compute_nSpacs = FALSE,
                    nSim = 1000,
-                   nSpacQuantile = 0.05) {
+                   nSpacQuantile = 0.05,
+                   reducedSpots = FALSE,
+                   nReduce = 1000) {
   # Check for required libraries
   requiredLibraries <- c("Rcpp", "RcppEigen", "rARPACK")
   lapply(requiredLibraries, require, character.only = TRUE)
@@ -42,7 +43,6 @@ RunSCA <- function(SpaCoObject,
       stop("PC_value must be a positive integer for number criterion.")
     }
   }
-
   validateInputs(PC_criterion, PC_value)
 
   # Extract data and neighbors
@@ -64,18 +64,38 @@ RunSCA <- function(SpaCoObject,
   PC_value <- adjustPCValue(PC_criterion, PC_value, p)
 
   # Compute Graph Laplacian
-  computeGraphLaplacian <- function(neighbourIndexMatrix, n) {
+  computeGraphLaplacian <- function(neighbourIndexMatrix) {
     W <- sum(neighbourIndexMatrix)
+    n <- nrow(neighbourIndexMatrix)
     graphLaplacian <- as.matrix(neighbourIndexMatrix / W)
     graphLaplacian <- graphLaplacian + diag(1 / n, nrow = n)
   }
 
-  graphLaplacian <- computeGraphLaplacian(neighbourIndexMatrix, n)
+  if(reducedSpots)
+  {
+    availableSpots <- 1:nrow(data)
+    ASpots <- c()
+    while(length(ASpots) < nReduce)
+    {
+      testSample <- sample(availableSpots, 1)
+      testNeighbors <- which(neighbourIndexMatrix[,testSample] != 0)
+      ASpots <- unique(c(ASpots, testNeighbors, testSample))
+      availableSpots <- setdiff(availableSpots, ASpots)
+    }
+    reducedDataA <- data[ASpots,]
+    coordinates <- SpaCoObject@coordinates
+    reducedNeighborsA <- neighbourIndexMatrix[ASpots, ASpots]
+    reducedGraphLaplacianA <- computeGraphLaplacian(reducedNeighborsA)
+    tmpTrainData <- reducedDataA
+    tmpTrainGL <- reducedGraphLaplacianA
+  }else
+  {
+    tmpTrainData <- data
+    tmpTrainGL <- computeGraphLaplacian(neighbourIndexMatrix)
+  }
 
   # Data preprocessing steps
-  dataCentered <- scale(data, scale = TRUE)
-  geneANorms <- colSums(dataCentered * eigenMapMatMult(graphLaplacian, dataCentered))
-  dataCenteredGLScaled <- sweep(dataCentered, 2, geneANorms, FUN = "*")
+  dataCentered <- scale(tmpTrainData, scale = TRUE)
 
   # PCA and dimension reduction
   performPCA <- function(data, criterion, value) {
@@ -86,16 +106,16 @@ RunSCA <- function(SpaCoObject,
     } else {
       value
     }
-    list(dataReduced = eigenMapMatMult(data, initialPCA$vectors[, 1:nEigenVals]),
+    list(dataReduced = t(eigenMapMatMult(diag(1/sqrt(initialPCA$values[1:nEigenVals])), eigenMapMatMult(t(initialPCA$vectors[, 1:nEigenVals]), t(data)))),
          nEigenVals = nEigenVals,
          initialPCA = initialPCA)
   }
 
-  pcaResults <- performPCA(dataCenteredGLScaled, PC_criterion, PC_value)
+  pcaResults <- performPCA(dataCentered, PC_criterion, PC_value)
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
-  Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(graphLaplacian, dataReduced))
+  Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
 
   # SVD of Rx
   eigenRx <- eigen(Rx)
@@ -141,7 +161,7 @@ RunSCA <- function(SpaCoObject,
 
 
   if (compute_nSpacs) {
-    nSpacs <- computeRelevantSpacs(nSim, 10, dataReduced, graphLaplacian, lambdas)
+    nSpacs <- computeRelevantSpacs(nSim, 10, dataReduced, tmpTrainGL, lambdas)
     SpaCoObject@nSpacs <- nSpacs
   }
 
@@ -150,11 +170,14 @@ RunSCA <- function(SpaCoObject,
   rownames(ONBOriginalBasis) <- colnames(dataCentered)
   colnames(ONBOriginalBasis) <- paste0("spac_", 1:ncol(ONBOriginalBasis))
   SpaCoObject@spacs <- ONBOriginalBasis
-  SpaCoObject@projection <- eigenMapMatMult(dataReduced, PCsRx)
-  rownames(SpaCoObject@projection) <- rownames(dataCentered)
+  tmp <-
+    scale(eigenMapMatMult(data,
+                          pcaResults$initialPCA$vectors[, 1:pcaResults$nEigenVals]))
+  SpaCoObject@projection <- eigenMapMatMult(tmp, PCsRx)
+  rownames(SpaCoObject@projection) <- rownames(data)
   colnames(SpaCoObject@projection) <- paste0("spac_", 1:ncol(ONBOriginalBasis))
   SpaCoObject@Lambdas <- lambdas
-  SpaCoObject@GraphLaplacian <- graphLaplacian
-
+  SpaCoObject@GraphLaplacian <-
+    computeGraphLaplacian(SpaCoObject@neighbours)
   return(SpaCoObject)
 }
