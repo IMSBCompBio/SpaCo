@@ -47,3 +47,7 @@ vignettes/*.pdf
 
 # dll
 src/SPACO.dll
+
+# .o rcpp files
+/src/RcppExports.o
+/src/Rcpp_Functions.o

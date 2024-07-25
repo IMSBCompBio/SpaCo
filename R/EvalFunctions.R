@@ -46,7 +46,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   resDf[,1] <- unlist(resDf[,1])
   resDf[,2] <- unlist(resDf[,2])
   rownames(resDf) <- colnames(data)
-  resDf[resDf$pVal < min_p, "pVal"] <- 2e-25
+  resDf[resDf$pVal == 0, "pVal"] <- 2e-25
   resDf$p.adjust = p.adjust(resDf$pVal, method = adjustMethod)
 
   if (!is.null(SpaCoObject@meta.data) && ncol(SpaCoObject@meta.data) > 0 && resDf["COVERAGE", "p.adjust"] < 0.05) {
