@@ -65,10 +65,10 @@ RunSCA <- function(SpaCoObject,
 
   # Compute Graph Laplacian
   computeGraphLaplacian <- function(neighbourIndexMatrix) {
-    W <- sum(neighbourIndexMatrix)
-    n <- nrow(neighbourIndexMatrix)
-    graphLaplacian <- as.matrix(neighbourIndexMatrix / W)
-    graphLaplacian <- graphLaplacian + diag(1 / n, nrow = n)
+    W <- sum(neighbourIndexMatrix@x)
+    n <- neighbourIndexMatrix@Dim[1]
+    neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
+    graphLaplacian <- neighbourIndexMatrix + Diagonal(n, 1 / n)
   }
 
   if(reducedSpots)
@@ -115,7 +115,8 @@ RunSCA <- function(SpaCoObject,
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
-  Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
+  # Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
+  Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
 
   # SVD of Rx
   eigenRx <- eigen(Rx)
@@ -126,8 +127,9 @@ RunSCA <- function(SpaCoObject,
   computeRelevantSpacs <- function(nSim, batchSize, dataReduced, graphLaplacian, lambdas) {
     simSpacFunction <- function(i) {
       shuffleOrder <- sample(ncol(graphLaplacian), ncol(graphLaplacian))
-      RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder, ]),
-                                    eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
+      # RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder, ]),
+      #                               eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
+      RxShuffled <- t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
       eigs_sym(RxShuffled, 1, which = "LM")$values
     }
     batchSize <- 10

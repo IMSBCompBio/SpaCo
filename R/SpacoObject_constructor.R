@@ -9,7 +9,7 @@ setClass("SpaCoObject",
                         slice = "character",
                         spacs = "matrix",       # Assuming spacs is sparse
                         projection = "matrix",  # Assuming projection is sparse
-                        GraphLaplacian = "matrix", # Assuming GraphLaplacian is sparse
+                        GraphLaplacian = "dgCMatrix", # Assuming GraphLaplacian is sparse
                         Lambdas = "numeric",
                         nSpacs = "integer",
                         meta.data = "data.frame",
