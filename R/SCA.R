@@ -65,10 +65,19 @@ RunSCA <- function(SpaCoObject,
 
   # Compute Graph Laplacian
   computeGraphLaplacian <- function(neighbourIndexMatrix) {
-    W <- sum(neighbourIndexMatrix@x)
-    n <- neighbourIndexMatrix@Dim[1]
-    neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
-    graphLaplacian <- neighbourIndexMatrix + Diagonal(n, 1 / n)
+    if(class(neighbourIndexMatrix) == "dgCMatrix")
+    {
+      W <- sum(neighbourIndexMatrix@x)
+      n <- neighbourIndexMatrix@Dim[1]
+      neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
+      graphLaplacian <- neighbourIndexMatrix + Diagonal(n, 1 / n)
+    }else
+    {
+      W <- sum(neighbourIndexMatrix)
+      n <- nrow(neighbourIndexMatrix)
+      neighbourIndexMatrix <- neighbourIndexMatrix / W
+      graphLaplacian <- neighbourIndexMatrix + diag(1 / n, n)
+    }
   }
 
   if(reducedSpots)
@@ -115,8 +124,13 @@ RunSCA <- function(SpaCoObject,
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
-  # Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
-  Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
+  if(class(neighbourIndexMatrix) == "dgCMatrix")
+  {
+    Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
+  }else
+  {
+    Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
+  }
 
   # SVD of Rx
   eigenRx <- eigen(Rx)
@@ -127,9 +141,14 @@ RunSCA <- function(SpaCoObject,
   computeRelevantSpacs <- function(nSim, batchSize, dataReduced, graphLaplacian, lambdas) {
     simSpacFunction <- function(i) {
       shuffleOrder <- sample(ncol(graphLaplacian), ncol(graphLaplacian))
-      # RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder, ]),
-      #                               eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
-      RxShuffled <- t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
+      if(class(neighbourIndexMatrix) == "dgCMatrix")
+      {
+        RxShuffled <- t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
+      }else
+      {
+        RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder, ]),
+                                      eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
+      }
       eigs_sym(RxShuffled, 1, which = "LM")$values
     }
     batchSize <- 10
