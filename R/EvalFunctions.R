@@ -17,7 +17,13 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
     SPACO:::.orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
   data <- SpaCoObject@data
   S <- projection[,1:SpaCoObject@nSpacs]
-  sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
+  if(class(GraphLaplacian) == "dgCMatrix")
+  {
+    sigma <- GraphLaplacian %*% S %*% t(S) %*% GraphLaplacian
+  }else
+  {
+    sigma <- eigenMapMatMult(GraphLaplacian, eigenMapMatMult(S, eigenMapMatMult(t(S), GraphLaplacian)))
+  }
   sigmaSVD <- eigen(sigma, symmetric = TRUE)
 
   # Check if @meta.data is not NULL and has at least one column
@@ -32,7 +38,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   C <- sigmaSVD$values
   getpVal <- function(gene) {
     gene <- scale(gene, scale = FALSE)
-    gene <- gene / c(sqrt((t(gene) %*% GraphLaplacian %*% gene)))
+    gene <- gene / rep(sqrt((t(gene) %*% GraphLaplacian %*% gene)), length(gene))
     testStat <- t(gene) %*% sigma %*% gene
     pVal <- psum.chisq(testStat, lb = C[1:SpaCoObject@nSpacs],
                        df = rep(1, SpaCoObject@nSpacs),

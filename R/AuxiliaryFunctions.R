@@ -37,8 +37,8 @@ denoise_profiles <- function(SpaCoObject){
 #'
 .orthogonalizeA <- function(X, A, nSpacs, tol = .Machine$double.eps^0.5)
 {
-  n <- nrow(A)
-  W <- -(1/2)*sum(A - diag(diag(A)))
+  # n <- nrow(A)
+  # W <- -(1/2)*sum(A - Diagonal(n, diag(A)))
   # preFactor <- (1)/(2*W)
   preFactor <- 1
   m <- nrow(X)
@@ -52,7 +52,7 @@ denoise_profiles <- function(SpaCoObject){
     if (k > 1) {
       for (i in 1:(k - 1)) {
         Q[, k] <- Q[, k] -
-          c((Q[, k] %*% A %*% Q[, i]) / c(Q[, i] %*% A %*% Q[, i])) * Q[, i]
+          rep((Q[, k] %*% A %*% Q[, i]) / (Q[, i] %*% A %*% Q[, i]), m) * Q[, i]
       }
     }
     Norms[k]  <- sqrt(Q[, k] %*% A %*% Q[, k])

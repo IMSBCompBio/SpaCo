@@ -1,15 +1,15 @@
 # Define a custom class for the object
-
+setClassUnion("matrix_or_sparse", c("matrix", "dgCMatrix"))
 setClass("SpaCoObject",
-         representation(neighbours = "dgCMatrix",  # Assuming neighbours is sparse
-                        data = "matrix",        # Assuming data can be sparse
+         representation(neighbours = "matrix_or_sparse",
+                        data = "matrix",
                         coordinates = "data.frame",
                         pixel_positions_list = "data.frame",
                         data.dir = "character",
                         slice = "character",
-                        spacs = "matrix",       # Assuming spacs is sparse
-                        projection = "matrix",  # Assuming projection is sparse
-                        GraphLaplacian = "dgCMatrix", # Assuming GraphLaplacian is sparse
+                        spacs = "matrix",
+                        projection = "matrix",
+                        GraphLaplacian = "matrix_or_sparse",
                         Lambdas = "numeric",
                         nSpacs = "integer",
                         meta.data = "data.frame",
