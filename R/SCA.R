@@ -70,22 +70,14 @@ RunSCA <- function(SpaCoObject,
       W <- sum(neighbourIndexMatrix@x)
       n <- neighbourIndexMatrix@Dim[1]
       neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
-<<<<<<< HEAD
       graphLaplacian <- neighbourIndexMatrix + Diagonal(n, 1 / n)
-=======
->>>>>>> d80435dedbac57db58383486b80c4ec9313e9978
     }else
     {
       W <- sum(neighbourIndexMatrix)
       n <- nrow(neighbourIndexMatrix)
       neighbourIndexMatrix <- neighbourIndexMatrix / W
-<<<<<<< HEAD
       graphLaplacian <- neighbourIndexMatrix + diag(1 / n, n)
     }
-=======
-    }
-    graphLaplacian <- neighbourIndexMatrix + Diagonal(n, 1 / n)
->>>>>>> d80435dedbac57db58383486b80c4ec9313e9978
   }
 
   if(reducedSpots)
