@@ -70,7 +70,7 @@ RunSCA <- function(SpaCoObject,
       W <- sum(neighbourIndexMatrix@x)
       n <- neighbourIndexMatrix@Dim[1]
       neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
-      graphLaplacian <- neighbourIndexMatrix + Diagonal(n, 1 / n)
+      graphLaplacian <- neighbourIndexMatrix + Matrix::Diagonal(n, 1 / n)
     }else
     {
       W <- sum(neighbourIndexMatrix)

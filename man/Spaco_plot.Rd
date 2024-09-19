@@ -4,7 +4,13 @@
 \alias{Spaco_plot}
 \title{Plot SPaCo meta genes.}
 \usage{
-Spaco_plot(SpaCoObject, spac = 1, ncol = NULL, combine = TRUE)
+Spaco_plot(
+  SpaCoObject,
+  spac = 1,
+  ncol = NULL,
+  combine = TRUE,
+  dataset = "dataset1"
+)
 }
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}

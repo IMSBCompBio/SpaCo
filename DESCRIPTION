@@ -30,5 +30,6 @@ Imports:
     BH,
     mgcv,
     CompQuadForm,
-    scales
+    scales,
+    Matrix
 License: MIT + file LICENSE

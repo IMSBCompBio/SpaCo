@@ -7,10 +7,12 @@
 RunSCA(
   SpaCoObject,
   PC_criterion = "percent",
-  PC_value = 0.9,
+  PC_value = 0.95,
   compute_nSpacs = FALSE,
   nSim = 1000,
-  nSpacQuantile = 0.05
+  nSpacQuantile = 0.05,
+  reducedSpots = FALSE,
+  nReduce = 1000
 )
 }
 \arguments{
