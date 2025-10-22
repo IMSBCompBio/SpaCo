@@ -73,7 +73,7 @@ SpaCoObject@nSpacs
 ### Visualisation and denoising 
 
 We can plot the computed meta gene projections directly from the SPaCoObject or transfer the projections right back into an existing Seurat Object for downstream processing like clustering. In the object they will be treated as dimensionality reduction objects. It is also possible to plot visualize the normalized expression of specific genes as well. All plotting functions in the SPACO library can be modified with additional ggplot commands. 
-```{r plot the first 4 meta genes, cache=TRUE}
+```{r plot_the_first_4_meta_genes, cache=TRUE}
 spacplot <- Spaco_plot(SpaCoObject, spac = 1:4, ncol = NULL, combine = T)+ggtitle("Meta genes 1 to 4")
 spacplot
 Ttr <- feature_plot(SpaCoObject, features = "Ttr", ncol = NULL, combine = TRUE)+ggtitle("original")
@@ -95,28 +95,56 @@ brain <- spacs_to_seurat(SpaCoObject, brain)
 
 To compare the spatial component analysis to the analog process using PCA in the Seurat pipeline we do all the downstream processing right in the Seurat object.
 ```{r echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE, include=TRUE}
-cc <- SpatialFeaturePlot(brain,features = c("Spac_1","Spac_2","Spac_3","Spac_4"),combine = T)
+cc <-
+  SpatialFeaturePlot(
+    brain,
+    features = c("Spac_1", "Spac_2", "Spac_3", "Spac_4"),
+    combine = T
+  )
 brain_2 <- RunPCA(brain, verbose = F)
-dd <- SpatialFeaturePlot(brain_2,features = c("PC_1","PC_2","PC_3","PC_4"),combine = T)
+dd <-
+  SpatialFeaturePlot(brain_2,
+                     features = c("PC_1", "PC_2", "PC_3", "PC_4"),
+                     combine = T)
 
-brain <- RunUMAP(brain,reduction = "spaco",dims = 1:SpaCoObject@nSpacs,n.neighbors = 45, verbose = F)
-brain_2 <- RunUMAP(brain_2,reduction = "pca",dims = 1:30, verbose = F)
+brain <-
+  RunUMAP(
+    brain,
+    reduction = "spaco",
+    dims = 1:SpaCoObject@nSpacs,
+    n.neighbors = 45,
+    verbose = F
+  )
+brain_2 <-
+  RunUMAP(brain_2,
+          reduction = "pca",
+          dims = 1:30,
+          verbose = F)
 
-brain <- FindNeighbors(brain,reduction = "spaco" , dims = 1:SpaCoObject@nSpacs, verbose = F)
-brain_2 <- FindNeighbors(brain_2,reduction = "pca" , dims = 1:30, verbose = F)
+brain <-
+  FindNeighbors(
+    brain,
+    reduction = "spaco" ,
+    dims = 1:SpaCoObject@nSpacs,
+    verbose = F
+  )
+brain_2 <-
+  FindNeighbors(brain_2,
+                reduction = "pca" ,
+                dims = 1:30,
+                verbose = F)
 
-brain <- FindClusters(brain,resolution = 0.24, verbose = F)
+brain <- FindClusters(brain, resolution = 0.24, verbose = F)
 brain_2 <- FindClusters(brain_2, verbose = F)
 
-aa <- DimPlot(brain,group.by="seurat_clusters")+ggtitle("SpaCo")
-bb <- DimPlot(brain_2,group.by="seurat_clusters")+ggtitle("Pca")
+aa <- DimPlot(brain, group.by = "seurat_clusters") + ggtitle("SpaCo")
+bb <- DimPlot(brain_2, group.by = "seurat_clusters") + ggtitle("Pca")
 
-a <- DimPlot(brain,reduction = "spaco")+ggtitle("SpaCo")
-b <- DimPlot(brain_2,reduction = "pca")+ggtitle("Pca")
+a <- DimPlot(brain, reduction = "spaco") + ggtitle("SpaCo")
+b <- DimPlot(brain_2, reduction = "pca") + ggtitle("Pca")
 
-rr <- SpatialDimPlot(brain)+ggtitle("SpaCo")
-qq <- SpatialDimPlot(brain_2)+ggtitle("Pca")
-
+rr <- SpatialDimPlot(brain) + ggtitle("SpaCo")
+qq <- SpatialDimPlot(brain_2) + ggtitle("Pca")
 
 ```
 
