@@ -27,6 +27,11 @@ LoadPreprocessData.R
 # RStudio files
 .Rproj.user/
 
+# generated figures
+*.png
+*.svg
+*.pdf
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf

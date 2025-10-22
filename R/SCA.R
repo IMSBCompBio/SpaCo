@@ -36,10 +36,12 @@ RunSCA <- function(SpaCoObject,
     if (!PC_criterion %in% c("percent", "number")) {
       stop("PC_criterion must be either 'percent' or 'number'.")
     }
-    if (PC_criterion == "percent" && (PC_value <= 0 || PC_value > 1)) {
+    if (PC_criterion == "percent" &&
+        (PC_value <= 0 || PC_value > 1)) {
       stop("PC_value must be between 0 and 1 for percent criterion.")
     }
-    if (PC_criterion == "number" && (PC_value <= 0 || PC_value %% 1 != 0)) {
+    if (PC_criterion == "number" &&
+        (PC_value <= 0 || PC_value %% 1 != 0)) {
       stop("PC_value must be a positive integer for number criterion.")
     }
   }
@@ -65,13 +67,14 @@ RunSCA <- function(SpaCoObject,
 
   # Compute Graph Laplacian
   computeGraphLaplacian <- function(neighbourIndexMatrix) {
-    if(class(neighbourIndexMatrix) == "dgCMatrix")
+    if (class(neighbourIndexMatrix) == "dgCMatrix")
     {
       W <- sum(neighbourIndexMatrix@x)
       n <- neighbourIndexMatrix@Dim[1]
       neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
-      graphLaplacian <- neighbourIndexMatrix + Matrix::Diagonal(n, 1 / n)
-    }else
+      graphLaplacian <-
+        neighbourIndexMatrix + Matrix::Diagonal(n, 1 / n)
+    } else
     {
       W <- sum(neighbourIndexMatrix)
       n <- nrow(neighbourIndexMatrix)
@@ -80,24 +83,25 @@ RunSCA <- function(SpaCoObject,
     }
   }
 
-  if(reducedSpots)
+  if (reducedSpots)
   {
     availableSpots <- 1:nrow(data)
     ASpots <- c()
-    while(length(ASpots) < nReduce)
+    while (length(ASpots) < nReduce)
     {
       testSample <- sample(availableSpots, 1)
-      testNeighbors <- which(neighbourIndexMatrix[,testSample] != 0)
+      testNeighbors <- which(neighbourIndexMatrix[, testSample] != 0)
       ASpots <- unique(c(ASpots, testNeighbors, testSample))
       availableSpots <- setdiff(availableSpots, ASpots)
     }
-    reducedDataA <- data[ASpots,]
+    reducedDataA <- data[ASpots, ]
     coordinates <- SpaCoObject@coordinates
     reducedNeighborsA <- neighbourIndexMatrix[ASpots, ASpots]
-    reducedGraphLaplacianA <- computeGraphLaplacian(reducedNeighborsA)
+    reducedGraphLaplacianA <-
+      computeGraphLaplacian(reducedNeighborsA)
     tmpTrainData <- reducedDataA
     tmpTrainGL <- reducedGraphLaplacianA
-  }else
+  } else
   {
     tmpTrainData <- data
     tmpTrainGL <- computeGraphLaplacian(neighbourIndexMatrix)
@@ -111,25 +115,35 @@ RunSCA <- function(SpaCoObject,
     varMatrix <- (1 / (n - 1)) * eigenMapMatMult(t(data), data)
     initialPCA <- eigen(varMatrix, symmetric = TRUE)
     nEigenVals <- if (criterion == "percent") {
-      if (value == 1) p else min(which(cumsum(initialPCA$values) / sum(initialPCA$values) > value))
+      if (value == 1)
+        p
+      else
+        min(which(
+          cumsum(initialPCA$values) / sum(initialPCA$values) > value
+        ))
     } else {
       value
     }
-    list(dataReduced = t(eigenMapMatMult(diag(1/sqrt(initialPCA$values[1:nEigenVals])), eigenMapMatMult(t(initialPCA$vectors[, 1:nEigenVals]), t(data)))),
-         nEigenVals = nEigenVals,
-         initialPCA = initialPCA)
+    list(
+      dataReduced = t(eigenMapMatMult(
+        diag(1 / sqrt(initialPCA$values[1:nEigenVals])), eigenMapMatMult(t(initialPCA$vectors[, 1:nEigenVals]), t(data))
+      )),
+      nEigenVals = nEigenVals,
+      initialPCA = initialPCA
+    )
   }
 
   pcaResults <- performPCA(dataCentered, PC_criterion, PC_value)
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
-  if(class(neighbourIndexMatrix) == "dgCMatrix")
+  if (class(neighbourIndexMatrix) == "dgCMatrix")
   {
     Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
-  }else
+  } else
   {
-    Rx <- eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
+    Rx <-
+      eigenMapMatMult(t(dataReduced), eigenMapMatMult(tmpTrainGL, dataReduced))
   }
 
   # SVD of Rx
@@ -138,65 +152,81 @@ RunSCA <- function(SpaCoObject,
   lambdas <- eigenRx$values[1:pcaResults$nEigenVals]
 
   # Compute number of relevant SPACs if required
-  computeRelevantSpacs <- function(nSim, batchSize, dataReduced, graphLaplacian, lambdas) {
-    simSpacFunction <- function(i) {
-      shuffleOrder <- sample(ncol(graphLaplacian), ncol(graphLaplacian))
-      if(class(neighbourIndexMatrix) == "dgCMatrix")
-      {
-        RxShuffled <- t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
-      }else
-      {
-        RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder, ]),
-                                      eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
-      }
-      eigs_sym(RxShuffled, 1, which = "LM")$values
-    }
-    batchSize <- 10
-    resultsAll <- replicate(100, simSpacFunction())
-    eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
-    eigValCI <- mean(resultsAll) + qt(0.975, df = length(resultsAll) - 1) * eigValSE * c(-1, 1)
-    lambdasInCI <- lambdas[lambdas > eigValCI[1] & lambdas < eigValCI[2]]
-    if(length(lambdasInCI) > 1)
-    {
-      for(i in 1:round((nSim - 100) / batchSize))
-      {
-        batchResult <- replicate(100, simSpacFunction())
-        # batchResult <- t(sapply(1:batchSize, simSpacCFunction))
-        resultsAll <- c(resultsAll, batchResult)
-        # eigValCI <- t.test(resultsAll)$conf.int
-        eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
-        eigValCI <- mean(resultsAll) + c(-1,1) *
-          qt(0.975, df = length(resultsAll) - 1) * eigValSE
-        lambdasInCI <- lambdas[which(lambdas > eigValCI[1] &
-                                       lambdas < eigValCI[2])]
-        if(length(lambdasInCI) < 2)
+  computeRelevantSpacs <-
+    function(nSim,
+             batchSize,
+             dataReduced,
+             graphLaplacian,
+             lambdas) {
+      simSpacFunction <- function(i) {
+        shuffleOrder <- sample(ncol(graphLaplacian), ncol(graphLaplacian))
+        if (class(neighbourIndexMatrix) == "dgCMatrix")
         {
-          break
+          RxShuffled <-
+            t(dataReduced[shuffleOrder,]) %*% graphLaplacian %*% dataReduced[shuffleOrder,]
+        } else
+        {
+          RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder,]),
+                                        eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder,]))
+        }
+        eigs_sym(RxShuffled, 1, which = "LM")$values
+      }
+      batchSize <- 10
+      resultsAll <- replicate(100, simSpacFunction())
+      eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
+      eigValCI <-
+        mean(resultsAll) + qt(0.975, df = length(resultsAll) - 1) * eigValSE * c(-1, 1)
+      lambdasInCI <-
+        lambdas[lambdas > eigValCI[1] & lambdas < eigValCI[2]]
+      if (length(lambdasInCI) > 1)
+      {
+        for (i in 1:round((nSim - 100) / batchSize))
+        {
+          batchResult <- replicate(batchsize, simSpacFunction())
+          # batchResult <- t(sapply(1:batchSize, simSpacCFunction))
+          resultsAll <- c(resultsAll, batchResult)
+          # eigValCI <- t.test(resultsAll)$conf.int
+          eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
+          eigValCI <- mean(resultsAll) + c(-1, 1) *
+            qt(0.975, df = length(resultsAll) - 1) * eigValSE
+          lambdasInCI <- lambdas[which(lambdas > eigValCI[1] &
+                                         lambdas < eigValCI[2])]
+          if (length(lambdasInCI) < 2)
+          {
+            break
+          }
         }
       }
+      relSpacsIdx <- which(lambdas < mean(resultsAll))
+      nSpacs <-
+        if (any(relSpacsIdx))
+          min(relSpacsIdx)
+      else
+        pcaResults$nEigenVals
+      nSpacs
     }
-    relSpacsIdx <- which(lambdas < mean(resultsAll))
-    nSpacs <- if (any(relSpacsIdx)) min(relSpacsIdx) else pcaResults$nEigenVals
-    nSpacs
-  }
 
 
   if (compute_nSpacs) {
-    nSpacs <- computeRelevantSpacs(nSim, 10, dataReduced, tmpTrainGL, lambdas)
+    nSpacs <-
+      computeRelevantSpacs(nSim, 10, dataReduced, tmpTrainGL, lambdas)
     SpaCoObject@nSpacs <- nSpacs
   }
 
   # Compute ONB and projections
-  ONBOriginalBasis <- pcaResults$initialPCA$vectors[, 1:pcaResults$nEigenVals] %*% PCsRx
+  ONBOriginalBasis <-
+    pcaResults$initialPCA$vectors[, 1:pcaResults$nEigenVals] %*% PCsRx
   rownames(ONBOriginalBasis) <- colnames(dataCentered)
-  colnames(ONBOriginalBasis) <- paste0("spac_", 1:ncol(ONBOriginalBasis))
+  colnames(ONBOriginalBasis) <-
+    paste0("spac_", 1:ncol(ONBOriginalBasis))
   SpaCoObject@spacs <- ONBOriginalBasis
   tmp <-
     scale(eigenMapMatMult(data,
                           pcaResults$initialPCA$vectors[, 1:pcaResults$nEigenVals]))
   SpaCoObject@projection <- eigenMapMatMult(tmp, PCsRx)
   rownames(SpaCoObject@projection) <- rownames(data)
-  colnames(SpaCoObject@projection) <- paste0("spac_", 1:ncol(ONBOriginalBasis))
+  colnames(SpaCoObject@projection) <-
+    paste0("spac_", 1:ncol(ONBOriginalBasis))
   SpaCoObject@Lambdas <- lambdas
   SpaCoObject@GraphLaplacian <-
     computeGraphLaplacian(SpaCoObject@neighbours)

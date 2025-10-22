@@ -11,12 +11,24 @@ denoise_profiles <- function(SpaCoObject){
   GraphLaplacian <- SpaCoObject@GraphLaplacian
 
   SpacoProjection <- SpaCoObject@projection[,1:SpaCoObject@nSpacs]
-  projMatrix <- eigenMapMatMult(SpacoProjection,
-                                eigenMapMatMult(t(SpacoProjection),
-                                                GraphLaplacian))
+  if(class(GraphLaplacian) == "dgCMatrix")
+  {
+    projMatrix <- SpacoProjection %*% t(SpacoProjection) %*% GraphLaplacian
+  }else
+  {
+    projMatrix <- eigenMapMatMult(SpacoProjection,
+                                  eigenMapMatMult(t(SpacoProjection),
+                                                  GraphLaplacian))
+  }
   #Center data regarding A-norm
   data_centered <- scale(data)
-  projection <- eigenMapMatMult(projMatrix, data)
+  if(class(projMatrix) %in% c("dgCMatrix", "dgeMatrix"))
+  {
+    projection <- projMatrix %*% data
+  }else
+  {
+    projection <- eigenMapMatMult(projMatrix, data)
+  }
   colnames(projection) <- colnames(data_centered)
   rownames(projection) <- rownames(data_centered)
   sds <- apply(projection, 2, sd)
