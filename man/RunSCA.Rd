@@ -8,7 +8,7 @@ RunSCA(
   SpaCoObject,
   PC_criterion = "percent",
   PC_value = 0.95,
-  compute_nSpacs = FALSE,
+  set_nspacs = NULL,
   nSim = 1000,
   nSpacQuantile = 0.05,
   reducedSpots = FALSE,
@@ -20,7 +20,7 @@ RunSCA(
 
 \item{PC_value}{Value to specify number of PCs or desired level of explained variance, see "PC_criterion"}
 
-\item{compute_nSpacs}{Boolean if number of relevant spacs is to be computed. Increases run time significantly}
+\item{set_nspacs}{Boolean if number of relevant spacs is to be computed. Increases run time significantly}
 
 \item{nSim}{Number of simulations for computation of spac number}
 

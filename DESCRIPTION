@@ -6,7 +6,7 @@ Maintainer: Niklas Kleinenkuhnen <nkleinen@smail.uni-koeln.de>
 Description: Spatial components offer tools for dimension reduction and spatially variable gene detection for high dimensional spatial transcriptomics data.
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 LinkingTo: RcppArmadillo, Rcpp, RcppEigen, BH
 Imports: 
     dplyr,
