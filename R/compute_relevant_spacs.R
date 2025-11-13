@@ -2,26 +2,25 @@
 # Compute number of relevant SPACs if required
 computeRelevantSpacs <-
   function(nSim,
-           batchSize,
+           batchSize = 10,
            dataReduced,
            graphLaplacian,
            lambdas) {
     simSpacFunction <- function(i) {
       shuffleOrder <- sample(ncol(graphLaplacian), ncol(graphLaplacian))
-      RxShuffled <-
-        t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
-      # if (class(neighbourIndexMatrix) == "dgCMatrix")
-      # {
-      #   RxShuffled <-
-      #     t(dataReduced[shuffleOrder,]) %*% graphLaplacian %*% dataReduced[shuffleOrder,]
-      # } else
-      # {
-      #   RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder,]),
-      #                                 eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder,]))
-      # }
+      # RxShuffled <-
+      #   t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
+      if (is(graphLaplacian, "dgCMatrix"))
+      {
+        RxShuffled <-
+          t(dataReduced[shuffleOrder,]) %*% graphLaplacian %*% dataReduced[shuffleOrder,]
+      } else
+      {
+        RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder,]),
+                                      eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder,]))
+      }
       eigs_sym(RxShuffled, 1, which = "LM")$values
     }
-    batchSize <- 10
     resultsAll <- replicate(100, simSpacFunction())
     eigValSE <- sd(resultsAll) / sqrt(length(resultsAll))
     eigValCI <-
@@ -32,7 +31,7 @@ computeRelevantSpacs <-
     {
       for (i in 1:round((nSim - 100) / batchSize))
       {
-        batchResult <- replicate(batchsize, simSpacFunction())
+        batchResult <- replicate(batchSize, simSpacFunction())
         # batchResult <- t(sapply(1:batchSize, simSpacCFunction))
         resultsAll <- c(resultsAll, batchResult)
         # eigValCI <- t.test(resultsAll)$conf.int

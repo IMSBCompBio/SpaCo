@@ -5,10 +5,13 @@
 #' Returns the SpaCoObject with the updated data, neighborhood matrix, and projection matrix.
 #' @export
 set_projection <- function(SpaCoObject, data, neighborhood) {
+  requireNamespace("Matrix")
   SpaCoObject@data <- data
   GL <- computeGraphLaplacian(as(neighborhood, "dgCMatrix"))
   SpaCoObject@GraphLaplacian <- GL
   SpaCoObject@projection <-
-    eigenMapMatMult(data, SpaCoObject@spacs[, 1:SpaCoObject@nSpacs])
+    eigenMapMatMult(data, SpaCoObject@spacs)
+    # as.matrix(Matrix::t(t(data) %*% GL) %*%
+    #             SpaCoObject@spacs[, 1:SpaCoObject@nSpacs])
   SpaCoObject
 }

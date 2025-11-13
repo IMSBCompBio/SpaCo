@@ -1,8 +1,8 @@
 Package: SPACO
 Title: This packages computes spatial components for spatial sequencing data
-Version: 0.1.0
+Version: 0.2.0
 Author: Niklas Kleinenkuhnen, David Köhler
-Maintainer: Niklas Kleinenkuhnen <nkleinen@smail.uni-koeln.de>
+Maintainer: David Köhler <koehler@imbie.uni-bonn.de>
 Description: Spatial components offer tools for dimension reduction and spatially variable gene detection for high dimensional spatial transcriptomics data.
 Encoding: UTF-8
 LazyData: true
