@@ -16,6 +16,8 @@ RunSCA(
 )
 }
 \arguments{
+\item{SpaCoObject}{Object of class \code{SpaCoObject} as generated from [SpaCoObject] on which to perform SCA.}
+
 \item{PC_criterion}{criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance}
 
 \item{PC_value}{Value to specify number of PCs or desired level of explained variance, see "PC_criterion"}
@@ -26,11 +28,9 @@ RunSCA(
 
 \item{nSpacQuantile}{Quantile to use as cutoff for spac number}
 
-\item{data}{gene expression data matrix; p genes as columns, n loci as rows}
+\item{reducedSpots}{Should algorithm be run on a subset of spots? Default = FALSE}
 
-\item{neighbourindexmatrix}{n x n matrix showing neighborhood weight of loci}
-
-\item{compute_projections}{Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE}
+\item{nReduce}{Number of spots to sample to run algorithm on subset if \code{reducedSpots==TRUE}. Ignored if \code{reducedSpots==FALSE}}
 }
 \value{
 Returns a SpaCoObject filled with the result of the spatial component analysis.

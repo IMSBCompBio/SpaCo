@@ -2,7 +2,7 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{.orthogonalizeA}
 \alias{.orthogonalizeA}
-\title{Title}
+\title{Orthogonalization}
 \usage{
 .orthogonalizeA(X, A, nSpacs, tol = .Machine$double.eps^0.5)
 }
@@ -19,6 +19,6 @@
 An orthogonolized A matrix.
 }
 \description{
-Title
+Orthogonalization
 }
 \keyword{internal}

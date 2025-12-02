@@ -7,14 +7,9 @@ Description: Spatial components offer tools for dimension reduction and spatiall
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
-LinkingTo: RcppArmadillo, Rcpp, RcppEigen, BH
+LinkingTo: RcppArmadillo, Rcpp, RcppEigen
 Imports: 
-    dplyr,
     ggplot2,
-    lsa,
-    MASS,
-    parallel,
-    pracma,
     Seurat,
     Rcpp (>= 1.0.10),
     RcppEigen,
@@ -23,12 +18,8 @@ Imports:
     methods,
     patchwork,
     rARPACK,
-    rcartocolor,
     tidyr,
-    RcppArmadillo,
-    BH,
     mgcv,
-    CompQuadForm,
     scales,
     Matrix
 License: MIT + file LICENSE

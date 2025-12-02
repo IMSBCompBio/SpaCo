@@ -4,12 +4,12 @@
 \alias{subset_non_neighbour_cells}
 \title{Filtering function to remove cells without neighbours in defined distance from existing Seurat object to be conformable with existing SpaCoObject.}
 \usage{
-subset_non_neighbour_cells(SpaCoObject, Seurat)
+subset_non_neighbour_cells(SpaCoObject, SeuratObject)
 }
 \arguments{
 \item{SpaCoObject}{SpaCoObject to integrate into Seurat object.}
 
-\item{Seurat}{Seurat object to be filtered.}
+\item{SeuratObject}{Seurat object to be filtered.}
 }
 \value{
 Returns a Seurat object with cells filtered to match SpaCoObject.

@@ -1,15 +1,13 @@
 #' SCA_function
 #'
-#' @param SpaCoObject Object of class {\code{SpaCoObject} as generated from [SpaCoObject] on which to perform SCA.
-#' @param data gene expression data matrix; p genes as columns, n loci as rows
-#' @param neighbourindexmatrix n x n matrix showing neighborhood weight of loci
+#' @param SpaCoObject Object of class \code{SpaCoObject} as generated from [SpaCoObject] on which to perform SCA.
 #' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
 #' @param PC_value Value to specify number of PCs or desired level of explained variance, see "PC_criterion"
 #' @param set_nspacs Boolean if number of relevant spacs is to be computed. Increases run time significantly
-#' @param compute_projections Boolean if meta genen projections should be computed. May increase run time significantly. Default is TRUE
 #' @param nSim Number of simulations for computation of spac number
 #' @param nSpacQuantile Quantile to use as cutoff for spac number
-#'
+#' @param reducedSpots Should algorithm be run on a subset of spots? Default = FALSE
+#' @param nReduce Number of spots to sample to run algorithm on subset if \code{reducedSpots==TRUE}. Ignored if \code{reducedSpots==FALSE}
 #' @return
 #' Returns a SpaCoObject filled with the result of the spatial component analysis.
 #' @export
@@ -28,10 +26,6 @@ RunSCA <- function(SpaCoObject,
                    nSpacQuantile = 0.05,
                    reducedSpots = FALSE,
                    nReduce = 1000) {
-  # Check for required libraries
-  requiredLibraries <- c("Rcpp", "RcppEigen", "rARPACK", "Matrix")
-  lapply(requiredLibraries, require, character.only = TRUE)
-
   check_RunSCA_args(as.list(environment()))
   # Extract data and neighbors
   data <- SpaCoObject@data
@@ -63,7 +57,7 @@ RunSCA <- function(SpaCoObject,
       ASpots <- unique(c(ASpots, testNeighbors, testSample))
       availableSpots <- setdiff(availableSpots, ASpots)
     }
-    reducedDataA <- data[ASpots,]
+    reducedDataA <- data[ASpots, ]
     coordinates <- SpaCoObject@coordinates
     reducedNeighborsA <- SpaCoObject@neighbours[ASpots, ASpots]
     reducedGraphLaplacianA <-
@@ -79,11 +73,10 @@ RunSCA <- function(SpaCoObject,
   # Data preprocessing steps
   dataCentered <- scale(tmpTrainData, scale = TRUE)
 
-  pcaResults <- performPCA(dataCentered, PC_criterion, PC_value, n)
+  pcaResults <- performPCA(dataCentered, PC_criterion, PC_value, n, p)
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
-  # Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
   if (is(neighbourIndexMatrix, "dgCMatrix"))
   {
     Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
@@ -100,7 +93,8 @@ RunSCA <- function(SpaCoObject,
 
   if (is.null(set_nspacs)) {
     nSpacs <-
-      computeRelevantSpacs(nSim, 10, dataReduced, tmpTrainGL, lambdas)
+      computeRelevantSpacs(nSim, 10, dataReduced, tmpTrainGL,
+                           lambdas, n_pcs = pcaResults$nEigenVals)
   } else {
     nSpacs <- as.integer(set_nspacs)
   }
@@ -113,15 +107,10 @@ RunSCA <- function(SpaCoObject,
   colnames(ONBOriginalBasis) <-
     paste0("spac_", 1:ncol(ONBOriginalBasis))
   SpaCoObject@spacs <- ONBOriginalBasis
-  # tmp <-
-  #   scale(eigenMapMatMult(data,
-  #                         pcaResults$initialPCA$vectors[, 1:pcaResults$nEigenVals]))
   SpaCoObject@GraphLaplacian <-
     computeGraphLaplacian(SpaCoObject@neighbours)
   SpaCoObject@projection <-
     eigenMapMatMult(data, ONBOriginalBasis)
-  # as.matrix(Matrix::t(t(data) %*% SpaCoObject@GraphLaplacian) %*%
-  #             ONBOriginalBasis)
   rownames(SpaCoObject@projection) <- rownames(data)
   colnames(SpaCoObject@projection) <-
     paste0("spac_", 1:ncol(ONBOriginalBasis))

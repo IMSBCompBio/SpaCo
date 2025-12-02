@@ -1,3 +1,7 @@
+^README_files$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^README_cache$
+^\.github$
+^README\.rmd$

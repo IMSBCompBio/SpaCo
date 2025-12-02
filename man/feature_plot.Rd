@@ -10,6 +10,10 @@ feature_plot(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
 \item{SpaCoObject}{SpacoObject with computed projections}
 
 \item{features}{gene to plot}
+
+\item{ncol}{Number of columns for combined plot if \code{combine = TRUE}.}
+
+\item{combine}{Should spac plots be combined? Default = TRUE}
 }
 \value{
 returns a ggplot object with gene expression.

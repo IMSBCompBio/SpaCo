@@ -2,7 +2,7 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{denoise_profiles}
 \alias{denoise_profiles}
-\title{computed smoothed gene profiles of genes present in the data.}
+\title{computes smoothed gene profiles of genes present in the data.}
 \usage{
 denoise_profiles(SpaCoObject)
 }
@@ -13,5 +13,5 @@ denoise_profiles(SpaCoObject)
 smoothed gene profiles in the SpaCoObject.
 }
 \description{
-computed smoothed gene profiles of genes present in the data.
+computes smoothed gene profiles of genes present in the data.
 }

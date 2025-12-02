@@ -18,7 +18,13 @@ read_10x_for_spaco(
 
 \item{slice}{Name for the stored image of the tissue slice}
 
+\item{filename}{Filename of data to be read}
+
 \item{variable_features_n}{Number of most variable features to keep.}
+
+\item{spatial_file}{Name of csv file from which to read tissue positions.}
+
+\item{vars_to_regress}{Names of features to be regressed against using \link[Seurat]{PercentageFeatureSet}}
 }
 \value{
 Retuns a ready to run SPaCoObject.

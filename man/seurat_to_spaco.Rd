@@ -4,16 +4,16 @@
 \alias{seurat_to_spaco}
 \title{Wrapper to transform existing Seurat object into an SpaCoObject.}
 \usage{
-seurat_to_spaco(Seurat, assay = "SCT", n_image = 1, slot = "scale.data")
+seurat_to_spaco(SeuratObject, assay = "SCT", n_image = 1, layer = "scale.data")
 }
 \arguments{
-\item{Seurat}{Seurat object to export}
+\item{SeuratObject}{Seurat object to export}
 
 \item{assay}{Assay to export from the Seurat object. Default is SCT assay.}
 
 \item{n_image}{Number of the image to export from Seurat object. Only relevant if Seurat object contains multiple images. Default is 1.}
 
-\item{slot}{Which slot to export data from. Default is scale.data.}
+\item{layer}{Which layer to export data from. Default is scale.data.}
 }
 \value{
 Returns a SpaCoObject with all slots filled necessary to perform the spatial component analysis.

@@ -14,7 +14,11 @@ denoised_projection_plot(
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}
 
-\item{spac}{component to plot}
+\item{features}{feature to plot}
+
+\item{ncol}{Number of columns for combined plot if \code{combine = TRUE}.}
+
+\item{combine}{Should spac plots be combined? Default = TRUE}
 }
 \value{
 returns a ggplot object with the denoised gene expression.

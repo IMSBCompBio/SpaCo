@@ -4,7 +4,7 @@
 \alias{SpaCoObject}
 \title{Create a constructor function that creates an object of class SpaCoObject}
 \usage{
-SpaCoObject(neighbours, data, coordinates, pixel_positions_list)
+SpaCoObject(neighbours, data, coordinates)
 }
 \arguments{
 \item{neighbours}{Binary matrix with weights describing if cells are to be considered neighbours or not depending on the defined distance.}

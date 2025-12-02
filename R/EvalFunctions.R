@@ -10,11 +10,10 @@
 #' @import mgcv
 #'
 SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
-  require(mgcv, Matrix)
   GraphLaplacian <- SpaCoObject@GraphLaplacian
-  projection <- SpaCoObject@projection[,1:SpaCoObject@nSpacs]
+  projection <- SpaCoObject@projection[, 1:SpaCoObject@nSpacs]
   projection <-
-    SPACO:::.orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
+    .orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
   data <- SpaCoObject@data
   S <- projection[, 1:SpaCoObject@nSpacs]
   if (is(GraphLaplacian, "dgCMatrix"))
@@ -28,7 +27,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
     sigma <- eigenMapMatMult(t(tmp), tmp)
   }
   # sigmaSVD <- eigen(sigma, symmetric = TRUE)
-  if(ncol(sigma) > 2) {
+  if (ncol(sigma) > 2) {
     C <- eigs_sym(sigma, SpaCoObject@nSpacs, which = "LM")$values
   } else {
     C <- eigen(sigma, symmetric = TRUE, only.values = TRUE)$values
@@ -49,9 +48,9 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
     gene <- scale(gene, scale = FALSE)
     gene <-
       gene / rep(sqrt((t(gene) %*% GraphLaplacian %*% gene)), length(gene))
-    testStat <- sum((t(gene) %*% tmp)^2)
+    testStat <- sum((t(gene) %*% tmp) ^ 2)
     # testStat <- t(gene) %*% sigma %*% gene
-    pVal <- psum.chisq(
+    pVal <- mgcv::psum.chisq(
       testStat,
       # lb = C[1:SpaCoObject@nSpacs],
       lb = C,
@@ -70,13 +69,13 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
   resDf[, 2] <- unlist(resDf[, 2])
   rownames(resDf) <- colnames(data)
   resDf[resDf$pVal == 0, "pVal"] <- 2e-25
-  resDf$p.adjust = p.adjust(resDf$pVal, method = adjustMethod)
+  resDf$p.adjust <-
+    stats::p.adjust(resDf$pVal, method = adjustMethod)
 
   if (!is.null(SpaCoObject@meta.data) &&
       ncol(SpaCoObject@meta.data) > 0 &&
       resDf["COVERAGE", "p.adjust"] < 0.05) {
     warning("The coverage has been tested as significant")
   }
-
-  return(resDf)
+  resDf
 }

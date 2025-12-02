@@ -4,12 +4,14 @@
 \alias{spacs_to_seurat}
 \title{transfer computed spatial components to existing Seurat object.}
 \usage{
-spacs_to_seurat(SpaCoObject, Seurat, nSpacs = SpaCoObject@nSpacs)
+spacs_to_seurat(SpaCoObject, SeuratObject, nSpacs = SpaCoObject@nSpacs)
 }
 \arguments{
 \item{SpaCoObject}{SpaCoObject to export spatial components from.}
 
-\item{Seurat}{Seurat object to add spatial components to.}
+\item{SeuratObject}{Seurat object to add spatial components to.}
+
+\item{nSpacs}{Number of Spacs which are to be projected on for dimension reduction}
 }
 \value{
 Returns a Seurat Object with the spatial components projections in the dimensional reduction slot.

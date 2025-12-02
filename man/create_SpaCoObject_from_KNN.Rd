@@ -4,10 +4,10 @@
 \alias{create_SpaCoObject_from_KNN}
 \title{create_SpaCoObject_from_KNN}
 \usage{
-create_SpaCoObject_from_KNN(Seurat, n = 10)
+create_SpaCoObject_from_KNN(SeuratObject, n = 10)
 }
 \arguments{
-\item{Seurat}{Seurat object to export kNN-graph from.}
+\item{SeuratObject}{Seurat object to export kNN-graph from.}
 
 \item{n}{Number of neighbors to consider.}
 }
