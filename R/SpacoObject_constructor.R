@@ -1,10 +1,8 @@
 # Define a custom class for the object
-#' @importClassesFrom Matrix dgCMatrix
-setClassUnion("matrix_or_sparse", c("matrix", "dgCMatrix"))
 setClass(
   "SpaCoObject",
-  representation(
-    neighbours = "matrix_or_sparse",
+  slots = c(
+    neighbours = "Matrix",
     data = "matrix",
     coordinates = "data.frame",
     pixel_positions_list = "data.frame",
@@ -12,7 +10,7 @@ setClass(
     slice = "character",
     spacs = "matrix",
     projection = "matrix",
-    GraphLaplacian = "matrix_or_sparse",
+    GraphLaplacian = "Matrix",
     Lambdas = "numeric",
     nSpacs = "integer",
     meta.data = "data.frame",
@@ -36,9 +34,10 @@ SpaCoObject <-
   function(neighbours,
            data,
            coordinates) {
+    .check_SpaCo_inputs(as.list(environment()))
     new(
       "SpaCoObject",
-      neighbours = as(neighbours, "dgCMatrix"),
+      neighbours = Matrix::Matrix(neighbours),
       data = data,
       coordinates = coordinates,
       pixel_positions_list = new("data.frame"),
@@ -46,7 +45,7 @@ SpaCoObject <-
       slice = character(0),
       spacs = new("matrix"),
       projection = new("matrix"),
-      GraphLaplacian = new("matrix"),
+      GraphLaplacian = Matrix::Matrix(numeric(0), 0, 0),
       Lambdas = numeric(0),
       nSpacs = integer(0),
       meta.data = new("data.frame"),

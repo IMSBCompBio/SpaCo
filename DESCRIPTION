@@ -1,5 +1,5 @@
 Package: SPACO
-Title: This packages computes spatial components for spatial sequencing data
+Title: Spatial component computation for spatial sequencing data
 Version: 0.2.0
 Author: Niklas Kleinenkuhnen, David Köhler
 Maintainer: David Köhler <koehler@imbie.uni-bonn.de>
@@ -10,7 +10,7 @@ RoxygenNote: 7.3.3
 LinkingTo: RcppArmadillo, Rcpp, RcppEigen
 Imports: 
     ggplot2,
-    Seurat,
+    Seurat (>= 5.3.0),
     Rcpp (>= 1.0.10),
     RcppEigen,
     tibble,
@@ -21,5 +21,8 @@ Imports:
     tidyr,
     mgcv,
     scales,
-    Matrix
+    Matrix (>= 1.6.0)
 License: MIT + file LICENSE
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -16,7 +16,7 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
     .orthogonalizeA(projection, GraphLaplacian, SpaCoObject@nSpacs)
   data <- SpaCoObject@data
   S <- projection[, 1:SpaCoObject@nSpacs]
-  if (is(GraphLaplacian, "dgCMatrix"))
+  if (inherits(GraphLaplacian, "Matrix"))
   {
     # sigma <- GraphLaplacian %*% S %*% t(S) %*% GraphLaplacian
     tmp <- GraphLaplacian %*% S
@@ -50,14 +50,14 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
       gene / rep(sqrt((t(gene) %*% GraphLaplacian %*% gene)), length(gene))
     testStat <- sum((t(gene) %*% tmp) ^ 2)
     # testStat <- t(gene) %*% sigma %*% gene
-    pVal <- mgcv::psum.chisq(
+    pVal <- suppressWarnings(mgcv::psum.chisq(
       testStat,
       # lb = C[1:SpaCoObject@nSpacs],
       lb = C,
       df = rep(1, SpaCoObject@nSpacs),
       lower.tail = FALSE,
       tol = 2e-10
-    )
+    ))
     return(data.frame(score = testStat, pVal = pVal))
   }
 

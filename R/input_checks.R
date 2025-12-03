@@ -36,7 +36,8 @@ check_RunSCA_args <- function(args) {
 
   # nSim
   if (!is.numeric(args$nSim) ||
-      length(args$nSim) != 1 || args$nSim != as.integer(args$nSim)) {
+      length(args$nSim) != 1 ||
+      args$nSim != as.integer(args$nSim)) {
     stop("`nSim` must be a single integer value.")
   }
 
@@ -59,6 +60,43 @@ check_RunSCA_args <- function(args) {
       args$nReduce != as.integer(args$nReduce)) {
     stop("`nReduce` must be a single integer value.")
   }
+
+  invisible(TRUE)
+}
+.check_SpaCo_inputs <- function(args) {
+  # Extract expected inputs from the list
+  neighbours  <- args$neighbours
+  data        <- args$data
+  coordinates <- args$coordinates
+
+  ## --- Check neighbours ---
+  if (nrow(neighbours) != ncol(neighbours))
+    stop("'neighbours' must be a square matrix.")
+
+  if (!Matrix::isSymmetric(neighbours))
+    stop("'neighbours' must be symmetric.")
+
+  n <- ncol(neighbours)
+
+  ## --- Check coordinates ---
+  if (!is.matrix(coordinates) && !is.data.frame(coordinates))
+    stop("'coordinates' must be a matrix or data.frame.")
+
+  if (ncol(coordinates) != 2)
+    stop("'coordinates' must have exactly 2 columns.")
+
+  if (nrow(coordinates) != n)
+    stop("'coordinates' must have the same number of rows as neighbours has columns.")
+
+  ## --- Check data ---
+  if (!is.matrix(data))
+    stop("'data' must be a matrix.")
+
+  if (nrow(data) != n)
+    stop("'data' must have the same number of rows as neighbours.")
+
+  if (any(diag(as.matrix(neighbours)) != 0))
+    warning("Diagonal entries of 'neighbours' are not zero.")
 
   invisible(TRUE)
 }

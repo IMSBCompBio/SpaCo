@@ -77,7 +77,7 @@ RunSCA <- function(SpaCoObject,
   dataReduced <- scale(pcaResults$dataReduced)
 
   # Compute test statistic matrix
-  if (is(neighbourIndexMatrix, "dgCMatrix"))
+  if (inherits(neighbourIndexMatrix, "Matrix"))
   {
     Rx <- t(dataReduced) %*% tmpTrainGL %*% dataReduced
   } else
