@@ -4,7 +4,7 @@
 \alias{set_projection}
 \title{Set projections of Spaco Object}
 \usage{
-set_projection(SpaCoObject, data, neighborhood)
+set_projection(SpaCoObject, data, neighborhood = SpaCoObject@neighbours)
 }
 \arguments{
 \item{SpaCoObject}{Fitted object of class \code{SpaCoObject} as returned from [RunSCA] on which to update the projection slot with new data.}
