@@ -83,20 +83,10 @@ denoise_profiles <- function(SpaCoObject) {
   }
 #' @keywords internal
 computeGraphLaplacian <- function(neighbourIndexMatrix) {
-  if (inherits(neighbourIndexMatrix, "Matrix"))
-  {
-    W <- sum(neighbourIndexMatrix@x)
-    n <- neighbourIndexMatrix@Dim[1]
-    neighbourIndexMatrix@x <- neighbourIndexMatrix@x / W
-    graphLaplacian <-
-      neighbourIndexMatrix + Matrix::Diagonal(n, 1 / n)
-  } else
-  {
-    W <- sum(neighbourIndexMatrix)
-    n <- nrow(neighbourIndexMatrix)
-    neighbourIndexMatrix <- neighbourIndexMatrix / W
-    graphLaplacian <- neighbourIndexMatrix + diag(1 / n, n)
-  }
+  W <- sum(neighbourIndexMatrix)
+  n <- nrow(neighbourIndexMatrix)
+  neighbourIndexMatrix <- neighbourIndexMatrix / W
+  graphLaplacian <- neighbourIndexMatrix + diag(1 / n, n)
   Matrix::Matrix(graphLaplacian)
 }
 #' @keywords internal
@@ -115,11 +105,11 @@ computeRelevantSpacs <-
       if (inherits(graphLaplacian, "Matrix"))
       {
         RxShuffled <-
-          t(dataReduced[shuffleOrder,]) %*% graphLaplacian %*% dataReduced[shuffleOrder,]
+          t(dataReduced[shuffleOrder, ]) %*% graphLaplacian %*% dataReduced[shuffleOrder, ]
       } else
       {
-        RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder,]),
-                                      eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder,]))
+        RxShuffled <- eigenMapMatMult(t(dataReduced[shuffleOrder, ]),
+                                      eigenMapMatMult(graphLaplacian, dataReduced[shuffleOrder, ]))
       }
       rARPACK::eigs_sym(RxShuffled, 1, which = "LM")$values
     }

@@ -82,9 +82,6 @@ check_RunSCA_args <- function(args) {
   if (!is.matrix(coordinates) && !is.data.frame(coordinates))
     stop("'coordinates' must be a matrix or data.frame.")
 
-  if (ncol(coordinates) != 2)
-    stop("'coordinates' must have exactly 2 columns.")
-
   if (nrow(coordinates) != n)
     stop("'coordinates' must have the same number of rows as neighbours has columns.")
 
