@@ -21,7 +21,7 @@ Imports:
     tidyr,
     mgcv,
     scales,
-    Matrix (>= 1.6.0)
+    Matrix (>= 1.5)
 License: MIT + file LICENSE
 Suggests: 
     testthat (>= 3.0.0)
