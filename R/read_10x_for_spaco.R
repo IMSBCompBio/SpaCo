@@ -53,7 +53,7 @@ read_10x_for_spaco <- function(data_dir,
       Seurat::GetAssayData(
         object = data,
         assay = "SCT",
-        slot = "scale.data"
+        layer = "scale.data"
       )
     ))
 
@@ -98,8 +98,7 @@ read_10x_for_spaco <- function(data_dir,
   SpaCoObject <- SpaCoObject(
     neighbours = neighbours_index,
     data = as.matrix(data_matrix),
-    coordinates = tissue_positions_list,
-    pixel_positions_list = pixel_positions_list
+    coordinates = tissue_positions_list
   )
   SpaCoObject@meta.data <- meta
   SpaCoObject@pixel_positions_list <-

@@ -1,4 +1,4 @@
-utils::globalVariables(c("imagecol", "imagerow", "prediction", "x1", "x2", "y1", "y2"))
+utils::globalVariables(c("col", "row", "prediction", "x1", "x2", "y1", "y2"))
 .SpatialColors <-
   grDevices::colorRampPalette(colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral")))
 .rescale_to_range <- function(x) {
@@ -66,7 +66,7 @@ Spaco_plot <-
   rescale_spac <- SpaCoObject@projection[, spac[i], drop = FALSE]
   rescale_spac[, 1] <- .rescale_to_spac(rescale_spac[, 1])
   singleplot <- ggplot2::ggplot(data = tidyr::tibble(
-    tidyr::as_tibble(SpaCoObject@pixel_positions_list, rownames = "BC"),
+    tidyr::as_tibble(SpaCoObject@coordinates, rownames = "BC"),
     assign(
       paste0("spac_", i),
       tibble::as_tibble(rescale_spac[, 1, drop = FALSE], rownames = NA)
@@ -80,12 +80,12 @@ Spaco_plot <-
       legend.position = "top"
     )
 
-  if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
+  if (any((SpaCoObject@pixel_positions_list$row[1] %% 1) > 0)) {
     singleplot <-
       singleplot + ggforce::geom_regon(
         ggplot2::aes(
-          x0 = imagecol,
-          y0 = imagerow,
+          x0 = col,
+          y0 = row,
           sides = 4,
           r = 3.5,
           angle = pi / 4,
@@ -99,11 +99,12 @@ Spaco_plot <-
   } else {
     singleplot <-
       singleplot + ggplot2::geom_tile(ggplot2::aes(
-        x = imagecol,
-        y = imagerow,
+        x = col,
+        y = row,
         fill = !!as.name(paste0("spac_",  spac[i]))
       )) +
-      ggplot2::scale_fill_gradient(low = "white", high = "black") +
+      ggplot2::scale_fill_gradientn(colours = .SpatialColors(n = 100),
+                                    limits = c(-2, 2)) +
       ggplot2::coord_flip() +
       ggplot2::scale_x_reverse(name = NULL, breaks = NULL)
 
@@ -144,13 +145,13 @@ Spaco_plot <-
         legend.position = "top"
       )
 
-    if (any((SpaCoObject@pixel_positions_list[[dataset]]$imagerow[1] %% 1) > 0)) {
+    if (any((SpaCoObject@pixel_positions_list[[dataset]]$row[1] %% 1) > 0)) {
       mergedsingleplot <-
         mergedsingleplot +
         ggforce::geom_regon(
           ggplot2::aes(
-            x0 = imagecol,
-            y0 = imagerow,
+            x0 = col,
+            y0 = row,
             sides = 4,
             r = 3.5,
             angle = pi / 4,
@@ -164,11 +165,11 @@ Spaco_plot <-
     } else {
       mergedsingleplot <-
         mergedsingleplot + ggplot2::geom_tile(ggplot2::aes(
-          x = imagecol,
-          y = imagerow,
+          x = col,
+          y = row,
           fill = !!as.name(paste0("spac_",  spac[i]))
         )) +
-        ggplot2::scale_fill_gradient(low = "white", high = "black") +
+        ggplot2::scale_fill_gradientn(colours = .SpatialColors(n = 100),                                     limits = c(0, 2)) +
         ggplot2::coord_flip() +
         ggplot2::scale_x_reverse(name = NULL, breaks = NULL)
     }
@@ -221,12 +222,12 @@ denoised_projection_plot <-
         legend.position = "top"
       )
 
-    if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
+    if (any((SpaCoObject@pixel_positions_list$row[1] %% 1) > 0)) {
       singleplot <-
         singleplot + ggforce::geom_regon(
           ggplot2::aes(
-            x0 = imagecol,
-            y0 = imagerow,
+            x0 = col,
+            y0 = row,
             sides = 4,
             r = 3.5,
             angle = pi / 4,
@@ -240,11 +241,11 @@ denoised_projection_plot <-
     } else {
       singleplot <-
         singleplot + ggplot2::geom_tile(ggplot2::aes(
-          x = imagecol,
-          y = imagerow,
+          x = col,
+          y = row,
           fill = !!as.symbol(paste0(features[i]))
         )) +
-        ggplot2::scale_fill_gradient(low = "white", high = "black") +
+        ggplot2::scale_fill_gradientn(colours = .SpatialColors(n = 100),                                     limits = c(0, 2)) +
         ggplot2::coord_flip() +
         ggplot2::scale_x_reverse(name = NULL, breaks = NULL) +
         ggplot2::scale_y_continuous(name = NULL, breaks = NULL)
@@ -288,7 +289,7 @@ feature_plot <-
   rescaled_data[, 1] <- .rescale_to_range(rescaled_data[, 1])
   singleplot <-
     ggplot2::ggplot(data = tidyr::tibble(
-      tidyr::as_tibble(SpaCoObject@pixel_positions_list,
+      tidyr::as_tibble(SpaCoObject@coordinates,
                        rownames = "BC"),
       tidyr::as_tibble(rescaled_data[, features[i],
                                      drop = FALSE],
@@ -302,12 +303,12 @@ feature_plot <-
       legend.position = "top"
     )
 
-  if (any((SpaCoObject@pixel_positions_list$imagerow[1] %% 1) > 0)) {
+  if (any((SpaCoObject@pixel_positions_list$row[1] %% 1) > 0)) {
     singleplot <-
       singleplot + ggforce::geom_regon(
         ggplot2::aes(
-          x0 = imagecol,
-          y0 = imagerow,
+          x0 = col,
+          y0 = row,
           sides = 4,
           r = 3.5,
           angle = pi / 4,
@@ -321,11 +322,12 @@ feature_plot <-
   } else {
     singleplot <-
       singleplot + ggplot2::geom_tile(ggplot2::aes(
-        x = imagecol,
-        y = imagerow,
+        x = col,
+        y = row,
         fill = !!as.symbol(paste0(features[i]))
       )) +
-      ggplot2::scale_fill_gradient(low = "white", high = "black") +
+      ggplot2::scale_fill_gradientn(colours = .SpatialColors(n = 100),
+                                    limits = c(0, 2)) +
       ggplot2::coord_flip() +
       ggplot2::scale_x_reverse(name = NULL, breaks = NULL) +
       ggplot2::scale_y_continuous(name = NULL, breaks = NULL)

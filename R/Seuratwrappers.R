@@ -27,6 +27,13 @@ seurat_to_spaco <-
     }
     pixel_positions_list <-
       Seurat::GetTissueCoordinates(SeuratObject)
+    if (is(SeuratObject@images[[n_image]], "VisiumV2")) {
+      stop(
+        "VisiumV2 objects no longer contain spatial tissue coordinates.
+           Use `read_10x_for_spaco()` to create a spaco object.",
+        call. = FALSE
+      )
+    }
     tissue_positions_list <-
       as.data.frame(SeuratObject@images[[n_image]]@coordinates)
 
@@ -80,10 +87,10 @@ spacs_to_seurat <-
         "Cells without neighbours in defined distance found in Seurat object. Please subset cells first."
       )
     }
-    message("copying significant projections into reduction slot spaco")
-    SeuratObject[["spaco"]] <-
+    SeuratObject@reductions[["spaco"]] <-
       Seurat::CreateDimReducObject(
-        embeddings = SpaCoObject@projection[, 1:max(nSpacs, 2)],
+        embeddings = SpaCoObject@projection[colnames(Seurat::GetAssay(SeuratObject,
+                                                                      assay = Seurat::DefaultAssay(SeuratObject))), 1:max(nSpacs, 2)],
         key = "Spac_",
         assay = Seurat::DefaultAssay(SeuratObject)
       )
@@ -101,6 +108,13 @@ spacs_to_seurat <-
 #'
 #'
 subset_non_neighbour_cells <- function(SpaCoObject, SeuratObject) {
+  tmp <- tryCatch({
+    SeuratObject@images[[1]]@misc
+  },
+  error = function(e) {
+    NULL
+  })
+  SeuratObject@images[[1]]@misc <- tmp
   SeuratObject <-
     subset(SeuratObject,
            cells = intersect(colnames(SeuratObject),
