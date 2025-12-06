@@ -24,7 +24,7 @@ of variable features to keep can be set, as well as the variables that
 should be regressed out. In our tutorial, we correct for mitochondrial
 and hemoglobin genes detected in the spots.
 
-In this tutorial, we use the [10x Mouse Brain Sagittal Anterior dataset][https://www.10xgenomics.com/datasets/mouse-brain-serial-section-1-sagittal-anterior-1-standard-1-1-0]. For SPACO, the files "Feature/barcode matrix hdf5 (filtered)", "Feature/barcode matrix (filtered)" and "spatial imaging data" are necessary.
+In this tutorial, we use the [10x Mouse Brain Sagittal Anterior dataset][https://www.10xgenomics.com/datasets/mouse-brain-serial-section-1-sagittal-anterior-1-standard-1-1-0]. For SPACO, the files "Feature/barcode matrix hdf5 (filtered)" and "spatial imaging data" are necessary.
 
 ``` r
 #Specify data paths
