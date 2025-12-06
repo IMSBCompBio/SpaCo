@@ -84,9 +84,10 @@ Ttr
 
 First we remove all spots from the Seurat object which have no direct
 neighbors as they violate SPaCo assumptions. The computed SPaCo
-projections are stored in the object slot “object\[\[”spaco”\]\]”.
+projections are stored in the object slot “object@reductions\[\[”spaco”\]\]”.
 
 ``` r
+library(Seurat)
 brain <-
   Load10X_Spatial(data.dir = data_dir,
                   slice = slice,
