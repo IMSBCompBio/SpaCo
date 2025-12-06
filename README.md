@@ -19,10 +19,12 @@ devtools::install_github("IMSBCompBio/SpaCo")
 
 SPACO uses the importer function of the Seurat library to import 10X
 Visium spatial data. The imported data is preprocessed using Variance
-Stabilizing Transformations by the sctransform package (URAL) The number
-of variable features to keep can be defined and any variables that
-should be regressed out. In out tutorial we correct for mitochondrial
-and hemoglobin genes detected in the spots
+Stabilizing Transformations by the sctransform package. The number
+of variable features to keep can be set, as well as the variables that
+should be regressed out. In our tutorial, we correct for mitochondrial
+and hemoglobin genes detected in the spots.
+
+In this tutorial, we use the [10x Mouse Brain Sagittal Anterior dataset][https://www.10xgenomics.com/datasets/mouse-brain-serial-section-1-sagittal-anterior-1-standard-1-1-0]. For SPACO, the files "Feature/barcode matrix hdf5" and "spatial imaging data" are necessary.
 
 ``` r
 #Specify data paths
@@ -30,7 +32,7 @@ library(SPACO)
 
 data_dir="~/path/to/directory"
 slice = "~/path/to/directory/with/the/H&E/stain"
-filename ="name of the feature matrix" 
+filename ="name of the feature matrix file" 
 spatial_file = "name of the tissue positions list"
 
 #Initialize the object from raw (non-normalized data and use the Seurat library for pre-processing)
@@ -40,26 +42,6 @@ SpaCoObject <- read_10x_for_spaco(data_dir = data_dir,slice = slice,filename = f
                                   vars_to_regress = c("^mt-","^Hbb-"))
 ```
 
-### Setup a SPaCo object from existing Seurat object
-
-``` r
-library(Seurat)
-library(SPACO)
-library(SeuratData)
-library(ggplot2)
-library(patchwork)
-library(dplyr)
-
-#install data from SeuratData
-#InstallData(“stxBrain.SeuratData”)
-brain <- LoadData("stxBrain", type = "anterior1")
-brain <- PercentageFeatureSet(brain, pattern = "^mt-" ,col.name = "percent.mt")
-brain <- PercentageFeatureSet(brain, pattern = "^Hbb-" ,col.name = "percent.hbb")
-brain <- SCTransform(brain, assay = "Spatial", variable.features.n = 3000, verbose = F)
-
-SpaCoObject <- seurat_to_spaco(Seurat = brain, assay = "SCT", n_image= 1, slot = "scale.data")
-```
-
 ### Run the Spatial component analysis as dimensionality reduction and computer the number of informative spatial components.
 
 In this step we actually do the spatial component analysis. Further, we
@@ -67,16 +49,12 @@ determine the number of relevant spatial components via sampling. These
 can be found in the @nSpacs slot in the object.
 
 ``` r
-SpaCoObject <- RunSCA(SpaCoObject,compute_nSpacs = TRUE)
-```
+SpaCoObject <- RunSCA(SpaCoObject)
 
-    ## computing number of releveant spacs
-
-``` r
 SpaCoObject@nSpacs
 ```
 
-    ## [1] 40
+    ## [1] 29
 
 ### Visualisation and denoising
 
@@ -109,17 +87,23 @@ neighbors as they violate SPaCo assumptions. The computed SPaCo
 projections are stored in the object slot “object\[\[”spaco”\]\]”.
 
 ``` r
+brain <-
+  Load10X_Spatial(data.dir = data_dir,
+                  slice = slice,
+                  filename = filename)
+
 brain <- subset_non_neighbour_cells(SpaCoObject, brain)
+
+brain <- SCTransform(brain, variable.features.n = 3000,
+                     assay = "Spatial")
 
 brain <- spacs_to_seurat(SpaCoObject, brain)
 ```
 
-    ## copying significan projections into reduction slot spaco
-
 ### Use Seurat for visualisation
 
 To compare the spatial component analysis to the analog process using
-PCA in the Seurat pipeline we do all the downstream processing right in
+PCA in the Seurat pipeline, downstream processing is performed in
 the Seurat object.
 
 ``` r
@@ -176,45 +160,4 @@ rr+qq
 
 ``` r
 DE_genes<- SVGTest(SpaCoObject)
-
-DE_genes_sort <- DE_genes[order(DE_genes$score, decreasing = TRUE),]
-
-sigs <- rownames(DE_genes[DE_genes$p.adjust<0.05,])
 ```
-
-### GO-Term and KEGG pathway enrichment of spatially variable genes
-
-We can use the significant spatially variable genes for functional
-enrichment methods like GO-terms or KEGG pathways. Here we use
-clusterProfiler for this.
-
-``` r
-library(org.Mm.eg.db)
-library(clusterProfiler)
-
-sigs_entres <- na.omit(AnnotationDbi::select(
-  x = org.Mm.eg.db,
-  keys = sigs,
-  keytype = "SYMBOL",
-  columns = c("ENTREZID"))[,"ENTREZID"])
-
-enrichGO(sigs_entres,'org.Mm.eg.db',ont="BP") -> GOBP
-dotplot_brain <- dotplot(GOBP, showCategory=10)
-dotplot_brain
-```
-
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
-
-For the identification of functional areas on the tissue slide it is
-possible to use the relevant spatial components for denoising of genes.
-**This should only be done with spatial variable genes as non-spatial
-genes will be highly distorted by artefacts**
-
-``` r
-SpaCoObject <-  denoise_profiles(SpaCoObject)
-denoised <- denoised_projection_plot(SpaCoObject,features = "Ybx1")+ggtitle("denoised")
-original <- feature_plot(SpaCoObject, features = "Ybx1", ncol = NULL, combine = TRUE)+ggtitle("original")
-original + denoised
-```
-
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
