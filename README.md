@@ -67,6 +67,8 @@ as well. All plotting functions in the SPACO library can be modified
 with additional ggplot commands.
 
 ``` r
+library(ggplot2)
+
 spacplot <- Spaco_plot(SpaCoObject, spac = 1:4, ncol = NULL, combine = T)+ggtitle("Meta genes 1 to 4")
 spacplot
 ```
