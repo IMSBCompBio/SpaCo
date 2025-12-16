@@ -2,10 +2,10 @@ library(SPACO)
 library(Seurat)
 library(SPARK)
 library(HEARTSVG)
-source("./HEARTSVG Helper.R")
-dir_name_in <- "./data/bootstrap_data/"
-# dir_name_in <- "./data/additive_noise_data/"
-dir_name <- "./data/"
+source("/home/rstudio/SpaCo_paper_code/SVG/HEARTSVG Helper.R")
+dir_name_in <- "/home/rstudio/SpaCo_paper_code/SVG/data/bootstrap_data/"
+# dir_name_in <- "/home/rstudio/SpaCo_paper_code/SVG/data/additive_noise_data/"
+dir_name <- "/home/rstudio/SpaCo_paper_code/SVG/data/"
 fp_names <-
   readRDS(paste0(dir_name, "twin_names.RDS"))
 tp_names <-
@@ -14,7 +14,7 @@ n_rads <- 5
 n_bm <- 10
 bm_settings <- rep(1:n_rads, each = n_bm)
 spots_intersect <-
-  readRDS("./data/intersect.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/intersect.RDS")
 moran_i <- function(x, w) {
   # Calculate required components
   n <- length(x)
@@ -33,8 +33,8 @@ moran_i <- function(x, w) {
 }
 n_bootstraps <- 10
 dir_name_in <-
-  "./data/bootstrap_data/"
-dir_name <- "./data/"
+  "/home/rstudio/SpaCo_paper_code/SVG/data/bootstrap_data/"
+dir_name <- "/home/rstudio/SpaCo_paper_code/SVG/data/"
 
 for (i in seq_along(neighbours_ls)) {
   for (j in 1:n_bootstraps) {

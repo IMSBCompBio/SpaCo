@@ -2,9 +2,9 @@ library(Seurat)
 library(distances)
 
 coords <-
-  readRDS("./data/brain_coordinates.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/brain_coordinates.RDS")
 write.table(coords,
-            "./data/bootstrap_data/coords.csv")
+            "/home/rstudio/SpaCo_paper_code/SVG/data/bootstrap_data/coords.csv")
 dist_mat <- as.matrix(distances(coords))
 diag(dist_mat) <- Inf
 
@@ -21,4 +21,4 @@ n_mats <- lapply(n_mats, function(mat) {
   mat
 })
 names(n_mats) <- rads
-saveRDS(n_mats, file = "./data/neighmats.RDS")
+saveRDS(n_mats, file = "/home/rstudio/SpaCo_paper_code/SVG/data/neighmats.RDS")

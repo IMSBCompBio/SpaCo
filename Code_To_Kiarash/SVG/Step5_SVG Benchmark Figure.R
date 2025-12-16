@@ -1,12 +1,12 @@
 library(dplyr)
 library(ggplot2)
-res_dir <- "./data/res/"
+res_dir <- "/home/rstudio/SpaCo_paper_code/SVG/data/res/"
 res_dir_p <-
   "./python/results/svg_res/"
 fp_names <-
-  readRDS("./data/twin_names.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/twin_names.RDS")
 tp_names <-
-  readRDS("./data/totwin.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/totwin.RDS")
 all_genes <- c(fp_names, tp_names)
 n_rads <- 5
 n_bm <- 10

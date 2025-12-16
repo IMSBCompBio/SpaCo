@@ -1,6 +1,6 @@
 library(Seurat)
 load(
-  "./Data/cluster_benchmark_objects.Rdata"
+  "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_objects.Rdata"
 )
 dim_reduction <- function(seurat_object,
                           resolution,
@@ -66,5 +66,5 @@ save(
   anterior_reso_grid,
   posterior_reso_grid,
   resolutions,
-  file = "./Data/cluster_benchmark_nclust_data.Rdata"
+  file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_nclust_data.Rdata"
 )

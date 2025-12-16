@@ -2,18 +2,18 @@ library(dplyr)
 library(Seurat)
 set.seed(1)
 brain <-
-  readRDS("./data/brain.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/brain.RDS")
 orig_data <- GetAssayData(brain, assay = "Spatial")
 neighbours_ls <-
-  readRDS("./data/neighmats.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/neighmats.RDS")
 spots_intersect <-
   intersect(colnames(orig_data), colnames(neighbours_ls[[1]]))
 
 orig_data <- orig_data[, spots_intersect]
 svg_names <-
-  readRDS("./data/totwin.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/totwin.RDS")
 twin_names <-
-  readRDS("./data/twin_names.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/twin_names.RDS")
 coverage_vector <- colSums(orig_data)
 orig_data_abund <-
   as.matrix(sweep(orig_data, 2, coverage_vector, "/"))
@@ -38,4 +38,4 @@ orig_data_twins <-
 orig_data_twins <-
   floor(orig_data_twins) + (runif(length(orig_data_twins)) < (orig_data_twins - floor(orig_data_twins)))
 saveRDS(orig_data_twins,
-        "./data/twin_data.RDS")
+        "/home/rstudio/SpaCo_paper_code/SVG/data/twin_data.RDS")

@@ -4,30 +4,30 @@ library(SPACO)
 library(Seurat)
 library(SPARK)
 library(HEARTSVG)
-source("./HEARTSVG Helper.R")
+source("/home/rstudio/SpaCo_paper_code/SVG/HEARTSVG Helper.R")
 brain <-
-  readRDS("./data/brain.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/brain.RDS")
 neighbours_ls <-
-  readRDS("./data/neighmats.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/neighmats.RDS")
 orig_data <-
-  readRDS("./data/twin_data.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/twin_data.RDS")
 orig_names <- rownames(orig_data)
 
 spots_intersect <-
   intersect(colnames(orig_data), colnames(neighbours_ls[[1]]))
 saveRDS(spots_intersect,
-        "./data/intersect.RDS")
+        "/home/rstudio/SpaCo_paper_code/SVG/data/intersect.RDS")
 orig_data <- orig_data[rowSums(orig_data) != 0, spots_intersect]
 neighbours_ls <-
   lapply(neighbours_ls, function(mat)
     mat[spots_intersect, spots_intersect])
 tp_names <-
-  readRDS("./data/totwin.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/totwin.RDS")
 rads <- names(neighbours_ls)
 fp_names <-
-  readRDS("./data/twin_names.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/twin_names.RDS")
 tp_names <-
-  readRDS("./data/totwin.RDS")
+  readRDS("/home/rstudio/SpaCo_paper_code/SVG/data/totwin.RDS")
 
 coverage_adjusted_bootstrap <-
   function(orig_data,
@@ -69,7 +69,7 @@ coverage_adjusted_bootstrap <-
     return(counts_sample)
   }
 n_bootstraps <- 10
-dir_name <- "./data/bootstrap_data/"
+dir_name <- "/home/rstudio/SpaCo_paper_code/SVG/data/bootstrap_data/"
 for (i in seq_along(neighbours_ls)) {
   for (j in 1:n_bootstraps) {
     set.seed((i - 1) * n_bootstraps + j)

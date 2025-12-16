@@ -12,18 +12,18 @@ library(tidyverse)
 library(SpatialPCA)
 library(glmGamPoi)
 ## reading in the Anterior brain data
-anterior_map = readRDS('./Data/mapped_data_brain.RDS')
-anterior_slice_data = readRDS('./Data/brain.RDS')
+anterior_map = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/mapped_data_brain.RDS')
+anterior_slice_data = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/brain.RDS')
 anterior_slice_seur <- UpdateSeuratObject(anterior_slice_data)
 
 ### Read in liver data
-liver_map = readRDS('./Data/mapped_data_liver.RDS')
-liver_data = readRDS('./Data/seurat_data_clust_liver.RDS')
+liver_map = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/mapped_data_liver.RDS')
+liver_data = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/seurat_data_clust_liver.RDS')
 liver_seur <- UpdateSeuratObject(liver_data)
 
 ### Reading in posterior data
-posterior_map = readRDS('./Data/mapped_data_brain_posterior1.RDS')
-posterior_slice_data = readRDS('./Data/seurat_data_clust_brain_posterior1.RDS')
+posterior_map = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/mapped_data_brain_posterior1.RDS')
+posterior_slice_data = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/seurat_data_clust_brain_posterior1.RDS')
 posterior_slice_seur <- UpdateSeuratObject(posterior_slice_data)
 
 set.seed(1)
@@ -198,5 +198,5 @@ save(
   liver_res,
   anterior_res,
   posterior_res,
-  file = "./Data/cluster_benchmark_objects.Rdata"
+  file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_objects.Rdata"
 )

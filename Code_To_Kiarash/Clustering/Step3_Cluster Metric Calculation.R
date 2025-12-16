@@ -7,14 +7,14 @@ library(Seurat)
 library(future)
 library(future.apply)
 load(
-  "./Data/cluster_benchmark_objects.Rdata"
+  "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_objects.Rdata"
 )
 load(
-  "./Data/cluster_benchmark_nclust_data.Rdata"
+  "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_nclust_data.Rdata"
 )
-anterior_map = readRDS('./Data/mapped_data_brain.RDS')
-posterior_map = readRDS('./Data/mapped_data_brain_posterior1.RDS')
-liver_map = readRDS('./Data/mapped_data_liver.RDS')
+anterior_map = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/mapped_data_brain.RDS')
+posterior_map = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/mapped_data_brain_posterior1.RDS')
+liver_map = readRDS('/home/rstudio/SpaCo_paper_code/Clustering/Data/mapped_data_liver.RDS')
 
 dim_reduction <- function(seurat_object,
                           resolution,
@@ -118,7 +118,7 @@ liver_cluster_res <- compare_clusterings(liver_res, 4, resolutions["liver",], li
 save(anterior_cluster_res,
      posterior_cluster_res,
      liver_cluster_res,
-     file = "./Data/cluster_results.Rdata")
+     file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_results.Rdata")
 
 #Example Cluster Figure
 library(ggplot2)

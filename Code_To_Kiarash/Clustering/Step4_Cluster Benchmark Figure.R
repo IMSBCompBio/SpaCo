@@ -1,6 +1,6 @@
 library(dplyr)
 library(ggplot2)
-load(file = "./Data/cluster_results.Rdata")
+load(file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_results.Rdata")
 
 combined_df <- do.call(rbind,
                        list(
