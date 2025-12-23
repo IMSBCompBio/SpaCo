@@ -118,7 +118,11 @@ liver_cluster_res <- compare_clusterings(liver_res, 4, resolutions["liver",], li
 save(anterior_cluster_res,
      posterior_cluster_res,
      liver_cluster_res,
-     file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_results.Rdata")
+     file = "/tmp/cluster_results.Rdata")
+file.rename(
+  from = "/tmp/cluster_results.Rdata",
+  to   = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_results.Rdata"
+)
 
 #Example Cluster Figure
 library(ggplot2)
@@ -163,3 +167,5 @@ ggsave(
   width = 3,
   height = 8
 )
+
+example_cluster_plot

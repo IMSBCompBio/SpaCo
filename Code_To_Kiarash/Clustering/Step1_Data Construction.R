@@ -198,5 +198,11 @@ save(
   liver_res,
   anterior_res,
   posterior_res,
-  file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_objects.Rdata"
+  #file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_objects.Rdata"
+  file = "/tmp/cluster_benchmark_objects.Rdata"
+)
+
+file.rename(
+  from = "/tmp/cluster_benchmark_objects.Rdata",
+  to   = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_objects.Rdata"
 )

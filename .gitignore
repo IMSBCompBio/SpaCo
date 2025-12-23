@@ -64,3 +64,6 @@ src/SPACO.dll
 # .config files
 .config/ 
 .local/
+
+# tar files
+*.tar*

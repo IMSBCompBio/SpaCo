@@ -48,6 +48,7 @@ RUN R -e "library(remotes); remotes::install_version('aricode', version='1.0.3')
 RUN R -e "library(remotes); remotes::install_version('clue', version='0.3.66')"
 RUN R -e "library(remotes); remotes::install_version('mclust', version='6.1.1')"
 RUN R -e "library(remotes); remotes::install_version('proxy', version='0.4.27')"
+RUN R -e "library(remotes); remotes::install_version('svglite', version='2.1.3')"
 RUN R -e "install.packages('BiocManager', repos='https://cloud.r-project.org')"
 RUN R -e "BiocManager::install(c( \
     'S4Vectors', \
@@ -67,7 +68,7 @@ RUN R -e "BiocManager::install(c( \
     ))"
 
 RUN R -e "library(remotes); remotes::install_github('shangll123/SpatialPCA')"
-
+RUN R -e "library(remotes); remotes::install_version('distances', version='0.1.12')"
 # 0.4.27
 # Home Directory
 WORKDIR /home/rstudio

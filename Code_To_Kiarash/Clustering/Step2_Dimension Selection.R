@@ -66,5 +66,10 @@ save(
   anterior_reso_grid,
   posterior_reso_grid,
   resolutions,
-  file = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_nclust_data.Rdata"
+  file = "/tmp/cluster_benchmark_nclust_data.Rdata"
+)
+
+file.rename(
+  from = "/tmp/cluster_benchmark_nclust_data.Rdata",
+  to   = "/home/rstudio/SpaCo_paper_code/Clustering/Data/cluster_benchmark_nclust_data.Rdata"
 )
