@@ -12,7 +12,7 @@ Description: Spatial components offer tools for dimension reduction and
   details, see Koehler et al. (2025) <doi:10.1038/s44387-025-00033-7>.
 Encoding: UTF-8
 RoxygenNote: 7.3.3
-LinkingTo: RcppArmadillo, Rcpp, RcppEigen
+LinkingTo: Rcpp, RcppEigen
 Depends:
     R (>= 4.2.3)
 Imports: 

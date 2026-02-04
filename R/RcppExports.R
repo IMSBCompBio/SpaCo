@@ -9,8 +9,6 @@
 #' @param A a matrix
 #' @param B a matrix
 #' @return the product of A and B
-#'
-#' @importFrom Rcpp sourceCpp
 #' @useDynLib SPACO
 #' @export
 eigenMapMatMult <- function(A, B) {
