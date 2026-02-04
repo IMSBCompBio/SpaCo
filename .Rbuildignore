@@ -5,3 +5,6 @@
 ^README_cache$
 ^\.github$
 ^README\.rmd$
+^src/.*\.dll$
+^src/.*\.so$
+^src/.*\.o$
