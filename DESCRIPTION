@@ -1,9 +1,15 @@
 Package: SPACO
-Title: Spatial component computation for spatial sequencing data
-Version: 0.2.0
-Author: Niklas Kleinenkuhnen, David Köhler
-Maintainer: David Köhler <koehler@imbie.uni-bonn.de>
-Description: Spatial components offer tools for dimension reduction and spatially variable gene detection for high dimensional spatial transcriptomics data.
+Title: Spatial Component Analysis for spatial sequencing data
+Version: 1.0.0
+Authors@R: 
+  person("David", "Köhler", , "koehler@imbie.uni-bonn.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0006-0027-4046"))
+Description: Spatial components offer tools for dimension reduction and 
+  spatially variable gene detection for high dimensional spatial transcriptomics 
+  data. Construction of a projection onto low-dimensional feature space of 
+  spatially dependent metagenes offers pre-processing to clustering, testing for 
+  spatial variability and denoising of spatial expression patterns. For more 
+  details, see Koehler et al. (2025) <doi:10.1038/s44387-025-00033-7>.
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
