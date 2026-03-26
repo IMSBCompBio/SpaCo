@@ -4,24 +4,12 @@
 \alias{Spaco_plot}
 \title{Plot SPaCo meta genes.}
 \usage{
-Spaco_plot(
-  SpaCoObject,
-  spac = 1,
-  ncol = NULL,
-  combine = TRUE,
-  dataset = "dataset1"
-)
+Spaco_plot(SpaCoObject, spac = 1)
 }
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}
 
 \item{spac}{component to plot}
-
-\item{ncol}{Number of columns for combined plot if \code{combine = TRUE}.}
-
-\item{combine}{Should spac plots be combined? Default = TRUE}
-
-\item{dataset}{Name of the dataset from which to extract pixel coordinates}
 }
 \value{
 returns a ggplot object with the meta gene expression.

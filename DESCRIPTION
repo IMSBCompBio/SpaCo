@@ -9,7 +9,7 @@ Description: Spatial components offer tools for dimension reduction and
   data. Construction of a projection onto low-dimensional feature space of 
   spatially dependent metagenes offers pre-processing to clustering, testing for 
   spatial variability and denoising of spatial expression patterns. For more 
-  details, see Koehler et al. (2025) <doi:10.1038/s44387-025-00033-7>.
+  details, see Koehler et al. (2026) <doi:10.1093/bioinformatics/btag052>.
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 LinkingTo: Rcpp, RcppEigen
@@ -23,7 +23,6 @@ Imports:
     tibble,
     ggforce,
     methods,
-    patchwork,
     rARPACK,
     tidyr,
     mgcv,

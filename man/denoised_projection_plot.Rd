@@ -4,21 +4,12 @@
 \alias{denoised_projection_plot}
 \title{Plot denoised gene expression}
 \usage{
-denoised_projection_plot(
-  SpaCoObject,
-  features = NULL,
-  ncol = NULL,
-  combine = TRUE
-)
+denoised_projection_plot(SpaCoObject, feature = NULL)
 }
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}
 
-\item{features}{feature to plot}
-
-\item{ncol}{Number of columns for combined plot if \code{combine = TRUE}.}
-
-\item{combine}{Should spac plots be combined? Default = TRUE}
+\item{feature}{Gene for which to plot denoised projection}
 }
 \value{
 returns a ggplot object with the denoised gene expression.

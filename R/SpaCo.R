@@ -1,4 +1,4 @@
-#' SCA_function
+#' SpaCo
 #'
 #' @param SpaCoObject Object of class \code{SpaCoObject} as generated from [SpaCoObject] on which to perform SCA.
 #' @param PC_criterion criterion on which to select number of principal components for initial covariance matrix reconstruction; either "number" to select a number of PCs or "percent" to select number of PCs to explain specified amount of data variance
@@ -18,7 +18,7 @@
 #' @import RcppEigen
 #'
 # Main Function
-RunSCA <- function(SpaCoObject,
+SpaCo <- function(SpaCoObject,
                    PC_criterion = "percent",
                    PC_value = 0.95,
                    set_nspacs = NULL,

@@ -4,16 +4,12 @@
 \alias{feature_plot}
 \title{Plot gene expression}
 \usage{
-feature_plot(SpaCoObject, features = NULL, ncol = NULL, combine = TRUE)
+feature_plot(SpaCoObject, feature)
 }
 \arguments{
 \item{SpaCoObject}{SpacoObject with computed projections}
 
-\item{features}{gene to plot}
-
-\item{ncol}{Number of columns for combined plot if \code{combine = TRUE}.}
-
-\item{combine}{Should spac plots be combined? Default = TRUE}
+\item{feature}{Gene to plot}
 }
 \value{
 returns a ggplot object with gene expression.

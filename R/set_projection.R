@@ -1,6 +1,6 @@
 #' Set projections of Spaco Object
 #'
-#' @param SpaCoObject Fitted object of class \code{SpaCoObject} as returned from [RunSCA] on which to update the projection slot with new data.
+#' @param SpaCoObject Fitted object of class \code{SpaCoObject} as returned from [SpaCo] on which to update the projection slot with new data.
 #' @param data gene expression data matrix; p genes as columns, n loci as rows
 #' @param neighborhood neighborhood matrix of the new data. Must be of dimension n times n, where n is the number of columns of \code{data}
 #' @return
@@ -14,7 +14,5 @@ set_projection <- function(SpaCoObject,
   SpaCoObject@GraphLaplacian <- GL
   SpaCoObject@projection <-
     eigenMapMatMult(data, SpaCoObject@spacs)
-  # as.matrix(Matrix::t(t(data) %*% GL) %*%
-  #             SpaCoObject@spacs[, 1:SpaCoObject@nSpacs])
   SpaCoObject
 }
