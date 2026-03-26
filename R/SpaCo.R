@@ -14,8 +14,6 @@
 #'
 #' @import methods
 #' @import rARPACK
-#' @import Rcpp
-#' @import RcppEigen
 #'
 # Main Function
 SpaCo <- function(SpaCoObject,
