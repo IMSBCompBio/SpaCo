@@ -15,5 +15,8 @@
 // [[Rcpp::export]]
 Eigen::MatrixXd eigenMapMatMult(const Eigen::MatrixXd& A,
                                 const Eigen::MatrixXd& B){
+  if (A.cols() != B.rows()) {
+    Rcpp::stop("Non-conformable matrices: A.cols() != B.rows()");
+  }
   return A * B;
 }
