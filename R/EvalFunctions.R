@@ -48,16 +48,29 @@ SVGTest <- function(SpaCoObject, adjustMethod = "holm") {
     gene <- scale(gene, scale = FALSE)
     gene <-
       gene / rep(sqrt((t(gene) %*% GraphLaplacian %*% gene)), length(gene))
-    testStat <- sum((t(gene) %*% tmp) ^ 2)
-    # testStat <- t(gene) %*% sigma %*% gene
-    pVal <- suppressWarnings(mgcv::psum.chisq(
-      testStat,
-      # lb = C[1:SpaCoObject@nSpacs],
-      lb = C,
-      df = rep(1, SpaCoObject@nSpacs),
-      lower.tail = FALSE,
-      tol = 2e-10
-    ))
+    testStat <- sum((t(gene) %*% tmp)^2)
+    if (!is.finite(testStat) || testStat > 17 * sum(C)) {
+      pVal <- 0
+    } else
+    {
+      pVal <- if (length(C) == 1)
+      {
+        stats::pchisq(testStat / C, df = 1, lower.tail = FALSE)
+      } else
+      {
+        suppressWarnings(
+          mgcv::psum.chisq(
+            testStat,
+            # lb = C[1:SpaCoObject@nSpacs],
+            lb = C,
+            df = rep(1, SpaCoObject@nSpacs),
+            lower.tail = FALSE,
+            tol = 2e-10,
+            trace = TRUE
+          )
+        )
+      }
+    }
     return(data.frame(score = testStat, pVal = pVal))
   }
 
