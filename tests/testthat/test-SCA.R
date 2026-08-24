@@ -23,6 +23,9 @@ test_that("spaco works", {
   expect_equal(object@Lambdas, object_Matrix@Lambdas)
   expect_error(SpaCoObject(cbind(W, 1), genes, coords))
   expect_error(SpaCoObject(rbind(cbind(W, 1), 1), genes, coords))
+  #### nSpac determination is bootstrap-based, so this is needed
+  object_Matrix@nSpacs <- object@nSpacs
+  ####
   test <- SVGTest(object)
   test_Matrix <- SVGTest(object_Matrix)
   expect_equal(test$score, test_Matrix$score)
